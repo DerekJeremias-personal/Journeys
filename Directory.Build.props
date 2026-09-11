@@ -1,0 +1,12 @@
+<Project>
+
+  <!-- CI Roslyn-analyzer SARIF output.
+       Only active when SarifLogDir is passed as a global property (the Roslyn
+       analyzer scan stage does this). Evaluated per-project, so
+       $(MSBuildProjectName) expands correctly here — unlike a command-line
+       /p:ErrorLog value, which MSBuild treats as a literal string. -->
+  <PropertyGroup Condition="'$(SarifLogDir)' != ''">
+    <ErrorLog>$(SarifLogDir)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
+
+</Project>

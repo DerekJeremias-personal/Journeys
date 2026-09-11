@@ -1,0 +1,23 @@
+JSON CASING CONTRACT (mandatory — every phase)
+
+Never guess casing. Apply this matrix before the first validate_campaign in a journey episode.
+
+L1 — Campaign shell & MCP args: camelCase keys (name, status, events, journey, ruleJsonElement, outcomesJsonElement, children, tenantId, campaignJson).
+
+L2 — Rule/outcome/provider objects inside ruleJsonElement, outcomesJsonElement, navConstraint: PascalCase keys matching C# property names (Kind, LeftProvider, RightProvider, Evaluator, Children, $type, PropertyPath, Value, DollarAmountProvider, EventIdProvider, AffectedPointAccountTypeIds).
+
+L2b — Outcome PAT wiring: AffectedPointAccountTypeIds (PascalCase key) = non-empty array of PAT GUID strings from PointAccountManifest.items[].pointAccountTypeId or list_point_account_types — never manifest alias labels like "spendable".
+
+L3 — Path segments & model symbols: PropertyPath key is PascalCase; path value segments are lowercase matching GetModel attributes[].symbol (event.ordertotal, event.orderid). SaveModel symbols, NaturalKeySymbols, AccountXIdSymbol — lowercase.
+
+Exceptions: evaluator uses comparison (camelCase key) with PascalCase enum values. Kind and $type discriminators use PascalCase.
+
+Anti-patterns (do not experiment):
+- leftProvider / affectedPointAccountTypeIds / dollarAmountProvider — silent bind failure
+- AffectedPointAccountTypeIds: ["alias"] — use GUID
+- lowercasing all outcome keys — multiplies Tier A errors
+
+Cross-check: get_rules_engine_contract_summary.casingContract and criticalRows use the same PascalCase keys.
+
+Minimal excerpt:
+{ "name": "...", "journey": { "rules": [{ "ruleJsonElement": { "Kind": "NumericPropertyRule", "LeftProvider": { "$type": "PathValueProvider", "PropertyPath": "event.ordertotal" }, "RightProvider": { "$type": "ConstantValueProvider", "Value": 0 }, "Evaluator": { "$type": "NumericEvaluation", "comparison": "GreaterThan" } }, "outcomesJsonElement": [{ "Kind": "DepositPointsOutcome", "AffectedPointAccountTypeIds": ["<pat-guid>"], "DollarAmountProvider": { "$type": "PathValueProvider", "PropertyPath": "event.ordertotal" }, "EventIdProvider": { "$type": "PathValueProvider", "PropertyPath": "event.orderid" } }] }] } }

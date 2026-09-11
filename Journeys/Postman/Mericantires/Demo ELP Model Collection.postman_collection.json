@@ -1,0 +1,590 @@
+{
+	"info": {
+		"_postman_id": "fa900a69-59d0-4f0a-aa9f-85bc45e577f3",
+		"name": "Demo ELP Model Collection",
+		"description": "Model creation collection for all 33 ELP models. Contains POST requests to create/save each model. Import this single file into Postman.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42695474",
+		"_collection_link": "https://elevate-digital.postman.co/workspace/5d37a3f8-d7e2-47da-ba37-195f18a75579/collection/42695474-fa900a69-59d0-4f0a-aa9f-85bc45e577f3?action=share&source=collection_link&creator=42695474"
+	},
+	"item": [
+		{
+			"name": "Models",
+			"item": [
+				{
+					"name": "Order Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"a6edbbc5-bf43-4c57-b2f1-e015b9efaf03\",\r\n    \"tenantId\": \"{{tenant}}\",\r\n    \"status\": \"Draft\",\r\n    \"modelVersion\": \"1.0\",\r\n    \"modelType\": \"loyalty\",\r\n    \"isContainer\": false,\r\n    \"name\": \"order\",\r\n    \"symbol\": \"order\",\r\n    \"version\": \"1.0\",\r\n    \"description\": \"order model\",\r\n    \"modelMetaData\": {\r\n        \"ProcessingType\": \"Engine\",\r\n        \"Wrapper\": \"f00df00d-dead-f00d-f00d-ea7f00d1337e\",\r\n        \"NaturalKeySymbols\": \"[\\\"orderid\\\"]\",\r\n        \"TimeOfOccurrence\": \"timestamp\",\r\n        \"AccountXIdSymbol\": \"profileid\",\r\n        \"CollectionSortSymbol\": \"timestamp\"\r\n    },\r\n    \"attributes\": [\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"naturalkey\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Order Identifier\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"naturalkey is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"eventtype\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"EventType\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"eventtype is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"orderid\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Order Id\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"orderid is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"profileid\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Profile Id\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"profileid is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"timestamp\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Date\",\r\n      \"displayName\": \"TimeStamp\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"TimeStamp is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"ordertotal\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Order Total\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"ordersubtotal\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Order Subtotal\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"tax\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Total Tax\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"paymenttype\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Payment Type\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"channel\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Channel\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"storeid\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Store Id\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"calculateonly\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Boolean\",\r\n      \"displayName\": \"CalculateOnly\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"createdate\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"CreateDate\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"lastupdated\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"LastUpdated\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"List\",\r\n      \"symbol\": \"discounts\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"List\",\r\n      \"displayName\": \"Discounts\",\r\n      \"restrictions\": [],\r\n      \"listAttributeDataType\": \"Object\",\r\n      \"modelId\": \"a8663c06-759e-4918-94ec-bdc9ebcb8f45\",\r\n      \"modelType\": \"loyalty\"\r\n    },\r\n    {\r\n      \"type\": \"List\",\r\n      \"symbol\": \"items\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"List\",\r\n      \"displayName\": \"Items\",\r\n      \"restrictions\": [],\r\n      \"listAttributeDataType\": \"Object\",\r\n      \"modelId\": \"063f117e-0eb1-41b0-8e64-d4aa2dfe2da3\",\r\n      \"modelType\": \"loyalty\"\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backend}}/api/{{tenant}}/model/save",
+							"host": [
+								"{{backend}}"
+							],
+							"path": [
+								"api",
+								"{{tenant}}",
+								"model",
+								"save"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoyaltyAccountDetails",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"c55fcdab-4dec-42d7-a746-941496c8f01f\",\r\n  \"tenantId\": \"{{tenant}}\",\r\n  \"status\": \"Live\",\r\n  \"modelVersion\": \"1.0\",\r\n  \"modelType\": \"loyalty\",\r\n  \"IsContainer\": false,\r\n  \"IsPerTenancy\": false,\r\n  \"AccessPatterns\": null,\r\n  \"TimeToLiveInSeconds\": null,\r\n  \"DefaultPageSize\": null,\r\n  \"name\": \"LoyaltyAccountDetails\",\r\n  \"modelMetaData\": {\r\n    \"ProcessingType\": \"Engine\",\r\n        \"Wrapper\": \"a79bcc89-07cd-4ae9-87e9-95c45aa48819\", // this currently points to LoyaltyAccountAndRuleState, it's what is actually stored (real container)\r\n        \"NaturalKeySymbols\": \"[\\\"type\\\", \\\"extaccountid\\\"]\", // this is used for idempotency, and is an external reference to the LoyaltyAccount\r\n        \"IsLoyaltyAccount\": \"true\",\r\n        \"AccountXIdSymbol\" : \"extaccountid\" // this is actually referring to the extaccountid in the LoyaltyAccount model id: e2cc2404-c60b-4cbc-9f50-6db7ee58e01d\r\n                                            // remember this is dynamic (purely customer defined), and comes into the Events/LoyaltyAccountDetails/process api as the LoyaltyAccount data shape\r\n                                            // [HttpPost(\"{tenantId}/{modelName}/process\")]\r\n  },\r\n  \"attributes\": [\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"profileid\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Profile ID\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"profileid is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"firstname\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"First Name\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"middlename\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Middle Name\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"lastname\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Last Name\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"lastname is required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"fullname\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Full Name\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"email\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Email\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"Required\",\r\n          \"errorCode\": \"REQUIRED\",\r\n          \"errorMessage\": \"Email required\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"mobilephone\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Mobile Phone\"\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"birthmonth\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Birth Month\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"streetaddress\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Street Address\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"city\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"City\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"governingdistrict\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Governing District\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"zip\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"zip\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"country\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Country\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"dateofbirth\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"Date\",\r\n      \"displayName\": \"Date of Birth\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"gender\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Gender\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"isloyaltymember\",\r\n      \"status\": \"Draft\",\r\n      \"dataType\": \"Boolean\",\r\n      \"displayName\": \"Is Loyalty Member\",\r\n      \"restrictions\": []\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backend}}/api/{{tenant}}/model/save",
+							"host": [
+								"{{backend}}"
+							],
+							"path": [
+								"api",
+								"{{tenant}}",
+								"model",
+								"save"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Item Model",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"063f117e-0eb1-41b0-8e64-d4aa2dfe2da3\",\r\n    \"tenantId\": \"{{tenant}}\",\r\n    \"status\": \"Draft\",\r\n    \"modelVersion\": \"1.0\",\r\n    \"modelType\": \"loyalty\",\r\n    \"isContainer\": false,\r\n    \"name\": \"item\",\r\n    \"symbol\": \"item\",\r\n    \"version\": \"1.0\",\r\n    \"description\": \"item model\",\r\n    \"attributes\": [\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"sku\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Sku\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"description\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"description\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"price\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Price\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"quantity\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Quantity\",\r\n      \"restrictions\": []\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backend}}/api/{{tenant}}/model/save",
+							"host": [
+								"{{backend}}"
+							],
+							"path": [
+								"api",
+								"{{tenant}}",
+								"model",
+								"save"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Discount Model",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"a8663c06-759e-4918-94ec-bdc9ebcb8f45\",\r\n    \"tenantId\": \"{{tenant}}\",\r\n    \"status\": \"Draft\",\r\n    \"modelVersion\": \"1.0\",\r\n    \"modelType\": \"loyalty\",\r\n    \"isContainer\": false,\r\n    \"name\": \"discount\",\r\n    \"symbol\": \"discount\",\r\n    \"version\": \"1.0\",\r\n    \"description\": \"discount model\",\r\n    \"attributes\": [\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"description\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"description\",\r\n      \"restrictions\": []\r\n    },\r\n    {\r\n      \"type\": \"Primitive\",\r\n      \"symbol\": \"discountamount\",\r\n      \"status\": \"Live\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Discount Amount\",\r\n      \"restrictions\": []\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backend}}/api/{{tenant}}/model/save",
+							"host": [
+								"{{backend}}"
+							],
+							"path": [
+								"api",
+								"{{tenant}}",
+								"model",
+								"save"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sku Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"0f566bac-0a48-462d-ac20-bfb8713486cb\",\r\n  \"tenantId\": \"{{tenant}}\",\r\n  \"status\": \"Draft\",\r\n  \"modelVersion\": \"1.0\",\r\n  \"modelType\": \"loyalty\",\r\n  \"isContainer\": false,\r\n  \"name\": \"SkuModel\",\r\n  \"symbol\": \"sku\",\r\n  \"version\": \"1.0\",\r\n  \"description\": \"Complete SKU model for product catalog management\",\r\n  \"attributes\": [\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"sku_id\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"SKU ID\",\r\n      \"description\": \"Unique stock keeping unit identifier\",\r\n      \"isIndexable\" : true,\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"StringLength\",\r\n          \"minLength\": 3,\r\n          \"maxLength\": 100,\r\n          \"errorMessage\": \"SKU ID must be between 3 and 100 characters\",\r\n          \"errorCode\" : \"10001\"\r\n        },\r\n        {\r\n          \"type\": \"RegularExpression\",\r\n          \"pattern\": \"^[A-Za-z0-9-_]+$\",\r\n          \"errorMessage\": \"SKU ID can only contain lowercase letters, numbers, hyphens, and underscores\",\r\n          \"errorCode\" : \"20001\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"upc\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"UPC Code\",\r\n      \"description\": \"Universal Product Code\"\r\n    //   \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"minLength\": 12,\r\n    //       \"maxLength\": 14,\r\n    //       \"errorMessage\": \"UPC must be 12-14 digits\",\r\n    //       \"errorCode\" : \"10002\"\r\n    //     },\r\n    //     {\r\n    //       \"type\": \"RegularExpression\",\r\n    //       \"pattern\": \"^[0-9]{12,14}$\",\r\n    //       \"errorMessage\": \"UPC must contain only digits\",\r\n    //       \"errorCode\" : \"20002\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"product_name\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Product Name\",\r\n      \"description\": \"Full product name for display\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"minLength\": 1,\r\n    //       \"maxLength\": 255,\r\n    //       \"errorMessage\": \"Product name is required and cannot exceed 255 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"department\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Department\",\r\n      \"description\": \"High-level product department\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"AllowedValues\",\r\n    //       \"allowedValues\": [\"Electronics\", \"Clothing\", \"Home & Garden\", \"Sports\", \"Automotive\", \"Health & Beauty\", \"Grocery\", \"Books & Media\"],\r\n    //       \"errorMessage\": \"Department must be from approved list\",\r\n    //       \"errorCode\" : \"30001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"category\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Category\",\r\n      \"description\": \"Mid-level product category\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"StringLength\",\r\n          \"minLength\": 1,\r\n          \"maxLength\": 100,\r\n          \"errorMessage\": \"Category is required and cannot exceed 100 characters\",\r\n          \"errorCode\" : \"10001\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"subcategory\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Subcategory\",\r\n      \"description\": \"Detailed product subcategory\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"StringLength\",\r\n          \"minLength\": 1,\r\n          \"maxLength\": 100,\r\n          \"errorMessage\": \"Subcategory is required and cannot exceed 100 characters\",\r\n          \"errorCode\" : \"10001\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"brand\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Brand\",\r\n      \"description\": \"Product brand name\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"minLength\": 1,\r\n    //       \"maxLength\": 100,\r\n    //       \"errorMessage\": \"Brand is required and cannot exceed 100 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"model_number\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Model Number\",\r\n      \"description\": \"Manufacturer model number\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"maxLength\": 50,\r\n    //       \"errorMessage\": \"Model number cannot exceed 50 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"variant\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Variant\",\r\n      \"description\": \"Product variant (color, size, etc.)\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"maxLength\": 100,\r\n    //       \"errorMessage\": \"Variant cannot exceed 100 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"pack_size\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Pack Size\",\r\n      \"description\": \"Number of units in package\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0.01,\r\n    //       \"maxValue\": 10000,\r\n    //       \"errorMessage\": \"Pack size must be between 0.01 and 10,000\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"unit_cost\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Unit Cost\",\r\n      \"description\": \"Cost per unit\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 999999.99,\r\n    //       \"errorMessage\": \"Unit cost must be between 0 and 999,999.99\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"msrp\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"MSRP\",\r\n      \"description\": \"Manufacturer suggested retail price\"\r\n      //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 999999.99,\r\n    //       \"errorMessage\": \"MSRP must be between 0 and 999,999.99\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"currency\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Currency\",\r\n      \"description\": \"Currency code for pricing\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"AllowedValues\",\r\n    //       \"allowedValues\": [\"USD\", \"EUR\", \"GBP\", \"CAD\", \"AUD\", \"JPY\"],\r\n    //       \"errorMessage\": \"Currency must be a supported currency code\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"stock_qty\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Stock Quantity\",\r\n      \"description\": \"Current inventory quantity\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 999999,\r\n    //       \"errorMessage\": \"Stock quantity must be between 0 and 999,999\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"reorder_point\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Reorder Point\",\r\n      \"description\": \"Inventory level that triggers reorder\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 99999,\r\n    //       \"errorMessage\": \"Reorder point must be between 0 and 99,999\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"supplier_name\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Supplier Name\",\r\n      \"description\": \"Primary supplier name\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"minLength\": 1,\r\n    //       \"maxLength\": 200,\r\n    //       \"errorMessage\": \"Supplier name is required and cannot exceed 200 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"country_of_origin\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Country of Origin\",\r\n      \"description\": \"Manufacturing country\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"minLength\": 2,\r\n    //       \"maxLength\": 3,\r\n    //       \"errorMessage\": \"Country code must be 2-3 characters (ISO format)\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     },\r\n    //     {\r\n    //       \"type\": \"RegularExpression\",\r\n    //       \"pattern\": \"^[A-Z]{2,3}$\",\r\n    //       \"errorMessage\": \"Country code must be uppercase letters only\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"dimensions_cm_lxwxh\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Dimensions (cm)\",\r\n      \"description\": \"Product dimensions in centimeters (Length x Width x Height)\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 99999.99,\r\n    //       \"errorMessage\": \"Dimensions must be positive and reasonable\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"weight_kg\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Weight (kg)\",\r\n      \"description\": \"Product weight in kilograms\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 99999.99,\r\n    //       \"errorMessage\": \"Weight must be positive and reasonable\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"hazard_class\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Hazard Class\",\r\n      \"description\": \"Safety/hazard classification\"\r\n    //   \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"AllowedValues\",\r\n    //       \"allowedValues\": [\"None\", \"Flammable\", \"Toxic\", \"Corrosive\", \"Explosive\", \"Radioactive\", \"Biohazard\"],\r\n    //       \"errorMessage\": \"Hazard class must be from approved safety classifications\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"seasonality\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Seasonality\",\r\n      \"description\": \"Seasonal sales pattern\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"AllowedValues\",\r\n    //       \"allowedValues\": [\"Year-Round\", \"Spring\", \"Summer\", \"Fall\", \"Winter\", \"Holiday\"],\r\n    //       \"errorMessage\": \"Seasonality must be from approved seasonal categories\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"store_sisle\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Store Aisle\",\r\n      \"description\": \"Physical store location\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"StringLength\",\r\n    //       \"maxLength\": 20,\r\n    //       \"errorMessage\": \"Store aisle cannot exceed 20 characters\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"status\",\r\n      \"dataType\": \"String\",\r\n      \"displayName\": \"Status\",\r\n      \"description\": \"Product lifecycle status\",\r\n      \"restrictions\": [\r\n        {\r\n          \"type\": \"AllowedValues\",\r\n          \"allowedValues\": [\"Active\", \"Inactive\", \"Discontinued\", \"Seasonal\", \"Backorder\", \"Preorder\"],\r\n          \"errorMessage\": \"Status must be from approved status list\",\r\n          \"errorCode\" : \"10001\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"lead_time_days\",\r\n      \"dataType\": \"Number\",\r\n      \"displayName\": \"Lead Time (Days)\",\r\n      \"description\": \"Supplier lead time in days\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"NumericRange\",\r\n    //       \"minValue\": 0,\r\n    //       \"maxValue\": 365,\r\n    //       \"errorMessage\": \"Lead time must be between 0 and 365 days\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"online_only\",\r\n      \"dataType\": \"Boolean\",\r\n      \"displayName\": \"Online Only\",\r\n      \"description\": \"Available only through online channels\"\r\n    },\r\n    {\r\n        \"type\": \"Primitive\",\r\n        \"Status\": \"Draft\",\r\n      \"symbol\": \"date_added\",\r\n      \"dataType\": \"Date\",\r\n      \"displayName\": \"Date Added\",\r\n      \"description\": \"Date product was added to catalog\"\r\n    //   , \"restrictions\": [\r\n    //     {\r\n    //       \"type\": \"DateRange\",\r\n    //       \"minDate\": \"2020-01-01T00:00:00Z\",\r\n    //       \"maxDate\": \"2030-12-31T23:59:59Z\",\r\n    //       \"errorMessage\": \"Date added must be between 2020 and 2030\",\r\n    //       \"errorCode\" : \"10001\"\r\n    //     }\r\n    //   ]\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backend}}/api/{{tenant}}/model/save",
+							"host": [
+								"{{backend}}"
+							],
+							"path": [
+								"api",
+								"{{tenant}}",
+								"model",
+								"save"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seed Data",
+			"item": [
+				{
+					"name": "PointAccountTypes",
+					"item": [
+						{
+							"name": "Spendable",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"829eff38-6591-4c39-bfbd-db52c3256b53\",\r\n    \"extAccountId\" : \"\",\r\n    \"name\" : \"user_spendable\",\r\n    \"status\" : \"Active\",\r\n    \"pointSourceId\" : null,\r\n    \"ledgerType\" : \"Spendable\",\r\n    \"pointsLifespanDays\" : 365,\r\n    \"pointsLifespanEndDate\" : null, //\"2027-04-01T00:00:00Z\",\r\n    \"ExpiresToPointAccountTypeId\" : \"d801dc18-0e32-4ee8-99f2-131cbbfe9bc0\",\r\n    \"expiresToLedgerPointsLifespanDays\" : 730,\r\n    \"isSpendable\" : true,\r\n    \"roundingOptionString\" : \"AwayFromZero\",\r\n    \"roundingdecimalplaces\" : 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/pointaccounttype/upsert",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"pointaccounttype",
+										"upsert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "TierQualify",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\",\r\n    \"extAccountId\" : \"\",\r\n    \"name\" : \"user_tier_qualification\",\r\n    \"status\" : \"Active\",\r\n    \"pointSourceId\" : null,\r\n    \"ledgerType\" : \"NonSpendable\",\r\n    //\"pointsLifespanDays\" : 730,\r\n    \"pointsLifespanEndDate\" : \"2026-01-01T00:00:00Z\",\r\n    \"ExpiresToPointAccountTypeId\" : \"0eeeff75-97e6-4e7c-a0f7-d711dc8d5001\",\r\n    \"expiresToLedgerPointsLifespanDays\" : 730,\r\n    \"isSpendable\" : false,\r\n    \"roundingOptionString\" : \"AwayFromZero\",\r\n    \"roundingdecimalplaces\" : 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/pointaccounttype/upsert",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"pointaccounttype",
+										"upsert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Expiration",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"d801dc18-0e32-4ee8-99f2-131cbbfe9bc0\",\r\n    \"extAccountId\" : \"\",\r\n    \"name\" : \"user_expired\",\r\n    \"status\" : \"Active\",\r\n    \"pointSourceId\" : null,\r\n    \"ledgerType\" : \"NonSpendable\",\r\n    \"pointsLifespanDays\" : 730,\r\n    //\"pointsLifespanEndDate\" : \"2026-01-01T00:00:00Z\",\r\n    \"ExpiresToPointAccountTypeId\" : \"0eeeff75-97e6-4e7c-a0f7-d711dc8d5001\",\r\n    \"expiresToLedgerPointsLifespanDays\" : 730,\r\n    \"isSpendable\" : false,\r\n    \"roundingOptionString\" : \"AwayFromZero\",\r\n    \"roundingdecimalplaces\" : 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/pointaccounttype/upsert",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"pointaccounttype",
+										"upsert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Archive",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"0eeeff75-97e6-4e7c-a0f7-d711dc8d5001\",\r\n    \"extAccountId\" : \"\",\r\n    \"name\" : \"user_archive\",\r\n    \"status\" : \"Active\",\r\n    \"pointSourceId\" : null,\r\n    \"ledgerType\" : \"NonSpendable\",\r\n    \"pointsLifespanDays\" : 730,\r\n    \"ExpiresToPointAccountTypeId\" : null,\r\n    \"expiresToLedgerPointsLifespanDays\" : 730,\r\n    \"isSpendable\" : false,\r\n    \"roundingOptionString\" : \"AwayFromZero\",\r\n    \"roundingdecimalplaces\" : 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/pointaccounttype/upsert",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"pointaccounttype",
+										"upsert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All  Point Account Types",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"PageSize\" : 100,\r\n    \"ContinuationToken\" : null //\"[{\\\"token\\\":\\\"+RID:~0r0-APT3dkwCAAAAAAAAAA==#RT:2#TRC:2#ISV:2#IEO:65567#QCF:8#FPC:AQIAAAAAAAAAAwAAAAAAAAA=\\\",\\\"range\\\":{\\\"min\\\":\\\"\\\",\\\"max\\\":\\\"FF\\\"}}]\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/pointaccounttype/getall",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"pointaccounttype",
+										"getall"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Campaigns",
+					"item": [
+						{
+							"name": "Tier Campaign",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": \"3c4a8633-3a76-491f-b7b3-c592037ec9da\",\r\n    \"ExtCampaignId\": \"TierSystem\",\r\n    \"Status\": \"active\",\r\n    \"Name\": \"{{tenant}} Tier System\",\r\n    \"Events\": [\"a6edbbc5-bf43-4c57-b2f1-e015b9efaf03\",\"c55fcdab-4dec-42d7-a746-941496c8f01f\"],\r\n    \"StartDate\": \"2025-01-01T22:30:00Z\",\r\n    \"EndDate\": null,\r\n    \"Segments\": null,\r\n    \"Journey\": {\r\n        \"RootNodeId\": \"{{tenant}}TierSystem\",\r\n        \"Id\": \"{{tenant}}TierSystem\",\r\n        \"Name\" : \"{{tenant}} Tier System\",\r\n        \"Rules\": null,\r\n        \"Navigation\": {\r\n            \"Entry\": { //Needs updated based on point total, < 1MM TQP\r\n                \"$type\": \"SimpleNavigationCriteria\",\r\n                \"NavConstraint\": {\r\n                    \"Kind\": \"NumericPropertyRule\",\r\n                    \"LeftProvider\": {\r\n                        \"$type\": \"PointBalanceProvider\",\r\n                        \"Kind\": \"PathValueProvider\",\r\n                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                    },\r\n                    \"RightProvider\": {\r\n                        \"$type\": \"ConstantValueProvider\",\r\n                        \"Kind\": \"ConstantValueProvider\",\r\n                        \"Value\": 1000000\r\n                    },\r\n                    \"Evaluator\": {\r\n                        \"$type\": \"NumericEvaluation\",\r\n                        \"Comparison\": 5\r\n                    }\r\n                },\r\n                \"Outcomes\": null,\r\n                \"NavigationType\": 0\r\n            }\r\n        },\r\n        \"Children\": [\r\n            {\r\n                \"Id\": \"Bronze\",\r\n                \"RootNodeId\": \"{{tenant}}TierSystem\",\r\n                \"Name\" : \"Bronze\",\r\n                \"Rules\": [\r\n                    {\r\n                        \"Name\" : \"Bronze Point Economy\",\r\n                        \"RuleJsonElement\": {\r\n                            \"Kind\": \"SimpleRule\",\r\n                            \"LeftProvider\": {\r\n                                \"$type\": \"ConstantValueProvider\",\r\n                                \"Kind\": \"ConstantValueProvider\",\r\n                                \"Value\": true\r\n                            },\r\n                            \"RightProvider\": {\r\n                                \"$type\": \"ConstantValueProvider\",\r\n                                \"Kind\": \"ConstantValueProvider\",\r\n                                \"Value\": true\r\n                            },\r\n                            \"Evaluator\": {\r\n                                \"$type\": \"BoolEvaluation\",\r\n                                \"Comparison\": \"Equal\"\r\n                            }\r\n                        },\r\n                        \"RootRuleDiscriminator\": \"SimpleRule\",\r\n                        \"OutcomesJsonElement\": [\r\n                            {\r\n                                \"Kind\": \"DepositPointsOutcome\",\r\n                                \"PointSourceAccountId\": null,\r\n                                \"PointsPerDollar\": 0.166,\r\n                                \"EarnDateProvider\": {\r\n                                    \"$type\": \"PathValueProvider\",\r\n                                    \"Kind\": \"PathValueProvider\",\r\n                                    \"PropertyPath\": \"event.timestamp\"\r\n                                },\r\n                                \"AffectedPointAccountTypeIds\": [\r\n                                    \"829eff38-6591-4c39-bfbd-db52c3256b53\"\r\n                                ],\r\n                                \"Id\": \"ADD92000-0000-0000-0000-000000000000\",\r\n                                \"EventIdProvider\": {\r\n                                    \"$type\": \"PathValueProvider\",\r\n                                    \"Kind\": \"PathValueProvider\",\r\n                                    \"PropertyPath\": \"event.orderid\"\r\n                                },\r\n                                \"DollarAmountProvider\": {\r\n                                    \"$type\": \"AggregateValueProvider\",\r\n                                    \"Kind\": \"AggregateValueProvider\",\r\n                                    \"AggregateType\": 1,\r\n                                    \"RowProvider\": {\r\n                                        \"$type\": \"PathValueProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PropertyPath\": \"event.items\"\r\n                                    },\r\n                                    \"RowPropertyProvider\": {\r\n                                        \"$type\": \"PathValueProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PropertyPath\": \"event.price\"\r\n                                    },\r\n                                    \"Constraint\": null\r\n                                },\r\n                                \"MapToProvider\": null\r\n                            },\r\n                            {\r\n                                \"Kind\": \"DepositPointsOutcome\",\r\n                                \"PointSourceAccountId\": null,\r\n                                \"PointsPerDollar\": 1.0,\r\n                                \"EarnDateProvider\": {\r\n                                    \"$type\": \"PathValueProvider\",\r\n                                    \"Kind\": \"PathValueProvider\",\r\n                                    \"PropertyPath\": \"event.timestamp\"\r\n                                },\r\n                                \"AffectedPointAccountTypeIds\": [\r\n                                    \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                ],\r\n                                \"Id\": \"ADD360000-0000-0000-0000-000000000000\",\r\n                                \"EventIdProvider\": {\r\n                                    \"$type\": \"PathValueProvider\",\r\n                                    \"Kind\": \"PathValueProvider\",\r\n                                    \"PropertyPath\": \"event.orderid\"\r\n                                },\r\n                                \"DollarAmountProvider\": {\r\n                                    \"$type\": \"AggregateValueProvider\",\r\n                                    \"Kind\": \"AggregateValueProvider\",\r\n                                    \"AggregateType\": 1,\r\n                                    \"RowProvider\": {\r\n                                        \"$type\": \"PathValueProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PropertyPath\": \"event.items\"\r\n                                    },\r\n                                    \"RowPropertyProvider\": {\r\n                                        \"$type\": \"PathValueProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PropertyPath\": \"event.price\"\r\n                                    },\r\n                                    \"Constraint\": null\r\n                                },\r\n                                \"MapToProvider\": null\r\n                            }\r\n                        ]\r\n                    }\r\n                ],\r\n                \"Navigation\": {\r\n                    \"Transition\": {\r\n                        \"$type\": \"SimpleNavigationCriteria\",\r\n                        \"NavConstraint\": {\r\n                            \"Kind\": \"AndRule\",\r\n                            \"Children\": [\r\n                                {\r\n                                    \"Kind\": \"NumericPropertyRule\",\r\n                                    \"LeftProvider\": {\r\n                                        \"$type\": \"PointBalanceProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                    },\r\n                                    \"RightProvider\": {\r\n                                        \"$type\": \"ConstantValueProvider\",\r\n                                        \"Kind\": \"ConstantValueProvider\",\r\n                                        \"Value\": -100000\r\n                                    },\r\n                                    \"Evaluator\": {\r\n                                        \"$type\": \"NumericEvaluation\",\r\n                                        \"Comparison\": 3\r\n                                    }\r\n                                },\r\n                                {\r\n                                    \"Kind\": \"NumericPropertyRule\",\r\n                                    \"LeftProvider\": {\r\n                                        \"$type\": \"PointBalanceProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                    },\r\n                                    \"RightProvider\": {\r\n                                        \"$type\": \"ConstantValueProvider\",\r\n                                        \"Kind\": \"ConstantValueProvider\",\r\n                                        \"Value\": 44999\r\n                                    },\r\n                                    \"Evaluator\": {\r\n                                        \"$type\": \"NumericEvaluation\",\r\n                                        \"Comparison\": 5\r\n                                    }\r\n                                }\r\n                            ]\r\n                        },\r\n                        \"Outcomes\": null,\r\n                        \"NavigationType\": 0\r\n                    }\r\n                },\r\n                \"Children\": [\r\n                    {\r\n                        \"Id\":\"Silver\",\r\n                        \"RootNodeId\": \"{{tenant}}TierSystem\",\r\n                        \"Name\" : \"Silver\",\r\n                        \"Rules\": [\r\n                            {\r\n                                \"Name\" : \"Silver Point Economy\",\r\n                                \"RuleJsonElement\": {\r\n                                    \"Kind\": \"SimpleRule\",\r\n                                    \"LeftProvider\": {\r\n                                        \"$type\": \"ConstantValueProvider\",\r\n                                        \"Kind\": \"ConstantValueProvider\",\r\n                                        \"Value\": true\r\n                                    },\r\n                                    \"RightProvider\": {\r\n                                        \"$type\": \"ConstantValueProvider\",\r\n                                        \"Kind\": \"ConstantValueProvider\",\r\n                                        \"Value\": true\r\n                                    },\r\n                                    \"Evaluator\": {\r\n                                        \"$type\": \"BoolEvaluation\",\r\n                                        \"Comparison\": \"Equal\"\r\n                                    }\r\n                                },\r\n                                \"RootRuleDiscriminator\": \"SimpleRule\",\r\n                                \"OutcomesJsonElement\": [\r\n                                    {\r\n                                        \"Kind\": \"DepositPointsOutcome\",\r\n                                        \"PointSourceAccountId\": null,\r\n                                        \"PointsPerDollar\": 0.199,\r\n                                        \"EarnDateProvider\": {\r\n                                            \"$type\": \"PathValueProvider\",\r\n                                            \"Kind\": \"PathValueProvider\",\r\n                                            \"PropertyPath\": \"event.timestamp\"\r\n                                        },\r\n                                        \"AffectedPointAccountTypeIds\": [\r\n                                            \"829eff38-6591-4c39-bfbd-db52c3256b53\"\r\n                                        ],\r\n                                        \"Id\": \"ADD93000-0000-0000-0000-000000000000\",\r\n                                        \"EventIdProvider\": {\r\n                                            \"$type\": \"PathValueProvider\",\r\n                                            \"Kind\": \"PathValueProvider\",\r\n                                            \"PropertyPath\": \"event.orderid\"\r\n                                        },\r\n                                        \"DollarAmountProvider\": {\r\n                                            \"$type\": \"AggregateValueProvider\",\r\n                                            \"Kind\": \"AggregateValueProvider\",\r\n                                            \"AggregateType\": 1,\r\n                                            \"RowProvider\": {\r\n                                                \"$type\": \"PathValueProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PropertyPath\": \"event.items\"\r\n                                            },\r\n                                            \"RowPropertyProvider\": {\r\n                                                \"$type\": \"PathValueProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PropertyPath\": \"event.price\"\r\n                                            },\r\n                                            \"Constraint\": null\r\n                                        },\r\n                                        \"MapToProvider\": null\r\n                                    },\r\n                                    {\r\n                                        \"Kind\": \"DepositPointsOutcome\",\r\n                                        \"PointSourceAccountId\": null,\r\n                                        \"PointsPerDollar\": 1.0,\r\n                                        \"EarnDateProvider\": {\r\n                                            \"$type\": \"PathValueProvider\",\r\n                                            \"Kind\": \"PathValueProvider\",\r\n                                            \"PropertyPath\": \"event.timestamp\"\r\n                                        },\r\n                                        \"AffectedPointAccountTypeIds\": [\r\n                                            \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                        ],\r\n                                        \"Id\": \"ADD940000-0000-0000-0000-000000000000\",\r\n                                        \"EventIdProvider\": {\r\n                                            \"$type\": \"PathValueProvider\",\r\n                                            \"Kind\": \"PathValueProvider\",\r\n                                            \"PropertyPath\": \"event.orderid\"\r\n                                        },\r\n                                        \"DollarAmountProvider\": {\r\n                                            \"$type\": \"AggregateValueProvider\",\r\n                                            \"Kind\": \"AggregateValueProvider\",\r\n                                            \"AggregateType\": 1,\r\n                                            \"RowProvider\": {\r\n                                                \"$type\": \"PathValueProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PropertyPath\": \"event.items\"\r\n                                            },\r\n                                            \"RowPropertyProvider\": {\r\n                                                \"$type\": \"PathValueProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PropertyPath\": \"event.price\"\r\n                                            },\r\n                                            \"Constraint\": null\r\n                                        },\r\n                                        \"MapToProvider\": null\r\n                                    }\r\n                                ]\r\n                            }\r\n                        ],\r\n                        \"Navigation\": {\r\n                            \"Transition\": {\r\n                                \"$type\": \"SimpleNavigationCriteria\",\r\n                                \"NavConstraint\": {\r\n                                    \"Kind\": \"AndRule\",\r\n                                    \"Children\": [\r\n                                        {\r\n                                            \"Kind\": \"NumericPropertyRule\",\r\n                                            \"LeftProvider\": {\r\n                                                \"$type\": \"PointBalanceProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                            },\r\n                                            \"RightProvider\": {\r\n                                                \"$type\": \"ConstantValueProvider\",\r\n                                                \"Kind\": \"ConstantValueProvider\",\r\n                                                \"Value\": 45000\r\n                                            },\r\n                                            \"Evaluator\": {\r\n                                                \"$type\": \"NumericEvaluation\",\r\n                                                \"Comparison\": 3\r\n                                            }\r\n                                        },\r\n                                        {\r\n                                            \"Kind\": \"NumericPropertyRule\",\r\n                                            \"LeftProvider\": {\r\n                                                \"$type\": \"PointBalanceProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                            },\r\n                                            \"RightProvider\": {\r\n                                                \"$type\": \"ConstantValueProvider\",\r\n                                                \"Kind\": \"ConstantValueProvider\",\r\n                                                \"Value\": 89999\r\n                                            },\r\n                                            \"Evaluator\": {\r\n                                                \"$type\": \"NumericEvaluation\",\r\n                                                \"Comparison\": 5\r\n                                            }\r\n                                        }\r\n                                    ]\r\n                                },\r\n                                \"Outcomes\": null,\r\n                                \"NavigationType\": 0\r\n                            },\r\n                            \"Exit\": {\r\n                                \"$type\": \"SimpleNavigationCriteria\",\r\n                                \"NavConstraint\": {\r\n                                    \"Kind\": \"NumericPropertyRule\",\r\n                                    \"LeftProvider\": {\r\n                                        \"$type\": \"PointBalanceProvider\",\r\n                                        \"Kind\": \"PathValueProvider\",\r\n                                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                    },\r\n                                    \"RightProvider\": {\r\n                                        \"$type\": \"ConstantValueProvider\",\r\n                                        \"Kind\": \"ConstantValueProvider\",\r\n                                        \"Value\": 45000\r\n                                    },\r\n                                    \"Evaluator\": {\r\n                                        \"$type\": \"NumericEvaluation\",\r\n                                        \"Comparison\": 4 //LessThan\r\n                                    }\r\n                                },\r\n                                \"Outcomes\": null,\r\n                                \"NavigationType\": 1\r\n                            }\r\n                        },\r\n                        \"Children\": [\r\n                            {\r\n                                \"Id\": \"Gold\",\r\n                                \"RootNodeId\": \"{{tenant}}TierSystem\",\r\n                                \"Name\" : \"Gold\",\r\n                                \"Rules\": [\r\n                                    {\r\n                                        \"Name\" : \"Gold Point Economy\",\r\n                                        \"RuleJsonElement\": {\r\n                                            \"Kind\": \"SimpleRule\",\r\n                                            \"LeftProvider\": {\r\n                                                \"$type\": \"ConstantValueProvider\",\r\n                                                \"Kind\": \"ConstantValueProvider\",\r\n                                                \"Value\": true\r\n                                            },\r\n                                            \"RightProvider\": {\r\n                                                \"$type\": \"ConstantValueProvider\",\r\n                                                \"Kind\": \"ConstantValueProvider\",\r\n                                                \"Value\": true\r\n                                            },\r\n                                            \"Evaluator\": {\r\n                                                \"$type\": \"BoolEvaluation\",\r\n                                                \"Comparison\": \"Equal\"\r\n                                            }\r\n                                        },\r\n                                        \"RootRuleDiscriminator\": \"SimpleRule\",\r\n                                        \"OutcomesJsonElement\": [\r\n                                            {\r\n                                                \"Kind\": \"DepositPointsOutcome\",\r\n                                                \"PointSourceAccountId\": null,\r\n                                                \"PointsPerDollar\": 0.239,\r\n                                                \"EarnDateProvider\": {\r\n                                                    \"$type\": \"PathValueProvider\",\r\n                                                    \"Kind\": \"PathValueProvider\",\r\n                                                    \"PropertyPath\": \"event.timestamp\"\r\n                                                },\r\n                                                \"AffectedPointAccountTypeIds\": [\r\n                                                    \"829eff38-6591-4c39-bfbd-db52c3256b53\"\r\n                                                ],\r\n                                                \"Id\": \"ADD90000-0000-0000-0000-000000000000\",\r\n                                                \"EventIdProvider\": {\r\n                                                    \"$type\": \"PathValueProvider\",\r\n                                                    \"Kind\": \"PathValueProvider\",\r\n                                                    \"PropertyPath\": \"event.orderid\"\r\n                                                },\r\n                                                \"DollarAmountProvider\": {\r\n                                                    \"$type\": \"AggregateValueProvider\",\r\n                                                    \"Kind\": \"AggregateValueProvider\",\r\n                                                    \"AggregateType\": 1,\r\n                                                    \"RowProvider\": {\r\n                                                        \"$type\": \"PathValueProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PropertyPath\": \"event.items\"\r\n                                                    },\r\n                                                    \"RowPropertyProvider\": {\r\n                                                        \"$type\": \"PathValueProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PropertyPath\": \"event.price\"\r\n                                                    },\r\n                                                    \"Constraint\": null\r\n                                                },\r\n                                                \"MapToProvider\": null\r\n                                            },\r\n                                            {\r\n                                                \"Kind\": \"DepositPointsOutcome\",\r\n                                                \"PointSourceAccountId\": null,\r\n                                                \"PointsPerDollar\": 1.0,\r\n                                                \"EarnDateProvider\": {\r\n                                                    \"$type\": \"PathValueProvider\",\r\n                                                    \"Kind\": \"PathValueProvider\",\r\n                                                    \"PropertyPath\": \"event.timestamp\"\r\n                                                },\r\n                                                \"AffectedPointAccountTypeIds\": [\r\n                                                    \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                                ],\r\n                                                \"Id\": \"ADD910000-0000-0000-0000-000000000000\",\r\n                                                \"EventIdProvider\": {\r\n                                                    \"$type\": \"PathValueProvider\",\r\n                                                    \"Kind\": \"PathValueProvider\",\r\n                                                    \"PropertyPath\": \"event.orderid\"\r\n                                                },\r\n                                                \"DollarAmountProvider\": {\r\n                                                    \"$type\": \"AggregateValueProvider\",\r\n                                                    \"Kind\": \"AggregateValueProvider\",\r\n                                                    \"AggregateType\": 1,\r\n                                                    \"RowProvider\": {\r\n                                                        \"$type\": \"PathValueProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PropertyPath\": \"event.items\"\r\n                                                    },\r\n                                                    \"RowPropertyProvider\": {\r\n                                                        \"$type\": \"PathValueProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PropertyPath\": \"event.price\"\r\n                                                    },\r\n                                                    \"Constraint\": null\r\n                                                },\r\n                                                \"MapToProvider\": null\r\n                                            }\r\n                                        ]\r\n                                    }\r\n                                ],\r\n                                \"Navigation\": {\r\n                                    \"Transition\": {\r\n                                        \"$type\": \"SimpleNavigationCriteria\",\r\n                                        \"NavConstraint\": {\r\n                                            \"Kind\": \"AndRule\",\r\n                                            \"Children\": [\r\n                                                {\r\n                                                    \"Kind\": \"NumericPropertyRule\",\r\n                                                    \"LeftProvider\": {\r\n                                                        \"$type\": \"PointBalanceProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                                    },\r\n                                                    \"RightProvider\": {\r\n                                                        \"$type\": \"ConstantValueProvider\",\r\n                                                        \"Kind\": \"ConstantValueProvider\",\r\n                                                        \"Value\": 90000\r\n                                                    },\r\n                                                    \"Evaluator\": {\r\n                                                        \"$type\": \"NumericEvaluation\",\r\n                                                        \"Comparison\": 3\r\n                                                    }\r\n                                                },\r\n                                                {\r\n                                                    \"Kind\": \"NumericPropertyRule\",\r\n                                                    \"LeftProvider\": {\r\n                                                        \"$type\": \"PointBalanceProvider\",\r\n                                                        \"Kind\": \"PathValueProvider\",\r\n                                                        \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                                    },\r\n                                                    \"RightProvider\": {\r\n                                                        \"$type\": \"ConstantValueProvider\",\r\n                                                        \"Kind\": \"ConstantValueProvider\",\r\n                                                        \"Value\": 1000000\r\n                                                    },\r\n                                                    \"Evaluator\": {\r\n                                                        \"$type\": \"NumericEvaluation\",\r\n                                                        \"Comparison\": 5\r\n                                                    }\r\n                                                }\r\n                                            ]\r\n                                        },\r\n                                        \"Outcomes\": null,\r\n                                        \"NavigationType\": 0\r\n                                    },\r\n                                    \"Exit\": {\r\n                                        \"$type\": \"SimpleNavigationCriteria\",\r\n                                        \"NavConstraint\": {\r\n                                            \"Kind\": \"NumericPropertyRule\",\r\n                                            \"LeftProvider\": {\r\n                                                \"$type\": \"PointBalanceProvider\",\r\n                                                \"Kind\": \"PathValueProvider\",\r\n                                                \"PointAccountTypeId\": \"f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec\"\r\n                                            },\r\n                                            \"RightProvider\": {\r\n                                                \"$type\": \"ConstantValueProvider\",\r\n                                                \"Kind\": \"ConstantValueProvider\",\r\n                                                \"Value\": 90000\r\n                                            },\r\n                                            \"Evaluator\": {\r\n                                                \"$type\": \"NumericEvaluation\",\r\n                                                \"Comparison\": 4 //LessThan\r\n                                            }\r\n                                        },\r\n                                        \"Outcomes\": null,\r\n                                        \"NavigationType\": 1\r\n                                    }\r\n                                },\r\n                                \"Children\": null\r\n                            }\r\n                        ]\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/save",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"save"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetCampaign",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ELP}}/api/campaign/{{tenant}}/3c4a8633-3a76-491f-b7b3-c592037ec9da?campaignStatus=Active",
+									"host": [
+										"{{ELP}}"
+									],
+									"path": [
+										"api",
+										"campaign",
+										"{{tenant}}",
+										"3c4a8633-3a76-491f-b7b3-c592037ec9da"
+									],
+									"query": [
+										{
+											"key": "campaignStatus",
+											"value": "Active"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sku Catalog",
+					"item": [
+						{
+							"name": "SetCatalogRoot",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"02c524fc-6125-4509-ab53-d21f5b82b69f\",\r\n  \"tenantId\": \"tenant1\",\r\n  \"taxonomyType\": \"TreeRoot\", \r\n  \"category\": \"Products\",\r\n  \"name\": \"E-commerce Product Categories\",\r\n  \"description\": \"Complete product categorization for online store\",\r\n  \"modelId\": \"0f566bac-0a48-462d-ac20-bfb8713486cb\",\r\n  \"modelType\": \"loyalty\",\r\n  \"status\": \"Active\",\r\n  \"type\" : \"TreeRoot\",\r\n  \"dataNameAttributeSymbol\" : \"product_name\",\r\n  \"dataExternalIdAttributeSymbol\" : \"sku_id\",\r\n  \"data\" : null,\r\n  \"hierarchy\" : [\r\n    {\r\n        \"index\" : 0,\r\n        \"symbol\" : \"category\"\r\n    },\r\n    {\r\n        \"index\" : 1,\r\n        \"symbol\" : \"subcategory\"\r\n    }\r\n  ],\r\n//   \"nodeValue\": {\r\n//     \"maxDepth\": 3,\r\n//     \"allowDuplicateNames\": false,\r\n//     \"structureType\": \"hierarchical\",\r\n//     \"rootCategories\": [\"Clothing\", \"Home\", \"Sports\"]\r\n//   },\r\n  \"version\": \"1.0\",\r\n  \"metadata\": {\r\n    \"createdBy\": \"catalog@shop-online.com\",\r\n    \"department\": \"Merchandising\",\r\n    \"tags\": [\"ecommerce\", \"products\", \"categories\"],\r\n    \"businessUnit\": \"Retail\",\r\n    \"seoOptimized\": true,\r\n    \"multilingual\": false,\r\n    \"currency\": \"USD\"\r\n  }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{backend}}/api/{{tenant}}/taxonomy/root/save",
+									"host": [
+										"{{backend}}"
+									],
+									"path": [
+										"api",
+										"{{tenant}}",
+										"taxonomy",
+										"root",
+										"save"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SetTaxonomyItem",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"tenantId\": \"{{tenant}}\",\r\n//   \"id\": \"7fb8e3c8-84a8-4271-84c0-e6e2f7a24ee4\",\r\n  \"taxonomyType\": \"02c524fc-6125-4509-ab53-d21f5b82b69f\", \r\n  \"category\": \"Products#$%^&\",\r\n  \"modelId\": \"0f566bac-0a48-462d-ac20-bfb8713486cb\",\r\n  \"modelType\": \"loyalty\",\r\n  \"status\": \"Active\",\r\n  \"data\": {\r\n    \"SKU_ID\": \"77777\",\r\n    \"UPC\": \"1234567891011\",\r\n    \"Product_Name\": \"cxvbbvccvb \",\r\n    \"Department\": \"Electronics\",\r\n    \"Category\": \"stuff\",\r\n    \"Subcategory\": \"bad\",\r\n    \"Brand\": \"mine\",\r\n    \"Model_Number\": \"T\",\r\n    \"Variant\": \"Family Size 18oz\",\r\n    \"Pack_Size\": 1.0,\r\n    \"Unit_Cost\": 2.89,\r\n    \"MSRP\": 4.99,\r\n    \"Currency\": \"USD\",\r\n    \"Stock_Qty\": 144.0,\r\n    \"Reorder_Point\": 24.0,\r\n    \"Supplier_Name\": \"me\",\r\n    \"Country_of_Origin\": \"US\",\r\n    \"Dimensions_cm_LxWxH\": 20.3,\r\n    \"Weight_kg\": 0.51,\r\n    \"Hazard_Class\": \"None\",\r\n    \"Seasonality\": \"Year-Round\",\r\n    \"Store_Aisle\": \"closet\",\r\n    \"Status\": \"Active\",\r\n    \"Lead_Time_Days\": 3.0,\r\n    \"Online_Only\": false,\r\n    \"Date_Added\": \"2024-02-01T08:15:00Z\"\r\n  }\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{backend}}/api/{{tenant}}/taxonomy/02c524fc-6125-4509-ab53-d21f5b82b69f/save",
+									"host": [
+										"{{backend}}"
+									],
+									"path": [
+										"api",
+										"{{tenant}}",
+										"taxonomy",
+										"02c524fc-6125-4509-ab53-d21f5b82b69f",
+										"save"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Operational",
+			"item": [
+				{
+					"name": "ProcessUserProfileEvent",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    // \"id\": \"97c43cfd-0aa6-4d12-b137-22d6dadaff65\",\r\n    \"ExtAccountId\" : \"test_003\",\r\n    \"Type\" : \"user\",\r\n    \"Status\" : \"active\",\r\n    \"AccountDetails\" : {\r\n        \"profileid\" : \"test_003\",\r\n        \"firstName\": \"c\",\r\n        \"lastName\" : \"smith\",\r\n        \"email\" : \"someguy@work.org\",\r\n        \"birthmonth\" : \"november\",\r\n        \"zip\" : \"12345\",\r\n        \"isloyaltymember\" : true\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ELP}}/api/events/{{tenant}}/LoyaltyAccountDetails/process",
+							"host": [
+								"{{ELP}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{tenant}}",
+								"LoyaltyAccountDetails",
+								"process"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ProcessOrderEvent",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderId\" : \"xyz_021\",\r\n    \"profileId\" : \"test_003\",\r\n    \"ordertotal\" : 1100,\r\n    \"ordersubtotal\" : 1000,\r\n    \"tax\" : 100,\r\n    \"paymenttype\" : \"Cash\",\r\n    \"channel\" : \"ecom\",\r\n    \"storeId\" : \"117003-99-17\",\r\n    \"timestamp\" : \"2025-09-15T16:30:20Z\",\r\n    \"items\" : [ \r\n        {\r\n            \"sku\" : \"EXPENSIVE_ITEM\",\r\n            \"price\" : 1000.0,\r\n            \"quantity\" : 1.0,\r\n            \"description\" : \"PLACEHOLDER\"\r\n        }\r\n    ],\r\n    \"calculateOnly\" : false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ELP}}/api/events/{{tenant}}/order/process",
+							"host": [
+								"{{ELP}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{tenant}}",
+								"order",
+								"process"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "6a730eaf-10e3-4cb6-a467-a99769dea763",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "ELP-API-KEY",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "{{elpBaseUrl}}",
+			"disabled": true
+		},
+		{
+			"key": "tenant",
+			"value": "{{tenant}}"
+		},
+		{
+			"key": "apiKey",
+			"value": "{{apiKey}}"
+		},
+		{
+			"key": "baseUrl",
+			"value": ""
+		},
+		{
+			"key": "backend",
+			"value": ""
+		},
+		{
+			"key": "ELP",
+			"value": ""
+		}
+	]
+}

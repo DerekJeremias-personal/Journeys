@@ -1,0 +1,16 @@
+---
+description: Docs and graph stay in the same change as code
+alwaysApply: true
+---
+
+# Docs and graph sync
+
+Source code is canonical when docs and code disagree — fix docs/meaning in the same change.
+
+After code changes:
+
+1. Run `scripts/docs-impact.ps1` (see `.agents/skills/docs-impact`).
+2. Run `scripts/graph-impact.ps1` (see `.agents/skills/graph-impact`).
+3. Update required `docs/platform` / `docs/developer` files and `docs/product/graph` nodes/edges, or add a waiver under `docs/product/graph/waivers/`.
+
+Roadmap may describe future behavior; do not present it as current implementation.

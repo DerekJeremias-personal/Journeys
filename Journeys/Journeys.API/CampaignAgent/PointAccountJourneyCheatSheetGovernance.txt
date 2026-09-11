@@ -1,0 +1,11 @@
+PAT→JOURNEY CHEAT SHEET (Journey / Verification — compact)
+
+- Tier-qual PAT id comes from PointAccountManifest / UpsertPointAccountType — not from SaveModel.
+- Tier-qualification counter PAT: ledgerType NonSpendable, isSpendable false — use its pointAccountTypeId in PointBalanceProvider navConstraint thresholds.
+- DepositPointsOutcome: affectedPointAccountTypeIds[] = bucket being credited (Escrow hold, Spendable earn, or tier-qual counter).
+- SpendPointsOutcome: affectedPointAccountTypeIds[] = Spendable PAT only.
+- Never invent pointAccountTypeId — use PointAccountManifest items[] / GetPointAccountType / upsert tool results.
+- After PAT upserts, confirm manifest roles: spendable, tierQualification, escrow.
+- Expiration on Spendable does not change tier-qual balance unless you also deposit to the tier-qual PAT.
+- expiresToPointAccountTypeId on a PAT is for engine cascade — not referenced in journey JSON.
+- Full PAT semantics (expiration, cascade, golden bundles): loaded during Point Account Types phase — do not invent ledgerType TierQualification.

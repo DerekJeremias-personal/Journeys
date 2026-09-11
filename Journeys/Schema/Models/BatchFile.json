@@ -1,0 +1,53 @@
+{
+    "id": "df37876d-4079-434a-8e2a-fb710faa8255",
+    "tenantId": "{{tenantId}}",
+    "status": "Draft",
+    "schemaVersion": "1.0",
+    "schemaType": "loyalty",
+    "IsContainer": true,
+    "name": "BatchFile",
+    "elements": [
+        {
+            "Type": "primitive",
+            "symbol": "createdate",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "CreateDate"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "lastupdated",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "LastUpdated"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "directory",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Directory"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "filename",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "File Name"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "originalfilename",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Original File Name"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "schemaname",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Schema Name"
+        }
+    ]
+}

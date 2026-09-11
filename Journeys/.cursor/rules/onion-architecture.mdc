@@ -1,0 +1,15 @@
+---
+description: Onion and multi-tenant defaults for all Journeys code
+alwaysApply: true
+---
+
+# Onion architecture
+
+- Controllers (`Journeys.API`): no business logic. Validate, call services, map HTTP.
+- Services (`Journeys.Core`): all business logic; interfaces in `Interfaces/Services`.
+- Persistence (`Journeys.DAL`): only data access; injected into services.
+- Controller in/out types: `Journeys.DTO` only.
+- External systems (Cosmos, blob, auth, bus, Backend.*): `Journeys.Infra*` only, behind interfaces.
+- Every business operation is tenant-scoped (`TenantId`).
+- Do not delete existing comments without cause.
+- UI is not in this solution. Do not add a web frontend here.

@@ -1,0 +1,17 @@
+---
+description: Campaign agent, MCP, A2A, and Journeys.Agent
+globs:
+  - Journeys.API/CampaignAgent/**
+  - Journeys.API/Mcp/**
+  - Journeys.API/A2a/**
+  - Journeys.Agent/**
+  - Journeys.CampaignAgent.Remediation/**
+---
+
+# Campaign agent and MCP
+
+- `Journeys.Agent` exists to author and manage campaigns — not a second rules engine.
+- Keep MCP and A2A wiring in dedicated types; register from `Program.cs`.
+- Tool handlers call the same Core services the REST API uses.
+- Agent-authored programs must go through the same APIs the engine executes (Draft/Live).
+- Governance prompts and checklists are source-adjacent content; do not fork business rules into prompt-only logic.

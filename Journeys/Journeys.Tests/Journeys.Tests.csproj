@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.3" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Journeys.API\Journeys.API.csproj" />
+    <ProjectReference Include="..\Journeys.CampaignAgent.Remediation\Journeys.CampaignAgent.Remediation.csproj" />
+    <ProjectReference Include="..\Journeys.Core\Journeys.Core.csproj" />
+    <ProjectReference Include="..\Journeys.DAL\Journeys.DAL.csproj" />
+    <ProjectReference Include="..\Journeys.Infra.Backend\Journeys.Infra.Backend.csproj" />
+    <ProjectReference Include="..\Journeys.Infra\Journeys.Infra.BlobStorage\Journeys.Infra.BlobStorage.csproj" />
+    <ProjectReference Include="..\Journeys.Infra\Journeys.Infra.DataLake\Journeys.Infra.DataLake.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="RulesEngine\Comparitors\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Backend.Dto">
+      <HintPath>..\..\Binaries\Backend.Dto.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+---
+description: Journeys.Core domain and service rules
+globs: Journeys.Core/**
+---
+
+# Core / services
+
+- Service interfaces live in `Journeys.Core.Interfaces.Services`; implementations in `Journeys.Core.Services` (or feature folders such as `Services/Ingest`).
+- Public async methods are named `...Async` and return `Task` / `Task<T>`.
+- Public surface that serves the API uses DTOs; `Core.Models` is fine internally for mapping and the rules engine — map before returning to controllers.
+- Constructor injection; readonly `_camelCase` fields.
+- Journeys and the rules engine live here. Do not take Azure SDK or Backend client dependencies in Core.
+- Register request-scoped services as Scoped unless there is a clear Singleton (caches) or Transient reason.

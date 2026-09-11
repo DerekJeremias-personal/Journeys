@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Journeys.DTO.Requests
+{
+    public class RemoveCampaignByIdRequest
+    {
+        public string CampaignId { get; set; }
+        public string CampaignType { get; set; }
+    }
+}

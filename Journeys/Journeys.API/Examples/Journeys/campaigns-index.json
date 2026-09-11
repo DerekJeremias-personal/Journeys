@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "2",
+  "defaultTenant": "mericantires",
+  "items": [
+    {
+      "id": "tier-system-campaign",
+      "patternId": "tier-navigation-point-balance",
+      "title": "Tier system (Bronze / Silver / Gold)",
+      "summary": "Draft campaign with tier navigation by point balance (TQP), deposit outcomes for two point account types. Events: Order + LoyaltyAccountDetails.",
+      "relativeFile": "Campaigns/tier-system-campaign.json"
+    },
+    {
+      "id": "bogo-ecom-campaign",
+      "patternId": "historical-taxonomy-filtered",
+      "title": "BOGO Ecom (taxonomy)",
+      "summary": "Live campaign: TaxonomicRule on line items (Electronics.TV & Audio, featured), deposit outcomes. Single Order event.",
+      "relativeFile": "Campaigns/bogo-ecom-campaign.json"
+    },
+    {
+      "id": "historical-by-category-campaign",
+      "patternId": "historical-taxonomy-filtered",
+      "title": "Historical by category (30d sum)",
+      "summary": "Live campaign: AndRule with TaxonomicRule + HistoricalRule over category spend; threshold outcome. Order event.",
+      "relativeFile": "Campaigns/historical-by-category-campaign.json"
+    },
+    {
+      "id": "hayward-private-tiers-campaign",
+      "patternId": "tier-navigation-point-balance",
+      "title": "Hayward private tiers (Ruthenium ladder)",
+      "summary": "Large live example: many tier child nodes with distinct points-per-dollar and invoice-based paths (Hayward-style order shape).",
+      "relativeFile": "Campaigns/hayward-private-tiers-campaign.json"
+    },
+    {
+      "id": "historical-spend-threshold-30d",
+      "patternId": "historical-spend-threshold",
+      "title": "Historical spend threshold ($500 / 30d)",
+      "summary": "Minimal draft: single HistoricalRule (Sum) on event.ordertotal with 30-day window and deposit outcome. Order event.",
+      "relativeFile": "Campaigns/historical-spend-threshold-30d.json"
+    },
+    {
+      "id": "historical-count-90d",
+      "patternId": "historical-event-count",
+      "title": "Historical event count (3+ / 90d)",
+      "summary": "Minimal draft: single HistoricalRule (Count) with 90-day window and deposit outcome when threshold met. Order event.",
+      "relativeFile": "Campaigns/historical-count-90d.json"
+    }
+  ]
+}

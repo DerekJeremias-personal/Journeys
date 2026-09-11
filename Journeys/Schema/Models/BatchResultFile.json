@@ -1,0 +1,53 @@
+{
+  "id": "8ddfd33a-3e2e-48a5-a906-03d5d1184e7c",
+  "tenantId": "{{tenantId}}",
+  "status": "Draft",
+  "schemaVersion": "1.0",
+  "schemaType": "loyalty",
+  "IsContainer": true,
+  "name": "BatchResultFile",
+  "elements": [
+    {
+      "Type": "primitive",
+      "symbol": "createdate",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "CreateDate"
+    },
+    {
+      "Type": "primitive",
+      "symbol": "lastupdated",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "LastUpdated"
+    },
+    {
+      "Type": "primitive",
+      "symbol": "status",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "Status"
+    },
+    {
+      "Type": "primitive",
+      "symbol": "batchjobid",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "BatchJob ID"
+    },
+    {
+      "Type": "primitive",
+      "symbol": "directory",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "Directory"
+    },
+    {
+      "Type": "primitive",
+      "symbol": "filename",
+      "status": "Draft",
+      "dataType": "String",
+      "displayName": "File Name"
+    }
+  ]
+}

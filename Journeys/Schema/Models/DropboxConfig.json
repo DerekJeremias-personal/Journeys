@@ -1,0 +1,81 @@
+{
+    "id": "2e131363-1833-48c0-8712-7e9b7c3f58d4",
+    "tenantId": "{{tenantId}}",
+    "status": "Draft",
+    "schemaVersion": "1.0",
+    "schemaType": "loyalty",
+    "IsContainer": true,
+    "name": "DropboxConfig",
+    "elements": [
+        {
+            "Type": "primitive",
+            "symbol": "createdate",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "CreateDate"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "lastupdated",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "LastUpdated"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "directory",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Directory"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "filetype",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "File Type"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "schemaname",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Schema Name"
+        },
+        {
+            "Type": "rawjson",
+            "symbol": "filemap",
+            "status": "Draft",
+            "dataType": "RawJson",
+            "displayName": "File Map"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "servicetypename",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Service Type Name"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "methodname",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Method Name"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "responsetypename",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Response Type Name"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "responselinekeyformat",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Response Line Key Format"
+        }
+    ]
+}

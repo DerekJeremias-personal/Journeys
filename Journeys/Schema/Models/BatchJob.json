@@ -1,0 +1,75 @@
+{
+    "id": "8ddfc33a-3e2e-47a5-a906-03d5d0184e7c",
+    "tenantId": "{{tenantId}}",
+    "status": "Draft",
+    "schemaVersion": "1.0",
+    "schemaType": "loyalty",
+    "IsContainer": true,
+    "partitionKeySymbol": "status",
+    "name": "BatchJob",
+    "elements": [
+        {
+            "Type": "primitive",
+            "symbol": "createdate",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "CreateDate"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "lastupdated",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "LastUpdated"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "status",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Status"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "batchfileid",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "BatchFile ID"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "claimedby",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Claimed By"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "batchresultfileid",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "BatchResultFile ID"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "processedbytes",
+            "status": "Draft",
+            "dataType": "Long",
+            "displayName": "Processed Bytes"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "processedlines",
+            "status": "Draft",
+            "dataType": "Int",
+            "displayName": "Processed Lines"
+        },
+        {
+            "Type": "primitive",
+            "symbol": "lastprocessedat",
+            "status": "Draft",
+            "dataType": "String",
+            "displayName": "Last Processed At"
+        }
+    ]
+}

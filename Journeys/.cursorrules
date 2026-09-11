@@ -1,0 +1,9 @@
+# Journeys agent contract (pointer)
+
+Do not treat this file as the rule set.
+
+1. Read `AGENTS.md` (session contract and reading order).
+2. Follow `.cursor/rules/*.mdc` (always-on and path-scoped policy).
+3. Load `docs/product/` then `docs/platform/` for the task.
+
+The former onion/API/Core/DAL rules live in those `.mdc` files so they activate by path.

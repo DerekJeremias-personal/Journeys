@@ -1,0 +1,2 @@
+DEPRECATED � content relocated to WorkflowPhase*Governance.txt and CampaignGovernanceCore.txt.
+The HTTP campaign agent composer no longer loads this file.

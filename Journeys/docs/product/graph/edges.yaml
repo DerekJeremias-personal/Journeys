@@ -1,0 +1,61 @@
+edges:
+  - from: campaign-author
+    type: NEEDS
+    to: author-campaign
+  - from: program-operator
+    type: NEEDS
+    to: process-event
+  - from: technical-buyer
+    type: NEEDS
+    to: process-event
+  - from: author-campaign
+    type: REALIZED_BY
+    to: campaign-agent
+  - from: process-event
+    type: REALIZED_BY
+    to: rules-engine
+  - from: process-event
+    type: REALIZED_BY
+    to: journeys
+  - from: campaign-agent
+    type: IMPLEMENTED_AS
+    to: proj-api
+  - from: campaign-agent
+    type: IMPLEMENTED_AS
+    to: proj-agent
+  - from: mcp-api
+    type: IMPLEMENTED_AS
+    to: proj-api
+  - from: rules-engine
+    type: IMPLEMENTED_AS
+    to: proj-core
+  - from: journeys
+    type: IMPLEMENTED_AS
+    to: proj-core
+  - from: campaigns
+    type: IMPLEMENTED_AS
+    to: proj-core
+  - from: campaigns
+    type: DEPENDS_ON
+    to: event-models
+  - from: campaigns
+    type: DEPENDS_ON
+    to: journeys
+  - from: campaigns
+    type: SERVES
+    to: outcomes
+  - from: campaigns
+    type: CONSTRAINED_BY
+    to: tenant-id-required
+  - from: mcp-api
+    type: CONSTRAINED_BY
+    to: no-controller-business-logic
+  - from: proj-infra
+    type: CONSTRAINED_BY
+    to: backend-dll-external
+  - from: ui-in-this-sln
+    type: NOT_YET
+    to: campaigns
+  - from: terraform-in-this-tree
+    type: NOT_YET
+    to: proj-infra

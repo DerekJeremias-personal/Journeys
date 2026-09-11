@@ -1,0 +1,539 @@
+{
+  "id": "3c4a8633-3a76-491f-b7b3-c592037ec9da",
+  "extCampaignId": "TierSystem",
+  "status": "draft",
+  "name": "mericantires Tier System",
+  "events": [
+    "a6edbbc5-bf43-4c57-b2f1-e015b9efaf03",
+    "c55fcdab-4dec-42d7-a746-941496c8f01f"
+  ],
+  "startDate": "2025-01-01T22:30:00Z",
+  "endDate": null,
+  "segments": null,
+  "journey": {
+    "RootNodeId": "mericantiresTierSystem",
+    "Id": "mericantiresTierSystem",
+    "Name": "mericantires Tier System",
+    "Rules": null,
+    "Navigation": {
+      "Entry": {
+        "$type": "SimpleNavigationCriteria",
+        "NavConstraint": {
+          "Kind": "NumericPropertyRule",
+          "LeftProvider": {
+            "$type": "PointBalanceProvider",
+            "Kind": "PathValueProvider",
+            "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+          },
+          "RightProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": 1000000
+          },
+          "Evaluator": {
+            "$type": "NumericEvaluation",
+            "Comparison": 5
+          }
+        },
+        "Outcomes": null,
+        "NavigationType": 0
+      }
+    },
+    "Children": [
+      {
+        "Id": "Bronze",
+        "RootNodeId": "mericantiresTierSystem",
+        "Name": "Bronze",
+        "Rules": [
+          {
+            "Name": "Bronze Point Economy",
+            "RuleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "RootRuleDiscriminator": "SimpleRule",
+            "OutcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 0.166,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.timestamp"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "829eff38-6591-4c39-bfbd-db52c3256b53"
+                ],
+                "Id": "ADD92000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.orderid"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.price"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              },
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 1,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.timestamp"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                ],
+                "Id": "ADD360000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.orderid"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.price"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ]
+          }
+        ],
+        "Navigation": {
+          "Transition": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "AndRule",
+              "Children": [
+                {
+                  "Kind": "NumericPropertyRule",
+                  "LeftProvider": {
+                    "$type": "PointBalanceProvider",
+                    "Kind": "PathValueProvider",
+                    "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                  },
+                  "RightProvider": {
+                    "$type": "ConstantValueProvider",
+                    "Kind": "ConstantValueProvider",
+                    "Value": -100000
+                  },
+                  "Evaluator": {
+                    "$type": "NumericEvaluation",
+                    "Comparison": 3
+                  }
+                },
+                {
+                  "Kind": "NumericPropertyRule",
+                  "LeftProvider": {
+                    "$type": "PointBalanceProvider",
+                    "Kind": "PathValueProvider",
+                    "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                  },
+                  "RightProvider": {
+                    "$type": "ConstantValueProvider",
+                    "Kind": "ConstantValueProvider",
+                    "Value": 44999
+                  },
+                  "Evaluator": {
+                    "$type": "NumericEvaluation",
+                    "Comparison": 5
+                  }
+                }
+              ]
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "Children": [
+          {
+            "Id": "Silver",
+            "RootNodeId": "mericantiresTierSystem",
+            "Name": "Silver",
+            "Rules": [
+              {
+                "Name": "Silver Point Economy",
+                "RuleJsonElement": {
+                  "Kind": "SimpleRule",
+                  "LeftProvider": {
+                    "$type": "ConstantValueProvider",
+                    "Kind": "ConstantValueProvider",
+                    "Value": true
+                  },
+                  "RightProvider": {
+                    "$type": "ConstantValueProvider",
+                    "Kind": "ConstantValueProvider",
+                    "Value": true
+                  },
+                  "Evaluator": {
+                    "$type": "BoolEvaluation",
+                    "Comparison": "Equal"
+                  }
+                },
+                "RootRuleDiscriminator": "SimpleRule",
+                "OutcomesJsonElement": [
+                  {
+                    "Kind": "DepositPointsOutcome",
+                    "PointSourceAccountId": null,
+                    "PointsPerDollar": 0.199,
+                    "EarnDateProvider": {
+                      "$type": "PathValueProvider",
+                      "Kind": "PathValueProvider",
+                      "PropertyPath": "event.timestamp"
+                    },
+                    "AffectedPointAccountTypeIds": [
+                      "829eff38-6591-4c39-bfbd-db52c3256b53"
+                    ],
+                    "Id": "ADD93000-0000-0000-0000-000000000000",
+                    "EventIdProvider": {
+                      "$type": "PathValueProvider",
+                      "Kind": "PathValueProvider",
+                      "PropertyPath": "event.orderid"
+                    },
+                    "DollarAmountProvider": {
+                      "$type": "AggregateValueProvider",
+                      "Kind": "AggregateValueProvider",
+                      "AggregateType": 1,
+                      "RowProvider": {
+                        "$type": "PathValueProvider",
+                        "Kind": "PathValueProvider",
+                        "PropertyPath": "event.items"
+                      },
+                      "RowPropertyProvider": {
+                        "$type": "PathValueProvider",
+                        "Kind": "PathValueProvider",
+                        "PropertyPath": "event.price"
+                      },
+                      "Constraint": null
+                    },
+                    "MapToProvider": null
+                  },
+                  {
+                    "Kind": "DepositPointsOutcome",
+                    "PointSourceAccountId": null,
+                    "PointsPerDollar": 1,
+                    "EarnDateProvider": {
+                      "$type": "PathValueProvider",
+                      "Kind": "PathValueProvider",
+                      "PropertyPath": "event.timestamp"
+                    },
+                    "AffectedPointAccountTypeIds": [
+                      "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                    ],
+                    "Id": "ADD940000-0000-0000-0000-000000000000",
+                    "EventIdProvider": {
+                      "$type": "PathValueProvider",
+                      "Kind": "PathValueProvider",
+                      "PropertyPath": "event.orderid"
+                    },
+                    "DollarAmountProvider": {
+                      "$type": "AggregateValueProvider",
+                      "Kind": "AggregateValueProvider",
+                      "AggregateType": 1,
+                      "RowProvider": {
+                        "$type": "PathValueProvider",
+                        "Kind": "PathValueProvider",
+                        "PropertyPath": "event.items"
+                      },
+                      "RowPropertyProvider": {
+                        "$type": "PathValueProvider",
+                        "Kind": "PathValueProvider",
+                        "PropertyPath": "event.price"
+                      },
+                      "Constraint": null
+                    },
+                    "MapToProvider": null
+                  }
+                ]
+              }
+            ],
+            "Navigation": {
+              "Transition": {
+                "$type": "SimpleNavigationCriteria",
+                "NavConstraint": {
+                  "Kind": "AndRule",
+                  "Children": [
+                    {
+                      "Kind": "NumericPropertyRule",
+                      "LeftProvider": {
+                        "$type": "PointBalanceProvider",
+                        "Kind": "PathValueProvider",
+                        "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                      },
+                      "RightProvider": {
+                        "$type": "ConstantValueProvider",
+                        "Kind": "ConstantValueProvider",
+                        "Value": 45000
+                      },
+                      "Evaluator": {
+                        "$type": "NumericEvaluation",
+                        "Comparison": 3
+                      }
+                    },
+                    {
+                      "Kind": "NumericPropertyRule",
+                      "LeftProvider": {
+                        "$type": "PointBalanceProvider",
+                        "Kind": "PathValueProvider",
+                        "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                      },
+                      "RightProvider": {
+                        "$type": "ConstantValueProvider",
+                        "Kind": "ConstantValueProvider",
+                        "Value": 89999
+                      },
+                      "Evaluator": {
+                        "$type": "NumericEvaluation",
+                        "Comparison": 5
+                      }
+                    }
+                  ]
+                },
+                "Outcomes": null,
+                "NavigationType": 0
+              },
+              "Exit": {
+                "$type": "SimpleNavigationCriteria",
+                "NavConstraint": {
+                  "Kind": "NumericPropertyRule",
+                  "LeftProvider": {
+                    "$type": "PointBalanceProvider",
+                    "Kind": "PathValueProvider",
+                    "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                  },
+                  "RightProvider": {
+                    "$type": "ConstantValueProvider",
+                    "Kind": "ConstantValueProvider",
+                    "Value": 45000
+                  },
+                  "Evaluator": {
+                    "$type": "NumericEvaluation",
+                    "Comparison": 4
+                  }
+                },
+                "Outcomes": null,
+                "NavigationType": 1
+              }
+            },
+            "Children": [
+              {
+                "Id": "Gold",
+                "RootNodeId": "mericantiresTierSystem",
+                "Name": "Gold",
+                "Rules": [
+                  {
+                    "Name": "Gold Point Economy",
+                    "RuleJsonElement": {
+                      "Kind": "SimpleRule",
+                      "LeftProvider": {
+                        "$type": "ConstantValueProvider",
+                        "Kind": "ConstantValueProvider",
+                        "Value": true
+                      },
+                      "RightProvider": {
+                        "$type": "ConstantValueProvider",
+                        "Kind": "ConstantValueProvider",
+                        "Value": true
+                      },
+                      "Evaluator": {
+                        "$type": "BoolEvaluation",
+                        "Comparison": "Equal"
+                      }
+                    },
+                    "RootRuleDiscriminator": "SimpleRule",
+                    "OutcomesJsonElement": [
+                      {
+                        "Kind": "DepositPointsOutcome",
+                        "PointSourceAccountId": null,
+                        "PointsPerDollar": 0.239,
+                        "EarnDateProvider": {
+                          "$type": "PathValueProvider",
+                          "Kind": "PathValueProvider",
+                          "PropertyPath": "event.timestamp"
+                        },
+                        "AffectedPointAccountTypeIds": [
+                          "829eff38-6591-4c39-bfbd-db52c3256b53"
+                        ],
+                        "Id": "ADD90000-0000-0000-0000-000000000000",
+                        "EventIdProvider": {
+                          "$type": "PathValueProvider",
+                          "Kind": "PathValueProvider",
+                          "PropertyPath": "event.orderid"
+                        },
+                        "DollarAmountProvider": {
+                          "$type": "AggregateValueProvider",
+                          "Kind": "AggregateValueProvider",
+                          "AggregateType": 1,
+                          "RowProvider": {
+                            "$type": "PathValueProvider",
+                            "Kind": "PathValueProvider",
+                            "PropertyPath": "event.items"
+                          },
+                          "RowPropertyProvider": {
+                            "$type": "PathValueProvider",
+                            "Kind": "PathValueProvider",
+                            "PropertyPath": "event.price"
+                          },
+                          "Constraint": null
+                        },
+                        "MapToProvider": null
+                      },
+                      {
+                        "Kind": "DepositPointsOutcome",
+                        "PointSourceAccountId": null,
+                        "PointsPerDollar": 1,
+                        "EarnDateProvider": {
+                          "$type": "PathValueProvider",
+                          "Kind": "PathValueProvider",
+                          "PropertyPath": "event.timestamp"
+                        },
+                        "AffectedPointAccountTypeIds": [
+                          "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                        ],
+                        "Id": "ADD910000-0000-0000-0000-000000000000",
+                        "EventIdProvider": {
+                          "$type": "PathValueProvider",
+                          "Kind": "PathValueProvider",
+                          "PropertyPath": "event.orderid"
+                        },
+                        "DollarAmountProvider": {
+                          "$type": "AggregateValueProvider",
+                          "Kind": "AggregateValueProvider",
+                          "AggregateType": 1,
+                          "RowProvider": {
+                            "$type": "PathValueProvider",
+                            "Kind": "PathValueProvider",
+                            "PropertyPath": "event.items"
+                          },
+                          "RowPropertyProvider": {
+                            "$type": "PathValueProvider",
+                            "Kind": "PathValueProvider",
+                            "PropertyPath": "event.price"
+                          },
+                          "Constraint": null
+                        },
+                        "MapToProvider": null
+                      }
+                    ]
+                  }
+                ],
+                "Navigation": {
+                  "Transition": {
+                    "$type": "SimpleNavigationCriteria",
+                    "NavConstraint": {
+                      "Kind": "AndRule",
+                      "Children": [
+                        {
+                          "Kind": "NumericPropertyRule",
+                          "LeftProvider": {
+                            "$type": "PointBalanceProvider",
+                            "Kind": "PathValueProvider",
+                            "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                          },
+                          "RightProvider": {
+                            "$type": "ConstantValueProvider",
+                            "Kind": "ConstantValueProvider",
+                            "Value": 90000
+                          },
+                          "Evaluator": {
+                            "$type": "NumericEvaluation",
+                            "Comparison": 3
+                          }
+                        },
+                        {
+                          "Kind": "NumericPropertyRule",
+                          "LeftProvider": {
+                            "$type": "PointBalanceProvider",
+                            "Kind": "PathValueProvider",
+                            "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                          },
+                          "RightProvider": {
+                            "$type": "ConstantValueProvider",
+                            "Kind": "ConstantValueProvider",
+                            "Value": 1000000
+                          },
+                          "Evaluator": {
+                            "$type": "NumericEvaluation",
+                            "Comparison": 5
+                          }
+                        }
+                      ]
+                    },
+                    "Outcomes": null,
+                    "NavigationType": 0
+                  },
+                  "Exit": {
+                    "$type": "SimpleNavigationCriteria",
+                    "NavConstraint": {
+                      "Kind": "NumericPropertyRule",
+                      "LeftProvider": {
+                        "$type": "PointBalanceProvider",
+                        "Kind": "PathValueProvider",
+                        "PointAccountTypeId": "f0ec0c6d-1282-497b-8bc5-e6be5fbe83ec"
+                      },
+                      "RightProvider": {
+                        "$type": "ConstantValueProvider",
+                        "Kind": "ConstantValueProvider",
+                        "Value": 90000
+                      },
+                      "Evaluator": {
+                        "$type": "NumericEvaluation",
+                        "Comparison": 4
+                      }
+                    },
+                    "Outcomes": null,
+                    "NavigationType": 1
+                  }
+                },
+                "Children": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "tenantId": "mericantires"
+}

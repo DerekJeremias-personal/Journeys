@@ -1,0 +1,26 @@
+[
+  {
+    "id": "tools-after-brief-vs-blocked",
+    "patternA": "mutating tools available after brief",
+    "patternB": "blockedUntilPatManifest",
+    "skill": "CampaignBuild"
+  },
+  {
+    "id": "pat-http-vs-registry",
+    "patternA": "paste GUID",
+    "patternB": "nextStep: upsert_point_account_type",
+    "skill": "CampaignBuild"
+  },
+  {
+    "id": "children-vs-nodes",
+    "patternA": "children[]",
+    "patternB": "nodes[]",
+    "skill": "CampaignBuild"
+  },
+  {
+    "id": "journey-phase-vs-build-skill",
+    "patternA": "CampaignJourney",
+    "patternB": "activeSkill: CampaignBuild",
+    "skill": "CampaignBuild"
+  }
+]

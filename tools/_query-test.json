@@ -1,0 +1,12 @@
+{
+  "query": "c.conversationId = @conv",
+  "parameters": {
+    "conv": "aaa46c1f91b041d08c9cd144321106ea"
+  },
+  "sortBy": "sequence",
+  "sortOrder": 0,
+  "pageSize": 5,
+  "modelId": "12f6e8d4-5b3a-491c-9f2e-8a7d6c5b4a31",
+  "modelType": "loyalty",
+  "includeChildModels": false
+}

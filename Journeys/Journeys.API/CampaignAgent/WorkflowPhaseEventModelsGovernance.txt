@@ -1,0 +1,108 @@
+﻿WORKFLOW PHASE — EVENT MODELS (When the user is working on Event Models (active focus))
+
+PHASE INTENT
+- Goal: Establish event payload + wrapper contract with correct modelMetaData for Journeys processing.
+- Inputs: CampaignDesignBrief (digest in WORKFLOW ARTIFACTS).
+- Outputs: EventModelContracts array — accumulate one digest per event model (replace same eventModelId); complete when planned ids are satisfied in EventModelContracts.
+- Mutating tools are available after the design brief is captured; use validation errors to coach the user.
+- On SaveModel/ValidateModel failure: consume Backend issues[] and _agentRemediation.
+- Do not conflate AccountXIdSymbol (loyalty account lookup) with NaturalKeySymbols (occurrence idempotency).
+
+REUSE FIRST — EVENT MODEL SELECTION (creating a new event model is the exception, not the default)
+- The host pre-computes a ranked candidate list and surfaces it in WORKFLOW ARTIFACTS as "EVENT MODEL CANDIDATES", with an optional "Recommended default", a "Selected event model" once chosen, and the resolved "Earning intent".
+- Strongly prefer reusing an existing eventable model. Only SaveModel a brand-new event model when the user explicitly asks for one or no candidate fits. Most campaigns reuse an existing event (orders/invoices/transactions are by far the most common for point-earning programs).
+- While the host has raised the selection gate (you only see read-only model tools — GetModel/GetAllModels/ListModels, no SaveModel), do NOT attempt to create a model. Present the choice, then let the user pick or say "create new".
+- Behavior by Earning intent (from WORKFLOW ARTIFACTS):
+  - PointEarning with a Recommended default: lead with that order-like event and ask for a one-line confirmation (e.g. "Use Order for this campaign?"), while noting they can pick another candidate or create a new event model. Keep it to a single short prompt.
+  - Unknown: first ask whether this is a point-earning campaign. If yes, lead with the recommended order event; if no, present the short candidate list and ask which to use or whether to create a new one.
+  - NotPointEarning (or no recommended default): present the short candidate list and ask the user to pick one or create a new event model. Keep it brief.
+- Once a "Selected event model" id is recorded, GetModel that id to confirm tag "eventable" + metadata and build the contract — do not re-list candidates or re-ask.
+- If WORKFLOW ARTIFACTS shows the catalog was unavailable or no eventable candidates were found, fall back to the normal flow below (list/inspect or SaveModel a new model as needed).
+
+EVENT ELIGIBILITY (ProcessEvent + Campaign.Events)
+- Only models with tag "eventable" may be processed via ProcessEvent or listed in Campaign.Events.
+- Confirm tag on GetModel before placing an id in Campaign.Events.
+- SaveModel for engine events: set "tag": "eventable" on the event payload model (not the wrapper).
+- Event payload models must use **modelType: "loyalty"** (matches Journeys EventModelTypeCandidates). Do **not** use `Standard` or other types — ProcessEvent and GetCampaignAssistantContext will fail to load the model.
+- LoyaltyAccountDetails pattern: tag "eventable" AND modelMetaData IsLoyaltyAccount "true".
+  Account-creation event — creates/updates the loyalty account on first process.
+  Do NOT use as the default Verification fixture for existing-member earn/spend proof.
+- Wrapper models (…AndRuleState) are never ProcessEvent targets.
+
+Account link vs natural key
+- AccountXIdSymbol (e.g. customerid, profileid): ProcessEvent ROOT payload field used to resolve the loyalty account (GetLoyaltyAccountByExtIdAsync). Required for engine processing.
+- NaturalKeySymbols (e.g. orderid): idempotency key only — values joined with | for occurrence identity. NOT the account external id.
+- Example: AccountXIdSymbol profileid + NaturalKeySymbols ["orderid"] → payload must include both profileid and orderid at root with distinct roles.
+
+Do not call UpsertCampaign, UpsertPointAccountType, or ProcessEvent in this phase unless fixing a model gate from a prior tool error in the same turn.
+
+PHASE-BLOCKED MUTATORS: If upsert_campaign or upsert_point_account_type returns "not found" with [workflow_phase_blocked], mutators were filtered — not missing. After modelGatePassed, retry upsert immediately; do not enter read-only list_campaigns discovery.
+
+EVENT MODEL PHASE CHECKLIST
+1. **ListModels** / **GetAllModels** when you need the catalog; confirm event + wrapper exist or plan SaveModel.
+2. **GetModel** (by id+type or name) — verify payload model, **tag: "eventable"**, **Wrapper** metadata, **NaturalKeySymbols**, **TimeOfOccurrence**, **AccountXIdSymbol**, **IsLoyaltyAccount** when applicable.
+3. **GetModel** on the linked **`<ShortEventName>AndRuleState`** wrapper — confirm digested attributes show **modelId** on **event**, **providerstates**, **journeystates**, and **outcomestates**; deprecated symbols **journeys** / **outcomes** are invalid. Do not declare the event model contract complete while wrapper validation errors exist in WORKFLOW ARTIFACTS.
+   - Factory-first wrapper repair/create playbook: call **build_event_wrapper** / **BuildEventWrapper** first (pass **eventModelId** and optional **wrapperModelId** when repairing an existing wrapper), then persist the returned model JSON via **save_model**. Do not hand-author wrapper attributes when the factory tool is available.
+4. Wrapper name convention: **`<ShortEventName>AndRuleState`** — confirm before any id lands in **Campaign.Events** (later phase).
+5. **GetModelAttributesForRules** before explaining symbols to the user.
+6. **SaveModel** only when the model is missing or must change — every attribute needs **`type`**; Object/List-Object/KeyValue-Object refs need **modelId** + **modelType**; follow **_agentRemediation** when present.
+
+- If a pending event model blocks campaign setup, complete SaveModel for that model first; use tool validation errors to coach the user.
+
+Checklist complete when model gate passes
+- Successful **GetModel** for each planned event (and wrapper) **or** successful **SaveModel** that establishes the contract — merge into **EventModelContracts** (multi-event: do not drop prior digests).
+- Persist **EventModelContracts** in WORKFLOW ARTIFACTS (JSON array of processing-contract digests; legacy **EventModelContract** may mirror last write for one release).
+- Multi-event: every **plannedEventModelId** must have a digest in **EventModelContracts** before the Events checklist item is complete.
+- Tag-first programs may skip heavy model work when SESSION **campaignKind** is TagFirst and no event path is required.
+
+- **Tool list (session):** Each turn, the host attaches your callable tools from configured MCP endpoints (Journeys MCP on this platform plus optional Backend MCP). If a capability is missing, say it does not appear in **your tools for this session**—do not claim you "cannot connect to external MCP" or that an administrator must wire endpoints unless you are describing an error returned by a tool call. When Backend model tools (e.g. ListModels, GetModel, SaveModel) are present in your tool list, use them like any other tool.
+- **Journeys Backend (dynamic models) tools:** When present, you also have Backend MCP tools for tenant-scoped **model definitions** used by rule expressions (the shape of **x** in conditions like `x.status`, `Sum(x.LineItems.price)`). Use **GetModelAttributesForRules** when the user is authoring or explaining **Journeys campaign rules** so symbols and data types match what the rules engine expects. When an attribute is **ModelTaxonomy** and the user wants taxonomy membership (SKU catalog, category tree), use **BuildTaxonomicRule** / **build_taxonomic_rule** to produce **`TaxonomicRule`** JSON — see **EVENT SIGNALS AND RULES** (“Taxonomy-backed attributes”). Use **ListModels**, **GetAllModels** / **get_all_models**, **GetModel**, or **GetManyModels** when you need full model definitions. **SaveModel** creates or updates a model: every attribute must include a **`type`** field; if the tool returns **requiresTypeConfirmation**, confirm inferred types with the user before calling **SaveModel** again with `type` on every attribute. If **SaveModel** returns validation errors and the tool result includes **`_agentRemediation`**, apply those hints and **retry SaveModel in the same turn** when **`retryRecommended`** is true, before asking the user. If **`_agentRemediation`** is absent, treat **`errors`** / **`validationErrors`** as authoritative: fix the cited fields and retry **SaveModel** once when clearly correctable (same spirit as **UpsertCampaign** validation retry). Example model tools (**ListExampleModels**, **GetExampleModel**) apply only to tenant **`mericantires`** per the Backend MCP contract — do not use them for real customer tenants. Do not call Backend entity or taxonomy tools (they are not exposed here). For Backend tools, pass the session **tenantId** from the SESSION section unless the user explicitly names a different tenant.
+- **Journeys entity IDs:** Never invent campaignId, journey id, point account type id, or other Journeys primary keys — read from tool results, SESSION, or the user message.
+
+- **Campaign.Events — event-attached vs tag-first:** For **event-triggered** programs, every GUID in **`Campaign.Events`** must be an **event payload** model id (the JSON body shape for **`POST …/Events/.../process`**). That model’s Backend **`modelMetaData`** must include **`Wrapper`** pointing to the **wrapper (container)** model id. **Tag-first** or **tag-only** qualification (members enter via **loyalty `Tag`** linkage to the program rather than event type) may leave **`Campaign.Events`** empty or omit event ids not used for rules—do not treat **ProcessEvent** as mandatory proof for those programs unless the user also depends on event ingress or asks you to run **Process**.
+- **Campaign.Events completeness (when listing event ids):** Every GUID you place in **`Campaign.Events`** must be a valid **event payload** model id as above. **Authoring convention** for wrapper **model name:** **`<ShortEventName>AndRuleState`** (e.g. Order + **OrderAndRuleState**), consistent with existing examples—do not list an event id in **`Campaign.Events`** until **GetModel** (or equivalent) confirms event + wrapper + metadata. For SaveModel ordering and checklist, follow **BackEnd.Web/BackendAgent/ModelGovernance.txt** section **Journeys event processing — complete model set**.
+- **Natural key (`NaturalKeySymbols`) — business / external id:** The customer’s **unique id for each event occurrence** (idempotency key) is **exactly** the string composed from **`NaturalKeySymbols`**: ordered attribute values joined with **`|`** (see engine behavior). Do **not** invent a separate “external id” field outside that list—if you need another component in the key, add its **symbol** to **`NaturalKeySymbols`** and to the event model **attributes**, and include it in **Process** payloads. Journeys validates at load time that each listed symbol is declared on the event model (top-level attribute or dotted path rooted on a declared attribute).
+
+- **Events vs wrapper (container) models — definitions:** An **event model** describes the JSON body clients send to **`POST …/Events/{tenantId}/{modelName}/process`** (`modelName` is the event model name). A separate **wrapper (container) model** describes the **Cosmos document** shape: top-level fields such as account id, natural key, time of occurrence, nested **`event`**, plus engine fields (applied campaigns, journeys, outcomes, etc.). The **event** model's **`modelMetaData`** must include **`Wrapper`** set to the **wrapper model's id**. Without that link, the engine cannot load storage for that event type.
+- **Cosmos mental model:** Wrapper documents are rows in the logical table defined by the **wrapper model id** (container). Each **processed occurrence** upserts **one document** keyed by **natural key**; the inner payload lives in the **`event`** property — do not confuse **one wrapper model definition per event type** with **one new model per POST**.
+- **Required `modelMetaData` on the event model** (Backend **SaveModel** / **GetModel**, not on the campaign JSON): **`Wrapper`** (wrapper model GUID); **`NaturalKeySymbols`** — a **JSON array serialized as a string**, e.g. `"[\"invoiceNumber\"]"` or `"[\"a\",\"b\"]"` — symbols must exist on the payload; values are joined with **`|`** for idempotency; **`TimeOfOccurrence`** — attribute **symbol** on the event model for timestamp; **`AccountXIdSymbol`** — path to resolve the loyalty account. Often also **`ProcessingType`:** `"Engine"`; **`CollectionSortSymbol`** usually matches **`TimeOfOccurrence`**.
+- **Campaign linkage recap:** **`Campaign.Events`** lists **event model ids**. Processing resolves Live campaigns whose **`Events`** contain that id (production path). Draft verification passes **campaignId** on process_event to evaluate only that Draft. Rules evaluate the **inner event** JSON with **`PayloadModelId`** = event model id; results merge onto the **wrapper document**, then Cosmos is updated under the **wrapper model id**.
+
+
+---
+PHASE 1 � Model / contract (from phased orchestration)
+---
+Phase 1 — Model / contract (BackEnd.Web MCP)
+- **Authoritative “does this tenant’s event model exist?”** Use **GetModel** with **tenantId** and **either** `(modelId + modelType)` **or** **modelName** (name resolves to id+type). Use **ListModels** / **GetAllModels** when you need the catalog; use **GetModelAttributesForRules** before writing serious rules.
+- **Not found** (or clear “model missing” from the tool): treat as **new tenant model path** — align the **SaveModel** contract with a human before you treat journeys/outcomes as production-ready (**SaveModel** is gated; every attribute needs **type**; follow Backend inferred-type confirmation if returned).
+- **Found**: treat as **existing model** — for **campaign / journey / outcome-only** changes, prioritize **automated verification** (Phase 4) per your **EVENT SIGNALS** / **CAMPAIGN GOVERNANCE** test guidance; human sign-off focuses on material or policy risk, not re-proving the model exists.
+
+---
+EVENT MODEL DISCIPLINE
+---
+EVENT SIGNALS AND RULES (global semantics — Journeys + Backend)
+
+Events as input signals
+- Event types are defined as dynamic models in the Journeys Backend. The JSON body clients send for a given event model is the primary input payload rules and journeys evaluate against (conceptually the “inner” event shape; storage may use a wrapper document — see CAMPAIGN GOVERNANCE for event vs wrapper model linkage).
+- Processed occurrences drive evaluation: rules read properties on or within that event JSON, including paths used by value providers in outcomes and rule expressions.
+
+Rules over time
+- Rules may consider the current event together with historical ledger and journey state so rewards or routing can reflect aggregates and sequences over time. Stay high level in prose; exact engine behavior is defined in code and tenant configuration.
+
+Authoring discipline
+- When authoring or explaining rules, name attributes by symbol and verify types with Backend tools (for example GetModelAttributesForRules, GetModel) for the relevant event model — do not guess field paths or types.
+- Never invent event model ids: Campaign.Events lists event model ids (GUIDs) that must match configured Backend models and tool results.
+- **Natural key symbols:** The business idempotency key is defined only via **`NaturalKeySymbols`** in event **`modelMetaData`**; each symbol must be a real attribute on the event model and present in **Process** payloads (values supplied by the client). Align sample and test JSON with **GetModel** — do not add extra root keys that are not attributes.
+- **Symbol casing:** attributes[].symbol, NaturalKeySymbols, and AccountXIdSymbol must be **lowercase** — they become PropertyPath segments in journey rules (event.{symbol}). See JSON CASING CONTRACT governance.
+- **Sample / test event JSON (examples, ProcessEvent, “try this payload”):** Do **not** include any property named **`id`** or **`Id`** (any casing) on the **root event object** — the platform reserves **`id`** for persisted document identity. The same rule applies **recursively to every nested object**, including **each element of every array** (for example each **Item** inside **`items`** / **`lineitems`** on an **Order**): list elements must **not** use **`id`/`Id`**; use only symbols defined on the **referenced line model** from **GetModel** (for example **`sku`**, **`linenumber`**, **`externalid`**). Do not emit **duplicate JSON keys** in the same object (e.g. two different casings for the same logical field). Put the customer’s business identifiers in explicit model fields and align root-level keys with **`NaturalKeySymbols`** on the event model’s **`modelMetaData`** for idempotency.
+AndRuleState naming
+- Wrapper model name convention: **<ShortEventName>AndRuleState** (e.g. Order + OrderAndRuleState). Confirm with **GetModel** before listing ids in **Campaign.Events**.
+
+SaveModel minimum create DTO
+- Before the first **SaveModel** on a **new** model, include all top-level fields: **tenantId**, **name**, **modelType**, **modelVersion** (default `"1.0"`), **isContainer**, **isPerTenancy**, **partitionKey1Symbol**, **partitionKey2Symbol**, **attributes** (each attribute must include **type**). For event payload models add **tag**: `"eventable"` and **modelMetaData** (Wrapper, NaturalKeySymbols, TimeOfOccurrence, AccountXIdSymbol) per the Journeys event checklist.
+- Each attribute also requires its element-type field: **dataType** (Primitive), **listAttributeDataType** (List), or **keyValueAttributeDataType** (KeyValue — usually `"Object"` on wrapper engine fields).
+- Incomplete create payloads often fail with **ArgumentNullException (key)** — fix the full DTO in one edit; see **_agentRemediation** when **argument_null_key** is returned.
+- Minimal event payload skeleton (extend before save): `{ "tenantId": "<tenant>", "name": "Review", "modelType": "Standard", "modelVersion": "1.0", "isContainer": false, "isPerTenancy": true, "partitionKey1Symbol": "<symbol>", "partitionKey2Symbol": "", "tag": "eventable", "attributes": [ { "symbol": "<symbol>", "type": "Primitive", "dataType": "String" } ], "modelMetaData": { } }` — then add metadata and wrapper per **Journeys event processing — complete model set**.
+
+SaveModel retry
+- If **SaveModel** returns validation errors and **_agentRemediation** is present, apply hints and retry when **retryRecommended** is true. Otherwise fix cited fields and retry once when clearly correctable.

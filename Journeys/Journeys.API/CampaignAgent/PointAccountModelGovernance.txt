@@ -1,0 +1,125 @@
+POINT ACCOUNT MODEL (PAT Skill — authoritative semantics)
+
+CORE CONCEPTS
+- PointAccountType (PAT): tenant-scoped definition of a point "product" or bucket — storage, rounding, spendability, expiration, and cascade rules. Not an individual member balance.
+- PointLedger: one member's balance instance for a PAT (accountId + pointAccountTypeId). Holds CurrentBalance, LifetimeTotal, and event-keyed Entries.
+- LedgerEntry: row with PointsDeposited, SpendablePoints, ExpirationDate, EarnDate, BurnDate, tied to eventType/eventId.
+- Earning: DepositPointsOutcome writes to a PAT ledger; expiration dates are computed from PAT lifespan fields at deposit time.
+
+PERSISTENCE BOUNDARY (mandatory)
+- PAT entity (per program bucket): UpsertPointAccountType only — flat JSON { name, ledgerType, isSpendable, … }.
+  Registers in PointAccountManifest.items[]. Never SaveModel for PAT entities.
+- Event payload model (ingress signal): SaveModel with tag eventable + Wrapper metadata — not for PAT definitions.
+- Point ledger balance (runtime): created by DepositPointsOutcome — do not SaveModel a "balance" model per PAT.
+
+Tier-loyalty WRONG vs RIGHT (tier-qual counter):
+WRONG — SaveModel (Backend model definition; inert for manifest/journey):
+  { "name": "TierQualPoints", "isContainer": false, "attributes": [{ "symbol": "balance" }],
+    "modelMetaData": { "ledgerType": "NonSpendable", "isSpendable": "false" } }
+RIGHT — UpsertPointAccountType (flat DTO):
+  { "name": "TierQualifyingPoints", "status": "Live", "ledgerType": "NonSpendable",
+    "isSpendable": false, "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+
+LEDGER TYPE + isSpendable (required on upsert)
+Allowed ledgerType values ONLY: Escrow, Spendable, Expired, NonSpendable, Archive (PointLedgerTypeStrings).
+
+| ledgerType   | Typical isSpendable | Purpose |
+| Spendable    | true                | Redeemable points; SpendPointsOutcome target |
+| NonSpendable | false               | Counters, tier-qualification buckets |
+| Escrow       | false               | Hold bucket; cascades to spendable after window |
+| Expired      | false               | Sink for expired points (reporting) |
+| Archive      | false               | Long-term archive sink |
+
+ANTI-PATTERNS (validator rejects these)
+- Do NOT use ledgerType TierQualification, Standard, TierQualifying, or any invented value.
+- Tier-qualification counter PAT = ledgerType NonSpendable + isSpendable false (name may say TierQualifyingPoints).
+- expiresToPointAccountTypeId must be a PAT id (GUID from tool results), NEVER a ledger type string like "Expired".
+
+WHEN TO USE POINT EXPIRATION
+Use expiration when:
+- Points should expire after a program window (e.g. 12-month rolling).
+- Points need a hold before becoming spendable (escrow ? spendable cascade).
+- An Expired sink PAT is needed for reconciliation.
+
+Skip expiration (no lifespan / zero days) when:
+- PAT is a pure lifetime counter with no automatic expiry (tier qual reset via journey outcomes only).
+
+DEFAULT: rolling expiration via pointsLifespanDays; leave pointsLifespanEndDate null.
+Use pointsLifespanEndDate ONLY for a fixed calendar cutoff affecting all points in that PAT equally. Do NOT set both pointsLifespanDays and pointsLifespanEndDate.
+
+expiresToPointAccountTypeId (source ? destination)
+1. Set on the SOURCE PAT (the bucket whose points expire or cascade out).
+2. Value = destination PAT id from GetPointAccountType / UpsertPointAccountType result — create destination PAT FIRST.
+3. Common pairings:
+   - Spendable (rolling expiry) ? Expired PAT id
+   - Escrow (hold ends) ? Spendable PAT id
+   - NonSpendable tier-qual (if expiring) ? Archive or Expired PAT id
+4. On cascade, the engine moves ledger entries to the destination ledger and applies the destination PAT lifespan for the next window.
+
+ESCROW CASCADE (return policy / pending settlement)
+Earn ? Escrow PAT (isSpendable false, ledgerType Escrow, pointsLifespanDays = return window)
+         expiresToPointAccountTypeId = <Spendable PAT id>
+       ? after window, points appear in Spendable ledger
+- Journey: DepositPointsOutcome ? Escrow; SpendPointsOutcome ? Spendable only.
+
+POINT ROUNDING
+- roundingOptionString: MidpointRounding enum — AwayFromZero (default), ToEven, ToZero, ToNegativeInfinity, ToPositiveInfinity.
+- roundingDecimalPlaces: 0 for whole points; 2 for fractional/dollar-equivalent.
+Applied in DepositPointsOutcome and SpendPointsOutcome.
+
+PAT AS JOURNEY COUNTER (SimpleNavigationCriteria)
+- PointBalanceProvider reads CurrentBalance for a pointAccountTypeId from RulesEngineState.
+- SimpleNavigationCriteria.navConstraint uses that balance for tier Entry/Transition thresholds.
+- Tier-qual: DepositPointsOutcome ? NonSpendable counter PAT; PointBalanceProvider in nav ? tier thresholds.
+- Spendable PAT ? earn/redeem; do not use for tier nav unless intentional.
+- Navigation uses CurrentBalance (not LifetimeTotal) unless business rules explicitly require lifetime.
+
+DECISION TREE
+Need tier/milestone navigation on earned amount?
+  YES ? Golden bundle A (+ PointBalanceProvider on NonSpendable tier-qual PAT)
+Need hold period before redeemable?
+  YES ? Golden bundle B (Escrow ? Spendable)
+Both? ? Combine A + B
+Single earn-and-burn, no tiers, no hold?
+  ? One Spendable PAT; optional Expired sink if rolling expiry
+
+Golden bundle A — Tier program (create order: Expired sink ? TierQualifying ? Spendable)
+```json
+// 1. ExpiredPoints (sink) — create first
+{ "name": "ExpiredPoints", "status": "Live", "ledgerType": "Expired",
+  "isSpendable": false, "pointsLifespanDays": null, "pointsLifespanEndDate": null,
+  "expiresToPointAccountTypeId": null, "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+
+// 2. TierQualifyingPoints (counter)
+{ "name": "TierQualifyingPoints", "status": "Live", "ledgerType": "NonSpendable",
+  "isSpendable": false, "pointsLifespanDays": 365, "expiresToPointAccountTypeId": null,
+  "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+
+// 3. TierPoints (spendable) — expiresTo = ExpiredPoints PAT id from step 1
+{ "name": "TierPoints", "status": "Live", "ledgerType": "Spendable",
+  "isSpendable": true, "pointsLifespanDays": 365,
+  "expiresToPointAccountTypeId": "<ExpiredPoints PAT id>",
+  "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+```
+Journey: earn multipliers ? Spendable; qual deposits ? TierQualifying; nav ? PointBalanceProvider on TierQualifying PAT id.
+
+Golden bundle B — Escrow cascade (create order: Spendable ? Escrow)
+```json
+// 1. MemberSpendable
+{ "name": "MemberSpendable", "status": "Live", "ledgerType": "Spendable",
+  "isSpendable": true, "pointsLifespanDays": 365,
+  "expiresToPointAccountTypeId": "<ExpiredPoints PAT id if used>",
+  "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+
+// 2. ReturnHoldEscrow — lifespan = return window
+{ "name": "ReturnHoldEscrow", "status": "Live", "ledgerType": "Escrow",
+  "isSpendable": false, "pointsLifespanDays": 30,
+  "expiresToPointAccountTypeId": "<MemberSpendable PAT id>",
+  "roundingOptionString": "AwayFromZero", "roundingDecimalPlaces": 0 }
+```
+Journey: DepositPointsOutcome ? Escrow; SpendPointsOutcome ? Spendable.
+
+AUTHORING DISCIPLINE
+- Never invent pointAccountTypeId. Use ListPointAccountTypes / GetPointAccountType / upsert tool results.
+- UpsertPointAccountType validation errors with [violation=PAT_*] are remediation — fix field and retry.
+- Register each PAT via upsert or get/list so PointAccountManifest.items is populated before Journey.

@@ -1,0 +1,16 @@
+---
+description: Journeys.API controller and HTTP contract rules
+globs: Journeys.API/**
+---
+
+# API / controllers
+
+- No business logic in controllers: validate route/body, call one service (or a small justified orchestration), map to HTTP.
+- Prefer `ICampaignService`-style injection over injecting `I*Adapter` directly unless there is a documented exception. New code defaults to services only.
+- Use `ActionResult<T>` / `IActionResult` with `ProducesResponseType` where OpenAPI clarity matters.
+- Prefer `CancellationToken` on async actions when the service stack supports it.
+- Validation errors: throw `APIErrorsException` with `Dictionary<string, string>` (aligned with `GlobalExceptionMiddleware`).
+- Unexpected errors: rely on `GlobalExceptionMiddleware`; if a controller still catches, log with `ILogger` and return 500 with a safe message.
+- Enums serialize as strings (`JsonStringEnumConverter` in `Program.cs`); keep new DTO enums consistent.
+- Keep `Program.cs` composition thin: extension methods (`AddDAL`, `AddInfra`, `AddCampaignServices`), not dozens of inline registrations.
+- MCP, A2A, and CampaignAgent handlers call the same services as REST — no duplicated business logic in tool handlers.

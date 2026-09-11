@@ -1,0 +1,3 @@
+﻿DEPRECATED — JSON examples superseded by JsonCasingContractGovernance.txt (2026-06-20). This file is not loaded by CampaignAgentPromptComposer.
+DEPRECATED — content relocated to WorkflowPhaseCampaignBuildGovernance.txt.
+The HTTP campaign agent composer no longer loads this file.

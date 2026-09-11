@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputPath>bin\$(Configuration)\</OutputPath>
+        <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.24.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\Journeys.Core\Journeys.Core.csproj" />
+    </ItemGroup>
+</Project> 

@@ -1,0 +1,32 @@
+CAMPAIGN DTO CONTAINER SHAPE (validate_campaign / upsert_campaign)
+
+L1 shell keys are camelCase (see JSON CASING CONTRACT). These container rules are separate from ruleJsonElement PascalCase (L2).
+
+events (required for event-attached campaigns)
+- events is an array of event payload model id STRINGS — e.g. ["a6edbbc5-bf43-4c57-b2f1-e015b9efaf03"].
+- Do NOT embed { "id": "...", "modelMetaData": { ... } } objects inside events[].
+
+modelMetaData (campaign root)
+- When the campaign references event models, modelMetaData lives at the CAMPAIGN ROOT as an object keyed by event model id string.
+- Each value holds Wrapper, NaturalKeySymbols, TimeOfOccurrence, AccountXIdSymbol copied from GetModel on the event payload model — not nested under events[].
+
+Minimal valid excerpt:
+{
+  "name": "...",
+  "status": "Draft",
+  "events": ["<event-model-guid>"],
+  "modelMetaData": {
+    "<event-model-guid>": {
+      "Wrapper": "<wrapper-model-guid>",
+      "NaturalKeySymbols": "[\"orderid\"]",
+      "TimeOfOccurrence": "timestamp",
+      "AccountXIdSymbol": "profileid"
+    }
+  },
+  "journey": { ... }
+}
+
+Anti-patterns:
+- events: [{ "id": "..." }] — JsonException at events[0]
+- modelMetaData inside each events[] element — wrong level
+- Omitting modelMetaData when events[] is non-empty — validate warnings or runtime bind failure

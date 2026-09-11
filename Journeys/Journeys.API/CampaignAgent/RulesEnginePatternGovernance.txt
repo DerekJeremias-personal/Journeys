@@ -1,0 +1,86 @@
+RULES ENGINE PATTERNS (Journey phase — design intelligence)
+
+HYBRID PATTERN SELECTION (read SALIENT FACTS first)
+
+- When SALIENT FACTS shows ruleEpisode or journeyPatternRecommended, use the matching <!-- episode:... --> slice below.
+- Brief-inferred tier programs (Bronze/Silver/Gold, TQP balance bands) → Pattern B (tier-navigation-point-balance) without calling get_rule_pattern_recipes unless validate fails on pattern shape.
+- Call get_rule_pattern_recipes once per journey episode when ruleEpisode is Generic, validate cites an unknown pattern, or the brief does not match any episode slice.
+- Do not load or summarize the full pattern catalog when an episode slice is already pinned.
+
+<!-- episode:Generic -->
+Pattern selection (decision tree)
+
+1. Qualification depends on rolling event history in a time window (prior-period spend, N orders in 90 days, category spend)?
+   → Pattern A (historical-spend-threshold), D (historical-event-count), or C (historical-taxonomy-filtered).
+   → Use HistoricalRule + SimpleCalculationProvider (never PointBalanceProvider as historicalValueProvider.$type).
+
+2. Tier levels from accumulated qualification points deposited by earn outcomes (TQP counter PAT)?
+   → Pattern B (tier-navigation-point-balance).
+   → Earn outcomes deposit into NonSpendable TQP; navigation uses PointBalanceProvider thresholds on tier child nodes.
+
+3. Category-specific rolling spend (Electronics in 30d)?
+   → Pattern C: AndRule with TaxonomicRule (current event) + HistoricalRule (aggregate with row Constraint).
+
+4. Current-event-only check (this order's total, this timestamp gate)?
+   → NumericPropertyRule / TemporalConstraintRule / DatePropertyRule — not HistoricalRule.
+
+5. Multiple signals must pass together?
+   → Pattern F (composite-qualification): shallow AndRule (2–3 children), cheap checks before HistoricalRule legs.
+<!-- /episode -->
+
+<!-- episode:TierLadder -->
+HistoricalRule vs PointBalanceProvider (do not interchange)
+
+| Mechanic | Use when | Rule / provider |
+|----------|----------|-----------------|
+| Rolling event aggregate | Spend/count in window drives qualification | HistoricalRule + SimpleCalculationProvider |
+| Current PAT balance | Tier nav after qual points deposited by outcomes | PointBalanceProvider in navigation navConstraint |
+
+Anti-pattern: HistoricalRule on ordertotal for tier navigation when the design uses TQP deposits + balance bands.
+Anti-pattern: PointBalanceProvider as historicalValueProvider.$type or invented names (PointBalanceHistoricalValueProvider).
+
+Scope discipline (critical)
+
+When validate_campaign fails on a multi-tier journey, fix the cited navigation/rule errors — do not collapse to a single root earn-only NumericPropertyRule unless the user explicitly accepts a simplified program.
+If tier Entry navConstraint fails Tier A (missing LeftProvider / Evaluator), complete the SimpleRule bool gate per governance skeleton, then re-validate the full tier tree.
+
+Pattern B — tier navigation (minimum viable)
+
+- Root journey.navigation.Entry: unconditional SimpleRule (ConstantValueProvider true + BoolEvaluation).
+- One child node per tier with rules[] (earn outcomes + multipliers) and navigation.Transition:
+  AndRule with two NumericPropertyRule legs: PointBalanceProvider(TQP) >= lower AND <= upper.
+- PAT ids from PointAccountManifest only.
+
+Tier navigation Entry skeleton (always-true)
+
+navConstraint must include LeftProvider, RightProvider, and Evaluator with $type on each nested object. Incomplete Entry shells cause TIER_A_SIMPLE_RULE_MISSING_* on navigation.Entry.
+<!-- /episode -->
+
+<!-- episode:SimpleEarn -->
+Pattern A — rolling spend threshold
+
+- RuleSet with HistoricalRule: historicalValueProvider and aggregationValueProvider share the same SimpleCalculationProvider Id.
+- temporalConstraint on event.timestamp; instanceValueProvider on event field; rightProvider = threshold.
+
+Current-event-only earn (simple per-order)
+
+- NumericPropertyRule on event.ordertotal (or line-item sum via SimpleCalculationProvider).
+- DepositPointsOutcome with AffectedPointAccountTypeIds from spendable PAT in PointAccountManifest.
+<!-- /episode -->
+
+<!-- episode:Expiration -->
+Point expiration is PAT configuration — see PointAccountModelGovernance (pointsLifespanDays, expiresToPointAccountTypeId).
+Journey outcomes deposit to PATs with lifespan; engine handles expiry cascade — not journey JSON fields.
+<!-- /episode -->
+
+Before UpsertCampaign
+
+1. get_rule_pattern_recipes → pick pattern id when episode is Generic or validate requires it.
+2. get_rules_engine_contract_summary once per episode (reuse enumCatalog / criticalRows from thread).
+3. validate_campaign → read nextSteps[] and top errors; fix cited fields; re-validate.
+4. upsert_campaign only after clean or user-approved warnings.
+5. get_campaign_assistant_context → confirm journey.ruleSetCount > 0 before Done or ProcessEvent.
+
+When proposing journey shapes
+
+Offer at least two structures when helpful (e.g. flat earn vs multi-tier TQP ladder) with a one-line rationale tied to the brief. Pick one and implement with the matching pattern recipe.

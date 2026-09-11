@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CampaignContextAudit</RootNamespace>
+    <AssemblyName>CampaignContextAudit</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Journeys\Journeys.Core\Journeys.Core.csproj" />
+    <ProjectReference Include="..\..\Journeys\Journeys.DAL\Journeys.DAL.csproj" />
+    <ProjectReference Include="..\..\Journeys\Journeys.Infra.Backend\Journeys.Infra.Backend.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DumpTranscript\**" />
+    <None Include="DumpTranscript\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Journeys\Journeys.CampaignAgent.Remediation\MeaiEmbeddedResultShrinker.cs" Link="Linked\MeaiEmbeddedResultShrinker.cs" />
+    <Compile Include="..\..\Journeys\Journeys.CampaignAgent.Remediation\ToolResultHistoryStub.cs" Link="Linked\ToolResultHistoryStub.cs" />
+    <!-- Production WORKFLOW ARTIFACTS block; Core-only dependency graph -->
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\CampaignAgentThreadContext.cs" Link="Linked\CampaignAgentThreadContext.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowToolSuccess.cs" Link="Linked\CampaignWorkflowToolSuccess.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowArtifactPromptBuilder.cs" Link="Linked\CampaignWorkflowArtifactPromptBuilder.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignValidationCoach.cs" Link="Linked\CampaignValidationCoach.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignJourneyDeliveryGuard.cs" Link="Linked\CampaignJourneyDeliveryGuard.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\VerificationDeliveryGuard.cs" Link="Linked\VerificationDeliveryGuard.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowFocusResolver.cs" Link="Linked\CampaignWorkflowFocusResolver.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowToolFilter.cs" Link="Linked\CampaignWorkflowToolFilter.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowPhaseNames.cs" Link="Linked\CampaignWorkflowPhaseNames.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowKnownCampaign.cs" Link="Linked\CampaignWorkflowKnownCampaign.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\CampaignWorkflowChecklist.cs" Link="Linked\CampaignWorkflowChecklist.cs" />
+    <Compile Include="..\..\Journeys\Journeys.API\CampaignAgent\Workflow\Steps\**\*.cs" Link="Linked\Steps\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Governance\ContradictionPatterns.json" />
+  </ItemGroup>
+</Project>

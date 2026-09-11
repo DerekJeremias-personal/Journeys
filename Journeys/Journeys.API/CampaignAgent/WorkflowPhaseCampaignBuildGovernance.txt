@@ -1,0 +1,20 @@
+WORKFLOW PHASE — CAMPAIGN BUILD
+
+PHASE INTENT
+- Goal: Draft campaign shell (optional), real PAT upserts, journey validate/upsert.
+- Authoritative next step and tool surface: SESSION **SKILL MANIFEST** (overrides this file).
+- Supplemental guidance loads by buildSubStep and ruleEpisode — see SALIENT FACTS buildSubStep / ruleEpisode.
+
+CAMPAIGN BUILD GATE (mandatory)
+- Do NOT validate/upsert journey content until PointAccountManifest.items is non-empty from upsert_point_account_type.
+- Do NOT inline fake PAT ids — host blocks with BUILD_GATE_PAT_MANIFEST_REQUIRED.
+- Never HTTP-defer PAT creation when upsert_point_account_type is on toolsThisTurn.
+
+SHELL (optional)
+- Minimal Draft upsert_campaign allowed before PAT manifest; journey authoring blocked until manifest populated.
+
+JOURNEY (after manifest)
+- Full journey rules: see sub-step supplements (CampaignDto shape, Rules Engine episode slice, PAT→Journey cheat sheet).
+- validate_campaign before upsert when journey JSON changed; RuleSetCount > 0 required before journey upsert.
+
+Defer PAT semantics, pattern recipes, and CampaignDto container details to sub-step-loaded supplements.

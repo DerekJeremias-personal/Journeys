@@ -1,0 +1,72 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "CSVObjectMap.schema.json",
+    "title": "CSV Object Map",
+    "description": "A definition for mapping CSV headers to an object",
+    "type": "object",
+    "properties": {
+        "GroupConfig": {
+            "description": "Configuration for defining how items should be grouped. If items should not be grouped then do not include this field",
+            "type": "object",
+            "properties": {
+                "GroupingHeaders": {
+                    "description": "Headers used to group items. Not an exhaustive list of all group headers, just the ones used to group items.",
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ItemFieldName": {
+                    "description": "Name of field on group object that items would be added to.",
+                    "type": "string"
+                },
+                "ItemHeaders": {
+                    "description": "Headers that should be mapped to an individual item.",
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "GroupingHeaders",
+                "ItemFieldName",
+                "ItemHeaders"
+            ]
+        },
+        "HeaderMap": {
+            "description": "List of header mapping objects",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "HeaderName": {
+                        "type": "string",
+                        "description": "Name of header from CSV"
+                    },
+                    "FieldName": {
+                        "type": "string",
+                        "description": "Name of field in object to map header value to"
+                    },
+                    "DateFormat": {
+                        "type": "string",
+                        "description": "Format of date string"
+                    }
+                },
+                "required": [
+                    "HeaderName",
+                    "FieldName"
+                ]
+            }
+        }
+    },
+    "required": [
+        "HeaderMap"
+    ]
+}

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BackendAdapter_ORIGINAL.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Journeys.Core\Journeys.Core.csproj" />
+    <ProjectReference Include="..\Journeys.DAL\Journeys.DAL.csproj" />
+    <ProjectReference Include="..\Journeys.DTO\Journeys.DTO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Backend.Dto">
+      <HintPath>..\..\Binaries\Backend.Dto.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

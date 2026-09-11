@@ -1,0 +1,79 @@
+nodes:
+  - id: event-models
+    label: Capability
+    name: Event models
+  - id: campaigns
+    label: Capability
+    name: Campaigns
+  - id: journeys
+    label: Capability
+    name: Journeys
+  - id: rules-engine
+    label: Capability
+    name: Rules engine
+  - id: outcomes
+    label: Capability
+    name: Outcomes
+  - id: campaign-agent
+    label: Capability
+    name: Campaign agent
+  - id: mcp-api
+    label: Capability
+    name: MCP and HTTP API
+  - id: proj-dto
+    label: Project
+    name: Journeys.DTO
+  - id: proj-core
+    label: Project
+    name: Journeys.Core
+  - id: proj-dal
+    label: Project
+    name: Journeys.DAL
+  - id: proj-infra
+    label: Project
+    name: Journeys.Infra
+  - id: proj-api
+    label: Project
+    name: Journeys.API
+  - id: proj-agent
+    label: Project
+    name: Journeys.Agent
+  - id: proj-notification
+    label: Project
+    name: Journeys.Notification
+  - id: proj-tests
+    label: Project
+    name: Journeys.Tests
+  - id: technical-buyer
+    label: Persona
+    name: Technical buyer
+  - id: program-operator
+    label: Persona
+    name: Program operator
+  - id: campaign-author
+    label: Persona
+    name: Campaign author
+  - id: tenant-admin
+    label: Persona
+    name: Tenant admin
+  - id: author-campaign
+    label: UseCase
+    name: Author a campaign
+  - id: process-event
+    label: UseCase
+    name: Process an event to outcomes
+  - id: tenant-id-required
+    label: Constraint
+    name: TenantId required
+  - id: no-controller-business-logic
+    label: Constraint
+    name: No controller business logic
+  - id: backend-dll-external
+    label: Constraint
+    name: Backend DLLs external
+  - id: ui-in-this-sln
+    label: NonGoal
+    name: UI in this solution
+  - id: terraform-in-this-tree
+    label: NonGoal
+    name: Terraform in this tree

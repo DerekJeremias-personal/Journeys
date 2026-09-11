@@ -1,0 +1,234 @@
+{
+  "id": "cf35f3e2-7c3d-4997-82cd-920645bb1973",
+  "extCampaignId": "HistoricalByCategory",
+  "status": "live",
+  "name": "Historical by category (taxonomy sum 30d)",
+  "events": [
+    "a6edbbc5-bf43-4c57-b2f1-e015b9efaf03"
+  ],
+  "startDate": "2026-01-14T13:35:06",
+  "journey": {
+    "id": "HistoricalByCategoryRoot",
+    "rootNodeId": "HistoricalByCategoryRoot",
+    "name": "Historical By Category",
+    "rules": [
+      {
+        "id": "rule-set-category-30d",
+        "name": "Spend for category in 30d",
+        "RootRuleDiscriminator": "HistoricalRule",
+        "ruleJsonElement": {
+          "Kind": "AndRule",
+          "Children": [
+            {
+              "Kind": "TaxonomicRule",
+              "IncludedTreeNodes": [
+                "Electronics.TV"
+              ],
+              "IncludedIds": [],
+              "ExcludedTreeNodes": [],
+              "ExcludedIds": [],
+              "TaxonomyType": "TreeRoot",
+              "TaxonomyId": "02c524fc-6125-4509-ab53-d21f5b82b69f",
+              "KeySymbolPath": "sku",
+              "LeftProvider": {
+                "$type": "PathValueProvider",
+                "Kind": "PathValueProvider",
+                "PropertyPath": "event.items"
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": "alwaystrue"
+              },
+              "Evaluator": {
+                "$type": "StringEvaluation",
+                "Comparison": 1
+              }
+            },
+            {
+              "Kind": "HistoricalRule",
+              "Id": "spend-category-30d",
+              "AggregateType": 1,
+              "AggregationValueProvider": {
+                "$type": "SimpleCalculationProvider",
+                "Kind": "SimpleCalculationProvider",
+                "Id": "spend-category-30d",
+                "TemporalConstraint": {
+                  "Kind": "TemporalConstraintRule",
+                  "TimeOfOccurrenceProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.timestamp"
+                  },
+                  "TemporalEvaluation": {
+                    "Comparison": 4
+                  },
+                  "Comparison": "30.00:00:00"
+                },
+                "InstanceValueProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.price"
+                  },
+                  "Constraint": {
+                    "Kind": "TaxonomicRule",
+                    "IncludedTreeNodes": [
+                      "Electronics.TV"
+                    ],
+                    "IncludedIds": [],
+                    "ExcludedTreeNodes": [],
+                    "ExcludedIds": [],
+                    "TaxonomyType": "TreeRoot",
+                    "TaxonomyId": "02c524fc-6125-4509-ab53-d21f5b82b69f",
+                    "KeySymbolPath": "sku",
+                    "LeftProvider": {
+                      "$type": "PathValueProvider",
+                      "Kind": "PathValueProvider",
+                      "PropertyPath": "event"
+                    },
+                    "RightProvider": {
+                      "$type": "ConstantValueProvider",
+                      "Kind": "ConstantValueProvider",
+                      "Value": "alwaystrue"
+                    },
+                    "Evaluator": {
+                      "$type": "StringEvaluation",
+                      "Comparison": 1
+                    }
+                  }
+                },
+                "AggregateType": 1,
+                "CalculationGatingConstraint": null
+              },
+              "IsApplicableConstraint": null,
+              "HistoricalValueProvider": {
+                "$type": "SimpleCalculationProvider",
+                "Kind": "SimpleCalculationProvider",
+                "Id": "spend-category-30d",
+                "TemporalConstraint": {
+                  "Kind": "TemporalConstraintRule",
+                  "TimeOfOccurrenceProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.timestamp"
+                  },
+                  "TemporalEvaluation": {
+                    "Comparison": 4
+                  },
+                  "Comparison": "30.00:00:00"
+                }
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": 500
+              }
+            }
+          ]
+        },
+        "outcomesJsonElement": [
+          {
+            "Id": "outcome-category-threshold",
+            "Kind": "DepositPointsOutcome",
+            "PointSourceAccountId": null,
+            "PointsPerDollar": 0.01,
+            "EarnDateProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.timestamp"
+            },
+            "DollarAmountProvider": {
+              "$type": "AggregateValueProvider",
+              "Kind": "AggregateValueProvider",
+              "AggregateType": "Sum",
+              "RowProvider": {
+                "$type": "PathValueProvider",
+                "Kind": "PathValueProvider",
+                "PropertyPath": "event.items"
+              },
+              "RowPropertyProvider": {
+                "$type": "PathValueProvider",
+                "Kind": "PathValueProvider",
+                "PropertyPath": "event.price"
+              },
+              "Constraint": {
+                "Kind": "TaxonomicRule",
+                "IncludedTreeNodes": [
+                  "Electronics.TV"
+                ],
+                "IncludedIds": [],
+                "ExcludedTreeNodes": [],
+                "ExcludedIds": [],
+                "TaxonomyType": "TreeRoot",
+                "TaxonomyId": "02c524fc-6125-4509-ab53-d21f5b82b69f",
+                "KeySymbolPath": "sku",
+                "LeftProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event"
+                },
+                "RightProvider": {
+                  "$type": "ConstantValueProvider",
+                  "Kind": "ConstantValueProvider",
+                  "Value": "alwaystrue"
+                },
+                "Evaluator": {
+                  "$type": "StringEvaluation",
+                  "Comparison": 1
+                }
+              }
+            },
+            "AffectedPointAccountTypeIds": [
+              "829eff38-6591-4c39-bfbd-db52c3256b53"
+            ],
+            "AffectedPointAccountTypes": null,
+            "EventIdProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.orderid"
+            },
+            "EventTypeProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.eventtype"
+            }
+          }
+        ]
+      }
+    ],
+    "navigation": {
+      "Entry": {
+        "$type": "SimpleNavigationCriteria",
+        "Name": "Entry",
+        "NavConstraint": {
+          "Kind": "SimpleRule",
+          "LeftProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": true
+          },
+          "RightProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": true
+          },
+          "Evaluator": {
+            "$type": "BoolEvaluation"
+          }
+        },
+        "Outcomes": null,
+        "NavigationType": 0
+      }
+    }
+  },
+  "tenantId": "mericantires"
+}

@@ -1,0 +1,133 @@
+{
+  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "extCampaignId": "HistoricalCount90d",
+  "patternId": "historical-event-count",
+  "status": "draft",
+  "name": "Historical event count (3+ orders in 90 days)",
+  "events": [
+    "a6edbbc5-bf43-4c57-b2f1-e015b9efaf03"
+  ],
+  "startDate": "2026-01-01T00:00:00",
+  "journey": {
+    "id": "HistoricalCount90dRoot",
+    "rootNodeId": "HistoricalCount90dRoot",
+    "name": "Order count 90d",
+    "rules": [
+      {
+        "id": "rule-set-orders-90d",
+        "name": "3+ orders in 90 days",
+        "RootRuleDiscriminator": "HistoricalRule",
+        "ruleJsonElement": {
+          "Kind": "HistoricalRule",
+          "Id": "orders-90d",
+          "AggregateType": 5,
+          "HistoricalValueProvider": {
+            "$type": "SimpleCalculationProvider",
+            "Kind": "SimpleCalculationProvider",
+            "Id": "orders-90d",
+            "AggregateType": 5,
+            "TemporalConstraint": {
+              "Kind": "TemporalConstraintRule",
+              "TimeOfOccurrenceProvider": {
+                "$type": "PathValueProvider",
+                "Kind": "PathValueProvider",
+                "PropertyPath": "event.timestamp"
+              },
+              "TemporalEvaluation": {
+                "Comparison": 4
+              },
+              "Comparison": "90.00:00:00"
+            },
+            "InstanceValueProvider": {
+              "$type": "ConstantValueProvider",
+              "Kind": "ConstantValueProvider",
+              "Value": 1
+            }
+          },
+          "AggregationValueProvider": {
+            "$type": "SimpleCalculationProvider",
+            "Kind": "SimpleCalculationProvider",
+            "Id": "orders-90d",
+            "AggregateType": 5,
+            "TemporalConstraint": {
+              "Kind": "TemporalConstraintRule",
+              "TimeOfOccurrenceProvider": {
+                "$type": "PathValueProvider",
+                "Kind": "PathValueProvider",
+                "PropertyPath": "event.timestamp"
+              },
+              "TemporalEvaluation": {
+                "Comparison": 4
+              },
+              "Comparison": "90.00:00:00"
+            },
+            "InstanceValueProvider": {
+              "$type": "ConstantValueProvider",
+              "Kind": "ConstantValueProvider",
+              "Value": 1
+            }
+          },
+          "RightProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": 3
+          }
+        },
+        "outcomesJsonElement": [
+          {
+            "Id": "outcome-order-count",
+            "Kind": "DepositPointsOutcome",
+            "PointsPerDollar": 1,
+            "EarnDateProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.timestamp"
+            },
+            "DollarAmountProvider": {
+              "$type": "ConstantValueProvider",
+              "Kind": "ConstantValueProvider",
+              "Value": 100
+            },
+            "AffectedPointAccountTypeIds": [
+              "829eff38-6591-4c39-bfbd-db52c3256b53"
+            ],
+            "EventIdProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.orderid"
+            },
+            "EventTypeProvider": {
+              "$type": "PathValueProvider",
+              "Kind": "PathValueProvider",
+              "PropertyPath": "event.eventtype"
+            }
+          }
+        ]
+      }
+    ],
+    "navigation": {
+      "Entry": {
+        "$type": "SimpleNavigationCriteria",
+        "Name": "Entry",
+        "NavConstraint": {
+          "Kind": "SimpleRule",
+          "LeftProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": true
+          },
+          "RightProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": true
+          },
+          "Evaluator": {
+            "$type": "BoolEvaluation"
+          }
+        },
+        "NavigationType": 0
+      }
+    }
+  },
+  "tenantId": "mericantires"
+}

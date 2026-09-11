@@ -1,0 +1,23 @@
+entries:
+  - prefix: Journeys.API/CampaignAgent
+    docs: [docs/platform/architecture.md, docs/developer/tools.md]
+  - prefix: Journeys.API/Mcp
+    docs: [docs/platform/architecture.md, docs/developer/index.md]
+  - prefix: Journeys.API
+    docs: [docs/platform/architecture.md]
+  - prefix: Journeys.Core/RulesEngine
+    docs: [docs/platform/architecture.md, docs/product/ontology/rule.md]
+  - prefix: Journeys.Core
+    docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md]
+  - prefix: Journeys.DTO
+    docs: [docs/platform/architecture.md]
+  - prefix: Journeys.DAL
+    docs: [docs/platform/architecture.md]
+  - prefix: Journeys.Agent
+    docs: [docs/platform/architecture.md, docs/developer/tools.md]
+  - prefix: Journeys.Tests
+    docs: [docs/developer/testing.md]
+  - prefix: Journeys.Infra
+    docs: [docs/platform/architecture.md]
+  - prefix: Journeys.Notification
+    docs: [docs/platform/architecture.md]

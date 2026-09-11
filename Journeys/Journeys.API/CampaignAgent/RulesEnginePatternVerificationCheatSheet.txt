@@ -1,0 +1,7 @@
+RULES ENGINE — VERIFICATION CHEAT SHEET
+
+- AppliedCampaigns non-empty only means the member matched the campaign shell — check AppliedRuleSetIds and point outcomes before claiming success.
+- Empty AppliedRuleSetIds often means missing or failing navigation Entry/Transition (PointBalanceProvider thresholds or incomplete navConstraint).
+- HistoricalRule state affects qualification over processed events; PointBalanceProvider reflects PAT deposits from prior outcomes — interpret empty rule application accordingly.
+- After draft process_event (with campaignId), require non-empty AppliedRuleSetIds when the journey has rule sets on entered tiers. After Live promotion, re-test without campaignId for production smoke.
+- If rules did not fire, call get_campaign_assistant_context and verify journey.ruleSetCount > 0 and navigation on tier nodes before blaming the test account.

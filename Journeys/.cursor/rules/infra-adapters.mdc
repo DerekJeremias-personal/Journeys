@@ -1,0 +1,16 @@
+---
+description: Journeys infrastructure adapter rules
+globs:
+  - Journeys.Infra/**
+  - Journeys.Infra.*/**
+  - Journeys.Infra.*/**/**
+  - Journeys.Notification/**
+---
+
+# Infrastructure
+
+- External resources stay in Infra: Cosmos, blob, Data Lake, Service Bus, Auth, Backend adapters.
+- Honor interfaces defined in Core; inject implementations at the composition root.
+- `Backend.*` HintPath DLLs under `..\..\Binaries\` are an external dependency — do not rename those assemblies.
+- Notification adapters are infrastructure-adjacent; no campaign/journey business rules here.
+- Infra-only changes may use a graph waiver or `meaningOptional` path-map entries when product meaning does not change.

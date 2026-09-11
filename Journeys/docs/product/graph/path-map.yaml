@@ -1,0 +1,41 @@
+# Longest prefix wins. Paths are relative to C:\Dev\Journeys\Journeys and use /.
+entries:
+  - prefix: Journeys.API/CampaignAgent
+    nodes: [campaign-agent, campaigns]
+    meaningOptional: false
+  - prefix: Journeys.API/Mcp
+    nodes: [mcp-api]
+    meaningOptional: false
+  - prefix: Journeys.API/A2a
+    nodes: [mcp-api]
+    meaningOptional: false
+  - prefix: Journeys.API
+    nodes: [mcp-api, campaigns]
+    meaningOptional: false
+  - prefix: Journeys.Core/RulesEngine
+    nodes: [rules-engine, journeys]
+    meaningOptional: false
+  - prefix: Journeys.Core
+    nodes: [campaigns]
+    meaningOptional: false
+  - prefix: Journeys.DTO
+    nodes: [campaigns]
+    meaningOptional: false
+  - prefix: Journeys.DAL
+    nodes: [campaigns]
+    meaningOptional: false
+  - prefix: Journeys.Agent
+    nodes: [campaign-agent]
+    meaningOptional: false
+  - prefix: Journeys.CampaignAgent.Remediation
+    nodes: [campaign-agent]
+    meaningOptional: false
+  - prefix: Journeys.Tests
+    nodes: [campaigns]
+    meaningOptional: true
+  - prefix: Journeys.Infra
+    nodes: [backend-dll-external]
+    meaningOptional: true
+  - prefix: Journeys.Notification
+    nodes: [outcomes]
+    meaningOptional: true

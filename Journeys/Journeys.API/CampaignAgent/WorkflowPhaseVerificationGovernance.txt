@@ -1,0 +1,44 @@
+﻿WORKFLOW PHASE — VERIFICATION (When the user is working on Verification or completion (active focus))
+
+PHASE INTENT
+- Goal: Verify draft campaign with a correct ProcessEvent payload (event-attached) or tag/account path (tag-first).
+- Mutating tools are available after the design brief is captured; use validation errors to coach the user.
+- Inputs: EventModelContracts, CampaignShellDigest (in CampaignShellRef), JourneyDigest with referencedPointAccountTypes (WORKFLOW ARTIFACTS); GetCampaignAssistantContext (authoritative for payload shape).
+- Outputs: Verification summary for user; ProcessEvent only when enabled and requested.
+- ProcessEvent eventJson is the ROOT event payload — do not wrap in { "event": ... }.
+- Use eventModels[].processingContract.accountLink and naturalKey from GetCampaignAssistantContext when building fixtures; cross-check PAT ids against journey.referencedPointAccountTypes and pointAccountManifest.
+- Default ProcessEvent fixture: **processingContract.processingRole** = **standard_event**. Use **loyalty_account_creation** (IsLoyaltyAccount) only when explicitly testing account enrollment — not for existing-member verification.
+
+VERIFICATION STEPS (ordered)
+0. If WORKFLOW ARTIFACTS shows **creationComplete: yes** (SalientFacts or **CreationSnapshot**), **do not** recreate PATs or campaign — verify only. Cross-check PAT ids: WORKFLOW **PointAccountManifest** overrides empty **pointAccountManifest** in assistant context.
+1. **GetCampaign** or use THREAD CONTEXT / **CampaignShellRef** (**CampaignShellDigest**) for the draft campaign id and **Campaign.Events** event model ids.
+2. **GetCampaignAssistantContext** — align symbols, **eventModels[].processingContract** (accountLink, naturalKey), **campaignShell**, **pointAccountManifest**, and **journey** (referencedPointAccountTypes) with what you will test (authoritative over memory).
+2.5. **GetAccount** — when the user names a test account (external id), call **get_account** first to confirm it exists. If the test account is unknown, ask one short question: "Which test account should I use for the verification event?" **Never invent** placeholder account ids (e.g. CUST123).
+3. Branch:
+   - **Event-attached:** build fixture payload (no **`id`**/`**Id**` on event root or line items); **ProcessEvent** only if enabled and user wants simulation; confirm **Campaign.Events** matches process **PayloadModelId**. **Draft verification requires campaignId:** pass the draft campaign id from THREAD CONTEXT / **CampaignShellRef** to **process_event** so only that Draft is evaluated (without campaignId, ProcessEvent loads Live campaigns only). After Live promotion, run **process_event** without campaignId for production smoke tests.
+   - **Tag-first:** confirm **UpsertCampaign** success, **GetAccount** / tag semantics, journey entry without mandatory ProcessEvent unless user requests event proof.
+4. (a) Summarize draft verification results (process_event with campaignId). (b) Optional Live promotion only when the user explicitly requests it — do **not** claim verification complete or "production ready" while **process_event** returns errors or MCP **isError** — the Verify checklist requires a **successful** ProcessEvent.
+
+Test account discipline
+- Use only the test account id the **user** provided (or confirmed via successful **get_account**).
+- The account external id must be on the tenant **campaignTestAccountExtIds** allowlist (Backend Tenant record). On **draftTestingNotPermitted**, ask an admin to add the account or use an allowlisted test account.
+- **Allowlist discovery (host):** SESSION loads **campaignTestAccountExtIds** proactively when the user asks to test. Offer known ids from **draftTestAccounts** in SALIENT FACTS; when the list is empty, state verification is **blocked** — do not loop asking for accounts.
+- **Draft test path:** pass **campaignId** on **process_event** for exclusive Draft evaluation — Live promotion is not required first.
+- **Account creation (v2 deferred):** if the user asks to create a new test account, explain that provisioning from the agent is planned; for now use an allowlisted id or ask an admin to add **campaignTestAccountExtIds**.
+- Build ProcessEvent fixtures from **get_campaign_assistant_context** **sampleScaffold.jsonTemplate**; set the account link field from **processingContract.accountLink.symbolPath**.
+- Coach toward success: get_account → assistant context → process_event. Tools remain available; follow SESSION **Coach:** hints.
+
+Phase 4 ? Verification (Journeys)
+- Persist or update the campaign via the appropriate tool (e.g. **UpsertCampaign**).
+- **When the campaign is event-attached:** **Invariant for Live campaigns that process events:** **Campaign.Events** must contain the **same string** as the **event payload model id** used when processing that event (**PayloadModelId** / process route) ? one consistent GUID (or identifier) end to end; do not list a friendly name if the runtime id is a GUID. Prove behavior through **EventsController** `process` (or equivalent **ProcessEvent** MCP), using a **fixture payload** suitable for the model; check expected **evaluated campaigns**, **journey** entry, and **outcomes** the user cares about.
+- **When the campaign is tag-associated (no event path required):** Verify with **UpsertCampaign** success, then **account/tag** alignment and journey behavior the user expects (read tools, tag semantics per tenant). Do **not** block completion on **ProcessEvent** if the user?s goal does not include event ingress for this program.
+
+Do not confuse
+- **Backend tenant event model** = definition and **rule** surface (**GetModel** / **GetModelAttributesForRules**).
+- **Journeys `WrappedEventPayload`** = **per-event processed** storage envelope; it is **not** the model definition. **Process** ingests payloads; the model definition lives in Backend (MCP) and in campaign JSON you save via Journeys tools.
+
+- ProcessEvent mutates loyalty state: use only when the user explicitly asks to process or simulate an event. Event payloads you show or send must **not** include **`id`** / **`Id`** on the root **or inside nested objects and list elements** (each line item must follow the line model?s symbols, not **`id`**); see **EVENT SIGNALS AND RULES** (?Sample / test event JSON?).
+- MoveTier is admin-only: use only when explicitly requested.
+
+- **Natural key symbols:** The business idempotency key is defined only via **`NaturalKeySymbols`** in event **`modelMetaData`**; each symbol must be a real attribute on the event model and present in **Process** payloads (values supplied by the client). Align sample and test JSON with **GetModel** ? do not add extra root keys that are not attributes.
+- **Sample / test event JSON (examples, ProcessEvent, ?try this payload?):** Do **not** include any property named **`id`** or **`Id`** (any casing) on the **root event object** ? the platform reserves **`id`** for persisted document identity. The same rule applies **recursively to every nested object**, including **each element of every array**. Align with **GetModel** and **NaturalKeySymbols**.

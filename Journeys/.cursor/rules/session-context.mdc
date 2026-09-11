@@ -1,0 +1,15 @@
+---
+description: Session reading order for Journeys agents
+alwaysApply: true
+---
+
+# Session context
+
+Before code search, edits, or terminal execution:
+
+1. Read `AGENTS.md`.
+2. Read `docs/product/index.md` and the product slice for the task.
+3. Read `docs/platform/index.md` (and architecture) for structural work.
+4. Read matching `.cursor/rules` for the paths you will edit.
+
+Do not skip this for "small" tasks. Do not invent capability names that are not in `docs/product/`.

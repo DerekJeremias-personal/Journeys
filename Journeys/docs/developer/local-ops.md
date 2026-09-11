@@ -1,0 +1,30 @@
+# Local ops
+
+From `C:\Dev\Journeys\Journeys`:
+
+```powershell
+dotnet restore .\Journeys.sln
+dotnet build .\Journeys.sln
+```
+
+Agent local gate (impact + build):
+
+```powershell
+.\scripts\agent-verify.ps1 -Files @("docs/platform/architecture.md") -SkipImpact
+```
+
+Use `-SkipImpact` only when you are not proving the bridge. Default is to run `docs-impact` and `graph-impact` (pass `-Files` when there is no git repo).
+
+## Local secrets
+
+Checked-in `appsettings*.json` files must not contain live keys. `Journeys.API` and `Journeys.Agent` already have `UserSecretsId` values. Set local credentials with user secrets or environment variables, for example:
+
+```powershell
+dotnet user-secrets set "CampaignAgent:AnthropicApiKey" "<your-key>" --project .\Journeys.API\Journeys.API.csproj
+dotnet user-secrets set "ANTHROPIC_API_KEY" "<your-key>" --project .\Journeys.Agent\Journeys.Agent.csproj
+dotnet user-secrets set "MassTransit:Transport:Host" "<service-bus-connection-string>" --project .\Journeys.API\Journeys.API.csproj
+dotnet user-secrets set "MassTransit:SagaRepository:Key" "<cosmos-key>" --project .\Journeys.API\Journeys.API.csproj
+dotnet user-secrets set "DataLake:ConnectionString" "<storage-connection-string>" --project .\Journeys.API\Journeys.API.csproj
+```
+
+Alternatively, put overrides in `appsettings.Local.json` (gitignored). `ServiceBusAdapter` takes its connection string from DI — do not hardcode keys in source.

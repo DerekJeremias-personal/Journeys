@@ -1,0 +1,11 @@
+---
+description: Journeys.DAL persistence rules
+globs: Journeys.DAL/**
+---
+
+# DAL / adapters
+
+- All persistence goes through `Journeys.DAL`, injected into services.
+- Adapters follow patterns such as `ReferenceableBaseAdapter<T>` and implement `I*Adapter`.
+- Normalize persisted fields consistently with existing adapters (e.g. lowercase status keys where the codebase already does).
+- Throw `APIErrorsException` for field-level validation. Do not leak raw storage exceptions — log and wrap.

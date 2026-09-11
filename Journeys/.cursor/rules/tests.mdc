@@ -1,0 +1,11 @@
+---
+description: Journeys.Tests conventions
+globs: Journeys.Tests/**
+---
+
+# Tests
+
+- Place automated tests under `Journeys.Tests`, following the existing folder layout (RulesEngine, Workflow, and so on).
+- Mirror existing naming and Arrange–Act–Assert style.
+- Prefer TDD on pure seams (rules, mappers, validators) when the plan says so.
+- Do not add a second test project for production code that already lives here.

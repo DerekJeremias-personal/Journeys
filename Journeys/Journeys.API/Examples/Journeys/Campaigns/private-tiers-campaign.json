@@ -1,0 +1,527 @@
+{
+  "id": "f00df00d-8e7f-42c9-8274-b0b5dc4bd0d9",
+  "extCampaignId": " privatetiers",
+  "status": "live",
+  "name": "private tiers",
+  "startDate": "2025-01-02T03:30:00+00:00",
+  "endDate": null,
+  "events": [
+    "a6edbbc5-bf43-4c57-b2f1-e015b9efaf03"
+  ],
+  "segments": [],
+  "journey": {
+    "name": "  Private Tiers",
+    "children": [
+      {
+        "name": "Ruthenium 256",
+        "children": [],
+        "rules": [
+          {
+            "name": "Ruthenium Point Economy",
+            "ruleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "rootRuleDiscriminator": "SimpleRule",
+            "outcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 0.256,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.invoiceDate"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "a246f62f-a9d8-4fe0-bd65-9e9d7f5881a5"
+                ],
+                "Id": "AFF92000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.uniquekey"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.value"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ],
+            "tenantId": null,
+            "id": "Ruthenium Point Economy",
+            "etag": null
+          }
+        ],
+        "rootNodeId": " PrivateTierSystem",
+        "navigation": {
+          "Entry": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": false
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "tenantId": null,
+        "id": "Ruthenium256",
+        "etag": null
+      },
+      {
+        "name": "Ruthenium 299",
+        "children": [],
+        "rules": [
+          {
+            "name": "Ruthenium Point Economy",
+            "ruleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "rootRuleDiscriminator": "SimpleRule",
+            "outcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 0.299,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.invoiceDate"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "a246f62f-a9d8-4fe0-bd65-9e9d7f5881a5"
+                ],
+                "Id": "AFF94000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.uniquekey"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.value"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ],
+            "tenantId": null,
+            "id": "Ruthenium Point Economy",
+            "etag": null
+          }
+        ],
+        "rootNodeId": " PrivateTierSystem",
+        "navigation": {
+          "Entry": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": false
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "tenantId": null,
+        "id": "Ruthenium299",
+        "etag": null
+      },
+      {
+        "name": "Ruthenium 3",
+        "children": [],
+        "rules": [
+          {
+            "name": "Ruthenium Point Economy",
+            "ruleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "rootRuleDiscriminator": "SimpleRule",
+            "outcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 0.3,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.invoiceDate"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "a246f62f-a9d8-4fe0-bd65-9e9d7f5881a5"
+                ],
+                "Id": "AFF92000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.uniquekey"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.value"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ],
+            "tenantId": null,
+            "id": "Ruthenium Point Economy",
+            "etag": null
+          }
+        ],
+        "rootNodeId": " PrivateTierSystem",
+        "navigation": {
+          "Entry": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": false
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "tenantId": null,
+        "id": "Ruthenium3",
+        "etag": null
+      },
+      {
+        "name": "Ruthenium 334",
+        "children": [],
+        "rules": [
+          {
+            "name": "Ruthenium Point Economy",
+            "ruleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "rootRuleDiscriminator": "SimpleRule",
+            "outcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 0.334,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.invoiceDate"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "a246f62f-a9d8-4fe0-bd65-9e9d7f5881a5"
+                ],
+                "Id": "AFF95000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.uniquekey"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.value"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ],
+            "tenantId": null,
+            "id": "Ruthenium Point Economy",
+            "etag": null
+          }
+        ],
+        "rootNodeId": " PrivateTierSystem",
+        "navigation": {
+          "Entry": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": false
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "tenantId": null,
+        "id": "Ruthenium334",
+        "etag": null
+      },
+      {
+        "name": "Ruthenium 159",
+        "children": [],
+        "rules": [
+          {
+            "name": "Ruthenium Point Economy",
+            "ruleJsonElement": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "rootRuleDiscriminator": "SimpleRule",
+            "outcomesJsonElement": [
+              {
+                "Kind": "DepositPointsOutcome",
+                "PointSourceAccountId": null,
+                "PointsPerDollar": 1.59,
+                "EarnDateProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.invoiceDate"
+                },
+                "AffectedPointAccountTypeIds": [
+                  "a246f62f-a9d8-4fe0-bd65-9e9d7f5881a5"
+                ],
+                "Id": "AFF92000-0000-0000-0000-000000000000",
+                "EventIdProvider": {
+                  "$type": "PathValueProvider",
+                  "Kind": "PathValueProvider",
+                  "PropertyPath": "event.uniquekey"
+                },
+                "DollarAmountProvider": {
+                  "$type": "AggregateValueProvider",
+                  "Kind": "AggregateValueProvider",
+                  "AggregateType": 1,
+                  "RowProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.items"
+                  },
+                  "RowPropertyProvider": {
+                    "$type": "PathValueProvider",
+                    "Kind": "PathValueProvider",
+                    "PropertyPath": "event.value"
+                  },
+                  "Constraint": null
+                },
+                "MapToProvider": null
+              }
+            ],
+            "tenantId": null,
+            "id": "Ruthenium Point Economy",
+            "etag": null
+          }
+        ],
+        "rootNodeId": " PrivateTierSystem",
+        "navigation": {
+          "Entry": {
+            "$type": "SimpleNavigationCriteria",
+            "NavConstraint": {
+              "Kind": "SimpleRule",
+              "LeftProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": false
+              },
+              "RightProvider": {
+                "$type": "ConstantValueProvider",
+                "Kind": "ConstantValueProvider",
+                "Value": true
+              },
+              "Evaluator": {
+                "$type": "BoolEvaluation",
+                "Comparison": "Equal"
+              }
+            },
+            "Outcomes": null,
+            "NavigationType": 0
+          }
+        },
+        "tenantId": null,
+        "id": "Ruthenium159",
+        "etag": null
+      }
+    ],
+    "rules": [],
+    "rootNodeId": " PrivateTierSystem",
+    "navigation": {
+      "Entry": {
+        "$type": "SimpleNavigationCriteria",
+        "NavConstraint": {
+          "Kind": "SimpleRule",
+          "LeftProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": false
+          },
+          "RightProvider": {
+            "$type": "ConstantValueProvider",
+            "Kind": "ConstantValueProvider",
+            "Value": true
+          },
+          "Evaluator": {
+            "$type": "BoolEvaluation",
+            "Comparison": "Equal"
+          }
+        },
+        "Outcomes": null,
+        "NavigationType": 0
+      }
+    },
+    "tenantId": null,
+    "id": " PrivateTierSystem",
+    "etag": null
+  },
+  "tenantId": "mericantires"
+}

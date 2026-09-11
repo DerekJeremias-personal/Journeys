@@ -1,0 +1,21 @@
+PROCESS EVENT PAYLOAD TYPES (process_event eventJson root)
+
+eventJson is the ROOT event payload — no { "event": ... } wrapper. Align every key with GetModel / get_campaign_assistant_context eventModels[].attributes (symbol + dataType).
+
+Common cast failures (fix before retry):
+
+| Symbol / path | dataType | JSON shape | Example |
+|---------------|----------|------------|---------|
+| discounts | List | array (empty ok) | "discounts": [] — never 0 or null when type is List |
+| items | List | array of objects | "items": [{ "price": 10, "quantity": 1, "sku": { "extId": "SKU-1" } }] |
+| sku (on line item) | Taxonomy / ModelTaxonomy | object with extId | "sku": { "extId": "WATER-5GAL" } — never a bare string or null |
+| List-typed fields | List | [] when empty | Do not omit or use scalar placeholders |
+
+Rules that sum line amounts (SimpleCalculationProvider on items) require at least one item with price and quantity — empty items[] yields no earn outcomes.
+
+Before first process_event in verification:
+1. Prefer get_campaign_assistant_context sampleScaffold.jsonTemplate when present.
+2. Cross-check List vs Taxonomy types against this table.
+3. Set natural key fields per processingContract.naturalKey and account link per accountLink.symbolPath.
+
+Do not include id/Id on root or nested objects (platform reserved) — see Verification phase governance.
