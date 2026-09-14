@@ -49,6 +49,13 @@ public static class ConfigureInfra
 
             services.AddHostedService<BlobArchiveJobProcessor>();
         }
+        else
+        {
+            // Keep DI constructable without Azure storage. Blob/Data Lake jobs stay unregistered.
+            services.AddScoped<IDataLakeAdapter, UnconfiguredDataLakeAdapter>();
+            services.AddScoped<IFileStorageAdapter, UnconfiguredFileStorageAdapter>();
+            services.AddScoped<IFileIngestionAdapter, UnconfiguredFileIngestionAdapter>();
+        }
 
         return services;
     }

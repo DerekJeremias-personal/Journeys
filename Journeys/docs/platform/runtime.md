@@ -6,7 +6,7 @@ What each store and adapter is for **today**. If this table and code disagree, f
 |---------|-------|--------|
 | Campaign / journey / account / event persistence | `Journeys.DAL` + Backend data plane (`Backend.*` DLLs) | Customer event-model instances live in Backend. Do not invent a parallel store |
 | MassTransit sagas | Cosmos (`MassTransit:SagaRepository`) | Host, key, database `masstransit`, collection `sagas` in config |
-| Inbound files, chunks, archive | Data Lake + blob (`Journeys.Infra.DataLake`, `Journeys.Infra.BlobStorage`) | Hosted jobs register only when `DataLake:ConnectionString` is set |
+| Inbound files, chunks, archive | Data Lake + blob (`Journeys.Infra.DataLake`, `Journeys.Infra.BlobStorage`) | Hosted jobs and live clients register only when `DataLake:ConnectionString` is set. Otherwise unconfigured adapters keep DI valid; storage calls fail or no-op at the call site (`docs/developer/local-ops.md`) |
 | Queue | `Journeys.Infra.ServiceBus` | Connection from DI, not source |
 | Notifications | `Journeys.Notification` | Adapters only; no campaign/journey rules |
 | Auth | `Journeys.Infra.Auth` | Auth0 + API keys (`docs/platform/security.md`) |

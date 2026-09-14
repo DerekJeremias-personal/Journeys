@@ -30,7 +30,7 @@ dotnet user-secrets set "Serilog:WriteTo:0:Args:authenticationId" "<log-analytic
 
 Alternatively, put overrides in `appsettings.Local.json` (gitignored). `ServiceBusAdapter` takes its connection string from DI — do not hardcode keys in source.
 
-Without a Log Analytics `authenticationId`, `Journeys.API` still starts and writes to the console. Azure Analytics is skipped until that secret is set. Without `DataLake:ConnectionString`, blob clients and the chunk/archive background jobs are not registered so the host can still start.
+Without a Log Analytics `authenticationId`, `Journeys.API` still starts and writes to the console. Azure Analytics is skipped until that secret is set. Without `DataLake:ConnectionString`, Azure blob clients and the chunk/archive background jobs are not registered. Unconfigured Data Lake and blob adapters are registered instead so `builder.Build()` can construct `LoyaltyAccountService` and related services. The host starts; ingest, file download, and account-report export fail when those code paths run. Account delete skips a missing report file. Campaign-agent tool-audit lines are dropped until storage is configured.
 
 ## Linear projection (optional)
 

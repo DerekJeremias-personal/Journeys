@@ -50,6 +50,7 @@ Do not merge two tenants’ context into one agent turn. Do not persist the LLM 
 2. Rules evaluation hydrates and persists under `engineState.TenantId` (`docs/product/ontology/rule.md`).
 3. Historical rule TTL, journey membership, and point ledgers are per account **inside** a tenant.
 4. Logs for tenant-scoped calls include structured `TenantId`. Do not log secrets, tokens, API keys, or full event payloads (`docs/developer/logging.md`).
+5. Data Lake / blob credentials are not a tenancy boundary. The API can start without `DataLake:ConnectionString`; tenant-scoped Core calls still require `TenantId`. Ingest and file export fail at those call sites until storage is configured (`docs/developer/local-ops.md`).
 
 ## Governance for agents
 

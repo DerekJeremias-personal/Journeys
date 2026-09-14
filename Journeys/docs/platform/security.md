@@ -12,7 +12,7 @@ Allow paths today:
 
 JWT is Auth0 (`JwtBearer`). Every business operation stays `TenantId`-scoped (`docs/product/ontology/tenant.md`).
 
-Committed `appsettings*.json` hold empty keys only. Live credentials: user secrets, environment, or gitignored `appsettings.Local.json` (`docs/developer/local-ops.md`).
+Committed `appsettings*.json` hold empty keys only. Live credentials: user secrets, environment, or gitignored `appsettings.Local.json` (`docs/developer/local-ops.md`). When `DataLake:ConnectionString` is unset, unconfigured blob/Data Lake adapters keep DI valid so the API can start without those secrets.
 
 ## Human-gated debt
 
