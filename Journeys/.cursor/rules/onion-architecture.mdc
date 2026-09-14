@@ -13,3 +13,7 @@ alwaysApply: true
 - Every business operation is tenant-scoped (`TenantId`).
 - Do not delete existing comments without cause.
 - UI is not in this solution. Do not add a web frontend here.
+- If this solution stores user-boundary data, use a full local onion.
+- Prefer DDD in one modular monolith; do not create a microservice per noun.
+- `Journeys.DTO` is required.
+- See `docs/platform/overlays.md` for Adapter names.

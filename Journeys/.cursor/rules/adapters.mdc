@@ -1,0 +1,15 @@
+---
+description: Journeys adapter alias (DAL + Infra)
+globs:
+  - Journeys.DAL/**
+  - Journeys.Infra/**
+  - Journeys.Infra.*/**
+  - Journeys.Infra.*/**/**
+  - Journeys.Notification/**
+---
+
+# Adapters
+
+This product’s adapters are `Journeys.DAL` and `Journeys.Infra*`.
+
+Follow `.cursor/rules/dal-adapters.mdc` and `.cursor/rules/infra-adapters.mdc`. Do not put campaign/journey business rules in adapters.

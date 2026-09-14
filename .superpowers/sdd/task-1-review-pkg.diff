@@ -1,0 +1,128 @@
+﻿# Task 1 review package
+# Base: working tree vs HEAD b9517635e8e200ecc2302571a9d2e3376a1ce548 (no commit)
+# Note: repo has other uncommitted files; this package is ONLY Task 1 paths.
+
+ Journeys/AGENTS.md                               | 13 +++++++------
+ Journeys/docs/product/market-and-positioning.md  | 10 ++++++++--
+ Journeys/docs/product/ontology/journey.md        |  4 +++-
+ Journeys/docs/product/taxonomies/personas.md     |  8 ++++----
+ Journeys/docs/product/use-cases/process-event.md |  4 +++-
+ 5 files changed, 25 insertions(+), 14 deletions(-)
+
+----- FULL DIFF -----
+
+diff --git a/Journeys/AGENTS.md b/Journeys/AGENTS.md
+index 773ac8f..d42787e 100644
+--- a/Journeys/AGENTS.md
++++ b/Journeys/AGENTS.md
+@@ -1,34 +1,35 @@
+ # Journeys ΓÇö session contract
+ 
+-Journeys is a multi-tenant **program runtime**: customer-owned event models, journey graphs and declarative rules, pluggable outcomes. This folder is the onion .NET solution (`Journeys.sln`). A Next.js UI is **not** in this solution.
++Journeys is a multi-tenant **signal response engine** (program runtime): customer-owned event models, journey graphs and declarative rules, pluggable outcomes. This folder is the onion .NET solution (`Journeys.sln`). A Next.js UI is **not** in this solution.
+ 
+ ## Essential reading (in order)
+ 
+ Before code search, edits, or terminal work:
+ 
+ 1. This file (`AGENTS.md`)
+ 2. `docs/product/index.md` plus the taxonomy, ontology, and graph slice for the task
+ 3. `docs/roadmap/` when the work is a feature (why now, non-goals)
+-4. `docs/platform/index.md` and `docs/platform/architecture.md`
++4. `docs/platform/index.md`, `docs/platform/architecture.md`, and `docs/platform/overlays.md` (overlays is required for structural work)
+ 5. Path rules under `.cursor/rules/` that match files you will touch
+ 6. A design spec in `docs/specs/` and a plan in `docs/plans/` for any multi-file or non-trivial change
+ 
+ If an agent cannot find it from this door plus path rules, it is not operational knowledge.
+ 
+ ## Instruction hierarchy
+ 
+ 1. Explicit user instruction in the current turn
+-2. `AGENTS.md` + `.cursor/rules/`
+-3. `.agents/skills/` on this repo
+-4. Generic plugin skills (only when they do not conflict)
+-5. Default model behavior
++2. For layering, DDD, and UI/API boundaries: `docs/platform/`, including `docs/platform/overlays.md`, and `.cursor/rules/`
++3. For product behavior: `docs/product/`
++4. `.agents/skills/` on this repo
++5. Generic plugin skills (only when they do not conflict)
++6. Default model behavior
+ 
+ ## Human approval (binding)
+ 
+ - Always provide a plan for non-trivial code modifications for review and approval.
+ - Do not create or modify product code without expressed consent and approval of the plan.
+ - Do not delete existing comments without cause.
+ 
+ ## Definition of done (agent)
+ 
+ Not ΓÇ£I added files.ΓÇ¥ Done means:
+diff --git a/Journeys/docs/product/market-and-positioning.md b/Journeys/docs/product/market-and-positioning.md
+index 3ecc232..9a3754a 100644
+--- a/Journeys/docs/product/market-and-positioning.md
++++ b/Journeys/docs/product/market-and-positioning.md
+@@ -1,11 +1,17 @@
+ # Market and positioning
+ 
+-**For** technical founders replacing a loyalty, incentives, or promotions stack that failed them.
++**For** anyone with one or more data payloads of homogeneous shape who wants rules run against those properties so positive evaluations deliver outcomes.
+ 
+ **Need:** time to value ΓÇö their events to correct outcomes without a platform rebuild.
+ 
+-**This is:** a multi-tenant program runtime. Loyalty is the deepest proof; the shape is general (partner incentives, promotions, entitlements, commission-style programs).
++**This is:** a multi-tenant **signal response engine** (program runtime). Pay-per-use: revenue is a markup on Cosmos DB and other hosting costs. Loyalty is the deepest proof; the shape is general.
++
++**Worked profile (loyalty):** process large volumes of orders, invoices, or receipts; deposit points per dollar spent, invoiced, or received from the account's current journey node(s) (tier) and the outcome definition; tier from the current balance of a Tier_Qualification point account type; spendable and redeemable until expire.
++
++**Verticals (examples, not a closed list):** B2C retail, QSR, FSR, travel (airline, car rental); B2B manufacturer incentives across dealers and employee incentives; healthcare and wellness (member is the insured; program run by the payer; outcomes may be real insurance cost benefits); any organization that needs parse ΓåÆ organize ΓåÆ rule and journey progression ΓåÆ specialized webhooks.
++
++**The campaign/journey agent** does the heavy lifting for complex rulesets.
+ 
+ **Not:** a points spreadsheet with webhooks; a chatbot bolted onto CRUD; a UI in this solution.
+ 
+ **Why now:** launch windows close; rigid SaaS cannot model their signals; homegrown logic is unmaintainable.
+diff --git a/Journeys/docs/product/ontology/journey.md b/Journeys/docs/product/ontology/journey.md
+index 9030cbd..dac4b15 100644
+--- a/Journeys/docs/product/ontology/journey.md
++++ b/Journeys/docs/product/ontology/journey.md
+@@ -1,5 +1,7 @@
+ # Ontology: journey
+ 
+ A **journey** is a stateful graph of program logic (nodes, edges, gates). It is how multi-step behavior is encoded ΓÇö not flat if/else in a controller.
+ 
+-Implemented primarily in `Journeys.Core` (rules engine / journey types). Authoring UX is out of this solution; APIs and the campaign agent are in.
++Journeys are **criteria-based progression by account**. Progression can change any account state (tier, balances, tags, and other account fields the engine already mutates). A point deposit may depend on which journey node (tier) the account is in, the outcome definition, **all current journey nodes**, and other rule factors.
++
++Implemented primarily in `Journeys.Core` (rules engine / journey types). Authoring UX is out of this solution; APIs and the campaign agent are in. Capability id: `journeys`.
+diff --git a/Journeys/docs/product/taxonomies/personas.md b/Journeys/docs/product/taxonomies/personas.md
+index 54c5a7f..4656337 100644
+--- a/Journeys/docs/product/taxonomies/personas.md
++++ b/Journeys/docs/product/taxonomies/personas.md
+@@ -1,8 +1,8 @@
+ # Taxonomy: personas
+ 
+ | Id | Name | Job |
+ |----|------|-----|
+-| `technical-buyer` | Technical founder / buyer | Replacing a rigid SaaS or unmaintainable in-house stack |
+-| `program-operator` | Program operator | Runs live programs; cares about correct outcomes |
+-| `campaign-author` | Campaign author | Human or agent configuring models, journeys, campaigns |
+-| `tenant-admin` | Tenant admin | Tenant-scoped access and configuration |
++| `technical-buyer` | Technical founder / buyer | Chooses a signal engine over a rebuild or rigid SaaS; cares about time-to-value and hosting markup |
++| `program-operator` | Program operator | Correct outcomes on live volume (points, tier, notify, tag) |
++| `campaign-author` | Campaign author | Human or agent configuring models, journeys, campaigns through the same APIs the engine runs |
++| `tenant-admin` | Tenant admin | Tenant-scoped Auth0 / API key access and configuration |
+diff --git a/Journeys/docs/product/use-cases/process-event.md b/Journeys/docs/product/use-cases/process-event.md
+index aa7064b..29def4f 100644
+--- a/Journeys/docs/product/use-cases/process-event.md
++++ b/Journeys/docs/product/use-cases/process-event.md
+@@ -1,7 +1,9 @@
+ # Use case: process an event to outcomes
+ 
+ **Personas:** `program-operator`, `technical-buyer`  
+ **Realized by:** `event-models`, `journeys`, `rules-engine`, `outcomes`  
+ **Implemented as:** `Journeys.Core` (engine), `Journeys.DAL` / Infra (persist and emit)
+ 
+-An inbound event in the customer's schema is evaluated; journeys and rules fire; outcomes (points, tiers, tags, notifications) are produced idempotently.
++An inbound payload in the customer's homogeneous schema is evaluated. Rules run against those properties. On positive evaluation, outcomes fire: points (deposit, spend/withdrawal, expire), notifications (email, webhook, other adapters), journey progression, and tags. Processing is idempotent via event-wrapper state (`appliedcampaigns`, `outcomestates`, and the rest of the `*AndRuleState` contract in `docs/product/ontology/event-model.md`).
++
++Loyalty example: orders / invoices / receipts at volume ΓåÆ points per dollar from current journey node(s) and the outcome definition ΓåÆ tier from a Tier_Qualification point account type balance.

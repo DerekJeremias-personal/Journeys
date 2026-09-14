@@ -1,0 +1,194 @@
+# Linear Task 1 review package (uncommitted; no SHA)
+ Journeys/docs/developer/index.md     | 3 +++
+ Journeys/docs/developer/local-ops.md | 7 +++++++
+ 2 files changed, 10 insertions(+)
+
+# untracked / full diffs
+
+diff --git a/Journeys/docs/developer/index.md b/Journeys/docs/developer/index.md
+index d069d89..c3927fd 100644
+--- a/Journeys/docs/developer/index.md
++++ b/Journeys/docs/developer/index.md
+@@ -2,4 +2,7 @@
+ 
+ - [Local ops](local-ops.md) GÇö restore, build, and local secrets
+ - [Testing](testing.md)
++- [Logging](logging.md) GÇö Serilog sinks and redaction
++- [Coding standards](coding-standards.md)
+ - [Tools](tools.md) GÇö CampaignContextAudit outside this folder
++- [Linear AI-DLC projection](linear-aidlc-projection.md) GÇö board for units; engine stays canon
+diff --git a/Journeys/docs/developer/local-ops.md b/Journeys/docs/developer/local-ops.md
+index 4ba4cf7..14a145e 100644
+--- a/Journeys/docs/developer/local-ops.md
++++ b/Journeys/docs/developer/local-ops.md
+@@ -25,6 +25,13 @@ dotnet user-secrets set "ANTHROPIC_API_KEY" "<your-key>" --project .\Journeys.Ag
+ dotnet user-secrets set "MassTransit:Transport:Host" "<service-bus-connection-string>" --project .\Journeys.API\Journeys.API.csproj
+ dotnet user-secrets set "MassTransit:SagaRepository:Key" "<cosmos-key>" --project .\Journeys.API\Journeys.API.csproj
+ dotnet user-secrets set "DataLake:ConnectionString" "<storage-connection-string>" --project .\Journeys.API\Journeys.API.csproj
++dotnet user-secrets set "Serilog:WriteTo:0:Args:authenticationId" "<log-analytics-key>" --project .\Journeys.API\Journeys.API.csproj
+ ```
+ 
+ Alternatively, put overrides in `appsettings.Local.json` (gitignored). `ServiceBusAdapter` takes its connection string from DI GÇö do not hardcode keys in source.
++
++Without a Log Analytics `authenticationId`, `Journeys.API` still starts and writes to the console. Azure Analytics is skipped until that secret is set. Without `DataLake:ConnectionString`, blob clients and the chunk/archive background jobs are not registered so the host can still start.
++
++## Linear projection (optional)
++
++The AI-DLC Linear board adapter reads `LINEAR_API_KEY` from the environment (not user secrets, not `appsettings`). See [linear-aidlc-projection.md](linear-aidlc-projection.md).
+
+# BEGIN NEW FILE docs/developer/linear-aidlc-projection.md
+
+# Linear as AI-DLC unit projection
+
+Phase 2 adapter. AI-DLC units stay canon. Linear is the human board.
+
+**Spec:** `docs/specs/2026-09-14-Journeys-linear-aidlc-projection-design.md`
+
+## Setup (human)
+
+1. Linear team with statuses named exactly as in `aidlc/spaces/default/linear-projection.yaml`: `Todo`, `In Progress`, `In Review` (engine Dev Complete), `Done`.
+2. Copy `aidlc/spaces/default/linear-projection.example.yaml` to `aidlc/spaces/default/linear-projection.yaml` and set `teamId` (Linear GraphQL id, not the issue prefix).
+3. Set `LINEAR_API_KEY` in the environment. Do not commit it.
+4. Optional: Linear GitHub integration + commit-linking webhook on `DerekJeremias-personal/Journeys`.
+
+## Script
+
+From `C:\Dev\Journeys\Journeys`:
+
+```powershell
+$env:LINEAR_API_KEY = "<key>"
+.\scripts\linear-aidlc-projection.ps1 -Action upsert -IntentRecordDir "<record>"
+.\scripts\linear-aidlc-projection.ps1 -Action pull-back -IntentRecordDir "<record>"
+.\scripts\linear-aidlc-projection.ps1 -Action claim -IntentRecordDir "<record>" -Unit "<unit-name>"
+.\scripts\linear-aidlc-projection.ps1 -Action comment -IntentRecordDir "<record>" -Unit "<unit-name>" -Body "files: ... tests: ..."
+.\scripts\linear-aidlc-projection.ps1 -Action complete -IntentRecordDir "<record>" -Unit "<unit-name>" -CommitSha "<sha>" -CommitUrl "https://github.com/DerekJeremias-personal/Journeys/commit/<sha>"
+.\scripts\linear-aidlc-projection.ps1 -Action cancel -IntentRecordDir "<record>" -Unit "<unit-name>"
+```
+
+`<record>` is `aidlc/spaces/default/intents/<slug>-<id8>/`.
+
+Exit 0 = success. Non-zero = fail closed (construction must not proceed).
+
+## Freeze
+
+After `claim`, `linear-map.yaml` has `frozen: true` for that unit. `pull-back` must refuse that unit. `upsert` may still push status and comments.
+
+## Commits
+
+Prefer `ref JOU-123` on in-progress commits. `Fixes JOU-123` only when merge should move the issue to Done. Agents do not commit unless asked in that message.
+
+
+# BEGIN NEW FILE aidlc/spaces/default/linear-projection.example.yaml
+
+# Copy to linear-projection.yaml (gitignored) and fill teamId.
+teamId: ""
+teamKey: JOU
+githubRepoUrl: https://github.com/DerekJeremias-personal/Journeys
+states:
+  todo: Todo
+  inProgress: In Progress
+  devComplete: In Review
+  done: Done
+  cancelled: Canceled
+
+
+# BEGIN NEW FILE docs/product/graph/waivers/2026-09-14-linear-aidlc-projection.md
+
+# Waiver: Linear AI-DLC projection adapter
+
+**Reason:** Scripts and developer docs for projecting AI-DLC units onto Linear. No product capability, ontology, or graph edge change. Humans still merge. Agents still claim units, not Linear tickets.
+
+**Nodes touched by path-map (no meaning change):** none (scripts/ and docs/developer/ only).
+
+
+# BEGIN NEW FILE .gitignore
+
+# BEGIN AI-DLC:gitignore
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# AI-DLC â€” the committed-vs-ignored split (workspace layout, re-rooted under aidlc/).
+# Rule of thumb (vision Â§5.1): per-user session CURSORS and machine-local
+# runtime/derived state are ignored; everything that is the shared work â€”
+# method, registry, state, AUDIT (per-clone shards), artifacts â€” is committed.
+#
+# Per-user session cursors â€” ignored (two teammates legitimately point at
+# different spaces/intents at once; committing them would dirty the tree on
+# every /aidlc and have teammates fight over the cursor on each switch).
+aidlc/active-space
+aidlc/.aidlc-active-space-*.tmp
+aidlc/spaces/*/intents/active-intent
+aidlc/spaces/*/linear-projection.yaml
+#
+# Machine-local runtime / derived â€” ignored (regenerated per machine).
+# The clone-id token names this clone's audit shard; it MUST stay machine-local
+# (gitignored) or every clone from a commit would share a shard and git-conflict.
+aidlc/.aidlc-clone-id
+aidlc/.aidlc-unit-scope.json
+aidlc/.aidlc-unit-parked
+aidlc/.aidlc-claim-generations.json
+aidlc/.aidlc-unit-participant
+aidlc/.aidlc-claim-registry.json
+aidlc/.aidlc-unit-releases/
+aidlc/.aidlc-unit-merges/
+# Cursor's reconstructed subagent identity registry and independent active
+# delegation witnesses; protected by the adapter and recreated per session.
+aidlc/.aidlc-cursor-subagents/
+aidlc/.aidlc-cursor-subagent-*.json
+# Per-conversation sessionâ†’intent map (resume rebind, P8): per-user runtime
+# state keyed by Claude Code session_id, never shared truth.
+aidlc/.aidlc-sessions/
+aidlc/spaces/*/intents/.aidlc-*
+# Engine-shaped sensor caches at any depth, mirroring the #646 fingerprint glob;
+# also covers legacy pre-2.6.94 trees without ignoring every .aidlc-sensors leaf.
+**/aidlc/spaces/*/intents/**/.aidlc-sensors/
+# DocumentKB staged-transaction scratch: `onboard` stages a document into
+# `.journal/<txn-id>/` and renames it into place under the audit lock. Per-clone
+# and transient -- a committed journal would be a merge conflict on every
+# concurrent sync, and a crashed run's leftovers would be committed as if they
+# were work. Collected on the next sync; named by txn id, referenced by no index
+# row, so removal is always safe.
+aidlc/spaces/*/knowledge/documentkb/.journal/
+# DocumentKB `linked`-source alias map: alias -> a machine-specific ABSOLUTE
+# root. Committing it would give every clone one developer's directory layout,
+# which is the exact failure the "never an absolute path in committed metadata"
+# rule exists to prevent. The committed side holds only the alias.
+aidlc/spaces/*/knowledge/.sources.local.json
+aidlc/spaces/*/intents/*/runtime-graph.json
+aidlc/spaces/*/intents/*/.aidlc-*
+# Redacted diagnostic reports (/aidlc --doctor --export): regenerated, meant to
+# be shared then deleted â€” machine-local derived output, never shared truth.
+aidlc/diagnostics/
+#
+# COMMITTED (NOT ignored, listed here for the record â€” do NOT add ignore rules
+# for these): aidlc/spaces/*/memory/** Â· aidlc/spaces/*/codekb/** Â·
+# aidlc/spaces/*/intents/intents.json Â· aidlc/spaces/*/intents/*/aidlc-state.md Â·
+# aidlc/spaces/*/intents/*/audit/*.md (the audit trail, committed as PER-CLONE
+# SHARDS: each machine appends to audit/<host>-<clone>.md so git never merges
+# concurrent appends â€” there is intentionally NO .gitattributes merge=union,
+# which was proven to corrupt the multi-line audit blocks) Â·
+# aidlc/spaces/*/intents/*/<phase>/<stage>/*.md (artifacts + diary).
+# END AI-DLC:gitignore
+

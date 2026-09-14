@@ -59,3 +59,12 @@ edges:
   - from: terraform-in-this-tree
     type: NOT_YET
     to: proj-infra
+  - from: process-event
+    type: REALIZED_BY
+    to: outcomes
+  - from: outcomes
+    type: IMPLEMENTED_AS
+    to: proj-core
+  - from: outcomes
+    type: IMPLEMENTED_AS
+    to: proj-notification

@@ -1,0 +1,90 @@
+# Task 4 review package
+ Journeys/docs/product/graph/edges.yaml    |  9 +++++++++
+ Journeys/docs/product/graph/path-map.yaml |  6 ++++++
+ Journeys/scripts/path-docs-map.yaml       | 10 +++++++---
+ 3 files changed, 22 insertions(+), 3 deletions(-)
+
+----- FULL DIFF -----
+
+diff --git a/Journeys/docs/product/graph/edges.yaml b/Journeys/docs/product/graph/edges.yaml
+index 80d02d2..cca1d3e 100644
+--- a/Journeys/docs/product/graph/edges.yaml
++++ b/Journeys/docs/product/graph/edges.yaml
+@@ -52,10 +52,19 @@ edges:
+     to: no-controller-business-logic
+   - from: proj-infra
+     type: CONSTRAINED_BY
+     to: backend-dll-external
+   - from: ui-in-this-sln
+     type: NOT_YET
+     to: campaigns
+   - from: terraform-in-this-tree
+     type: NOT_YET
+     to: proj-infra
++  - from: process-event
++    type: REALIZED_BY
++    to: outcomes
++  - from: outcomes
++    type: IMPLEMENTED_AS
++    to: proj-core
++  - from: outcomes
++    type: IMPLEMENTED_AS
++    to: proj-notification
+diff --git a/Journeys/docs/product/graph/path-map.yaml b/Journeys/docs/product/graph/path-map.yaml
+index 5f760b7..d4e2672 100644
+--- a/Journeys/docs/product/graph/path-map.yaml
++++ b/Journeys/docs/product/graph/path-map.yaml
+@@ -1,12 +1,18 @@
+ # Longest prefix wins. Paths are relative to C:\Dev\Journeys\Journeys and use /.
+ entries:
++  - prefix: Journeys.Core/RulesEngine/Outcomes
++    nodes: [outcomes]
++    meaningOptional: false
++  - prefix: Journeys.Core/Models
++    nodes: [outcomes, campaigns]
++    meaningOptional: false
+   - prefix: Journeys.API/CampaignAgent
+     nodes: [campaign-agent, campaigns]
+     meaningOptional: false
+   - prefix: Journeys.API/Mcp
+     nodes: [mcp-api]
+     meaningOptional: false
+   - prefix: Journeys.API/A2a
+     nodes: [mcp-api]
+     meaningOptional: false
+   - prefix: Journeys.API
+diff --git a/Journeys/scripts/path-docs-map.yaml b/Journeys/scripts/path-docs-map.yaml
+index 47c725e..5166598 100644
+--- a/Journeys/scripts/path-docs-map.yaml
++++ b/Journeys/scripts/path-docs-map.yaml
+@@ -1,23 +1,27 @@
+ entries:
++  - prefix: Journeys.Core/RulesEngine/Outcomes
++    docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]
++  - prefix: Journeys.Core/Models
++    docs: [docs/platform/architecture.md, docs/product/ontology/loyalty-account.md, docs/product/ontology/outcome.md]
+   - prefix: Journeys.API/CampaignAgent
+     docs: [docs/platform/architecture.md, docs/developer/tools.md]
+   - prefix: Journeys.API/Mcp
+     docs: [docs/platform/architecture.md, docs/developer/index.md]
+   - prefix: Journeys.API
+-    docs: [docs/platform/architecture.md]
++    docs: [docs/platform/architecture.md, docs/platform/security.md]
+   - prefix: Journeys.Core/RulesEngine
+     docs: [docs/platform/architecture.md, docs/product/ontology/rule.md]
+   - prefix: Journeys.Core
+     docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md]
+   - prefix: Journeys.DTO
+     docs: [docs/platform/architecture.md]
+   - prefix: Journeys.DAL
+     docs: [docs/platform/architecture.md]
+   - prefix: Journeys.Agent
+     docs: [docs/platform/architecture.md, docs/developer/tools.md]
+   - prefix: Journeys.Tests
+     docs: [docs/developer/testing.md]
+   - prefix: Journeys.Infra
+-    docs: [docs/platform/architecture.md]
++    docs: [docs/platform/architecture.md, docs/platform/runtime.md, docs/platform/security.md]
+   - prefix: Journeys.Notification
+-    docs: [docs/platform/architecture.md]
++    docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]

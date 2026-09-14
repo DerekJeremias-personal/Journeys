@@ -1,0 +1,330 @@
+# Linear Task 2 (uncommitted)
+
+?? Journeys/scripts/linear-aidlc-projection.ps1
+?? Journeys/scripts/tests/linear-aidlc-projection.Tests.ps1
+
+# scripts/linear-aidlc-projection.ps1
+
+param(
+    [ValidateSet("upsert", "pull-back", "claim", "comment", "complete", "cancel")]
+    [string]$Action,
+
+    [string]$IntentRecordDir,
+    [string]$Unit,
+    [string]$Body,
+    [string]$CommitSha,
+    [string]$CommitUrl,
+    [switch]$SkipMain
+)
+
+$ErrorActionPreference = "Stop"
+
+function Assert-UnitNotFrozen {
+    param($Map, [string]$Unit)
+    if ($Map.units[$Unit].frozen -eq $true) {
+        throw "unit '$Unit' is frozen; pull-back refused"
+    }
+}
+
+function New-LinearGraphqlBody {
+    param(
+        [ValidateSet("issueCreate", "issueUpdate", "commentCreate", "attachmentCreate", "workflowStates", "issue")]
+        [string]$Operation,
+        [string]$TeamId,
+        [string]$Title,
+        [string]$Description,
+        [string]$StateId,
+        [string]$IssueId,
+        [string]$Body,
+        [string]$Url,
+        [string]$AttachmentTitle
+    )
+    switch ($Operation) {
+        "issueCreate" {
+            return (@{
+                query     = 'mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }'
+                variables = @{ input = @{ teamId = $TeamId; title = $Title; description = $Description; stateId = $StateId } }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+        "issueUpdate" {
+            return (@{
+                query     = 'mutation IssueUpdate($id: String!, $input: IssueUpdateInput!) { issueUpdate(id: $id, input: $input) { success issue { id identifier } } }'
+                variables = @{ id = $IssueId; input = @{ title = $Title; description = $Description; stateId = $StateId } }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+        "commentCreate" {
+            return (@{
+                query     = 'mutation CommentCreate($input: CommentCreateInput!) { commentCreate(input: $input) { success comment { id } } }'
+                variables = @{ input = @{ issueId = $IssueId; body = $Body } }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+        "attachmentCreate" {
+            return (@{
+                query     = 'mutation AttachmentCreate($input: AttachmentCreateInput!) { attachmentCreate(input: $input) { success attachment { id } } }'
+                variables = @{ input = @{ issueId = $IssueId; title = $AttachmentTitle; url = $Url } }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+        "workflowStates" {
+            return (@{
+                query     = 'query States($teamId: String!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } } }'
+                variables = @{ teamId = $TeamId }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+        "issue" {
+            return (@{
+                query     = 'query Issue($id: String!) { issue(id: $id) { id identifier title description state { id name } } }'
+                variables = @{ id = $IssueId }
+            } | ConvertTo-Json -Depth 8 -Compress)
+        }
+    }
+}
+
+function ConvertTo-LinearYamlDoubleQuoted {
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) { $Value = "" }
+    $escaped = $Value.Replace('\', '\\').Replace('"', '\"').Replace("`r", '\r').Replace("`n", '\n')
+    return '"' + $escaped + '"'
+}
+
+function ConvertFrom-LinearYamlScalar {
+    param([string]$Raw)
+    if ($null -eq $Raw) { return $null }
+    $t = $Raw.Trim()
+    if ($t -eq "") { return "" }
+    if ($t -eq "true") { return $true }
+    if ($t -eq "false") { return $false }
+    if ($t -eq "null" -or $t -eq "~") { return $null }
+
+    if ($t.Length -ge 2 -and $t.StartsWith('"') -and $t.EndsWith('"')) {
+        $inner = $t.Substring(1, $t.Length - 2)
+        $sb = New-Object System.Text.StringBuilder
+        for ($i = 0; $i -lt $inner.Length; $i++) {
+            $ch = $inner[$i]
+            if ($ch -eq [char]'\' -and ($i + 1) -lt $inner.Length) {
+                $n = [string]$inner[$i + 1]
+                switch ($n) {
+                    'n' { [void]$sb.Append([char]10) }
+                    't' { [void]$sb.Append([char]9) }
+                    'r' { [void]$sb.Append([char]13) }
+                    '"' { [void]$sb.Append('"') }
+                    '\' { [void]$sb.Append('\') }
+                    default { [void]$sb.Append($n) }
+                }
+                $i++
+            }
+            else {
+                [void]$sb.Append($ch)
+            }
+        }
+        return $sb.ToString()
+    }
+
+    if ($t.Length -ge 2 -and $t.StartsWith("'") -and $t.EndsWith("'")) {
+        return $t.Substring(1, $t.Length - 2).Replace("''", "'")
+    }
+
+    $hash = $t.IndexOf('#')
+    if ($hash -ge 0) {
+        $t = $t.Substring(0, $hash).TrimEnd()
+    }
+    return $t
+}
+
+function ConvertFrom-YamlOrHashtable {
+    param($InputObject)
+    if ($null -eq $InputObject) {
+        return @{ units = @{} }
+    }
+    if ($InputObject -is [hashtable] -or $InputObject -is [System.Collections.IDictionary]) {
+        return $InputObject
+    }
+
+    $text = [string]$InputObject
+    $units = @{}
+    $currentName = $null
+    $inUnits = $false
+
+    foreach ($line in ($text -split '\r?\n')) {
+        if ($line -match '^\s*$') { continue }
+        if ($line -match '^\s*#') { continue }
+
+        if ($line -match '^units:\s*$') {
+            $inUnits = $true
+            $currentName = $null
+            continue
+        }
+
+        if (-not $inUnits) { continue }
+
+        if ($line -match '^  ([^:\s][^:]*):\s*$') {
+            $currentName = $Matches[1].Trim()
+            $units[$currentName] = @{
+                identifier = $null
+                issueId    = $null
+                frozen     = $false
+                title      = $null
+            }
+            continue
+        }
+
+        if ($null -ne $currentName -and $line -match '^    ([^:]+):\s*(.*)$') {
+            $key = $Matches[1].Trim()
+            $val = ConvertFrom-LinearYamlScalar $Matches[2]
+            $units[$currentName][$key] = $val
+            continue
+        }
+    }
+
+    return @{ units = $units }
+}
+
+function Read-LinearMap {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return @{ units = @{} } }
+    return ConvertFrom-YamlOrHashtable (Get-Content -Raw $Path)
+}
+
+function Write-LinearMap {
+    param(
+        [string]$Path,
+        $Map
+    )
+    $units = @{}
+    if ($null -ne $Map -and $null -ne $Map.units) {
+        $units = $Map.units
+    }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    [void]$lines.Add("units:")
+
+    foreach ($name in @($units.Keys)) {
+        $unit = $units[$name]
+        [void]$lines.Add("  ${name}:")
+        $identifier = ""
+        $issueId = ""
+        $title = ""
+        $frozen = $false
+        if ($null -ne $unit) {
+            if ($null -ne $unit.identifier) { $identifier = [string]$unit.identifier }
+            if ($null -ne $unit.issueId) { $issueId = [string]$unit.issueId }
+            if ($null -ne $unit.title) { $title = [string]$unit.title }
+            if ($unit.frozen -eq $true) { $frozen = $true }
+        }
+        $frozenText = "false"
+        if ($frozen) { $frozenText = "true" }
+        [void]$lines.Add("    identifier: $identifier")
+        [void]$lines.Add("    issueId: $issueId")
+        [void]$lines.Add("    frozen: $frozenText")
+        [void]$lines.Add("    title: $(ConvertTo-LinearYamlDoubleQuoted $title)")
+    }
+
+    $parent = Split-Path -Parent $Path
+    if ($parent -and -not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    $nl = "`n"
+    $text = ($lines -join $nl) + $nl
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($Path, $text, $utf8NoBom)
+}
+
+function Invoke-LinearProjectionMain {
+    throw "Linear HTTP actions are not implemented yet (builders and map IO only). Action='$Action'"
+}
+
+if ($MyInvocation.InvocationName -ne '.' -and -not $SkipMain -and $Action) {
+    Invoke-LinearProjectionMain
+}
+
+
+# scripts/tests/linear-aidlc-projection.Tests.ps1
+
+BeforeAll {
+    $here = Split-Path -Parent $PSCommandPath
+    . (Join-Path (Split-Path $here) "linear-aidlc-projection.ps1")
+}
+
+Describe "Linear map freeze" {
+    It "refuses pull-back when frozen" {
+        $map = @{
+            units = @{
+                "u1-demo" = @{ identifier = "JOU-1"; issueId = "abc"; frozen = $true; title = "t" }
+            }
+        }
+        { Assert-UnitNotFrozen -Map $map -Unit "u1-demo" } | Should -Throw
+    }
+}
+
+Describe "GraphQL bodies" {
+    It "issueCreate includes teamId title description stateId" {
+        $body = New-LinearGraphqlBody -Operation issueCreate -TeamId "team-1" -Title "U1" -Description "AC" -StateId "state-todo"
+        $json = $body | ConvertFrom-Json
+        $json.variables.input.teamId | Should -Be "team-1"
+        $json.variables.input.title | Should -Be "U1"
+        $json.variables.input.stateId | Should -Be "state-todo"
+    }
+}
+
+Describe "Linear map IO" {
+    It "round-trips identifier issueId frozen title" {
+        $dir = Join-Path $env:TEMP ("linear-map-test-" + [guid]::NewGuid())
+        New-Item -ItemType Directory -Path $dir | Out-Null
+        try {
+            $path = Join-Path $dir "linear-map.yaml"
+            $map = @{
+                units = @{
+                    "u1-demo" = @{
+                        identifier = "JOU-1"
+                        issueId    = "uuid"
+                        frozen     = $false
+                        title      = "hello: quoted title"
+                    }
+                }
+            }
+            Write-LinearMap -Path $path -Map $map
+            $raw = Get-Content -LiteralPath $path -Raw
+            $raw | Should -Match '(?m)^units:'
+            $read = Read-LinearMap -Path $path
+            $read.units["u1-demo"].identifier | Should -Be "JOU-1"
+            $read.units["u1-demo"].issueId | Should -Be "uuid"
+            $read.units["u1-demo"].frozen | Should -Be $false
+            $read.units["u1-demo"].title | Should -Be "hello: quoted title"
+        }
+        finally {
+            Remove-Item -LiteralPath $dir -Recurse -Force
+        }
+    }
+
+    It "returns empty units when file is missing" {
+        $path = Join-Path $env:TEMP ("no-such-linear-map-" + [guid]::NewGuid() + ".yaml")
+        $read = Read-LinearMap -Path $path
+        $read.units.Count | Should -Be 0
+    }
+
+    It "round-trips frozen true" {
+        $dir = Join-Path $env:TEMP ("linear-map-frozen-" + [guid]::NewGuid())
+        New-Item -ItemType Directory -Path $dir | Out-Null
+        try {
+            $path = Join-Path $dir "linear-map.yaml"
+            $map = @{
+                units = @{
+                    "u1-demo" = @{
+                        identifier = "JOU-1"
+                        issueId    = "abc"
+                        frozen     = $true
+                        title      = "t"
+                    }
+                }
+            }
+            Write-LinearMap -Path $path -Map $map
+            $read = Read-LinearMap -Path $path
+            $read.units["u1-demo"].frozen | Should -Be $true
+            { Assert-UnitNotFrozen -Map $read -Unit "u1-demo" } | Should -Throw
+        }
+        finally {
+            Remove-Item -LiteralPath $dir -Recurse -Force
+        }
+    }
+}
+

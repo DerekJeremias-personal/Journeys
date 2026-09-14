@@ -1,0 +1,11 @@
+---
+description: Journeys C# coding standards
+alwaysApply: true
+---
+
+# Coding standards
+
+- Read `docs/platform/coding-standards.md` before adding or changing C#.
+- File-scoped namespaces, nullable enable, `...Async`, constructor injection, readonly `_camelCase`.
+- API contracts live in `Journeys.Dto`. No business rules in controllers.
+- Do not reformat files you did not change.

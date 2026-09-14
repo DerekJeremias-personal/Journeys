@@ -1,0 +1,10 @@
+---
+description: Required Dto project rules
+globs: Journeys.DTO/**
+---
+
+# Dto
+
+- `Journeys.DTO` is required. It holds controller and API in/out types and shared request/response/error shapes.
+- No business logic. No persistence SDKs. No Core domain services.
+- API and Core may reference Dto. Adapters and UI must not own API contracts.

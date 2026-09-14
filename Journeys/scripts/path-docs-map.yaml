@@ -1,16 +1,30 @@
 entries:
+  - prefix: Journeys.Core/RulesEngine/Outcomes
+    docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]
+  - prefix: Journeys.Core/RulesEngine/Journey
+    docs: [docs/platform/architecture.md, docs/product/ontology/journey.md, docs/product/ontology/rule.md]
+  - prefix: Journeys.Core/Models/Campaign
+    docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md, docs/product/ontology/draft-live.md]
+  - prefix: Journeys.Core/Models/WrappedEventPayload
+    docs: [docs/platform/architecture.md, docs/product/ontology/event-model.md]
+  - prefix: Journeys.Core/Models
+    docs: [docs/platform/architecture.md, docs/product/ontology/loyalty-account.md, docs/product/ontology/outcome.md]
+  - prefix: Journeys.Core/Services/EventService
+    docs: [docs/platform/architecture.md, docs/product/ontology/event-model.md, docs/product/ontology/campaign.md]
   - prefix: Journeys.API/CampaignAgent
-    docs: [docs/platform/architecture.md, docs/developer/tools.md]
+    docs: [docs/platform/architecture.md, docs/developer/tools.md, docs/product/ontology/draft-live.md]
   - prefix: Journeys.API/Mcp
     docs: [docs/platform/architecture.md, docs/developer/index.md]
   - prefix: Journeys.API
-    docs: [docs/platform/architecture.md]
+    docs: [docs/platform/architecture.md, docs/platform/security.md, docs/product/ontology/tenant.md]
   - prefix: Journeys.Core/RulesEngine
     docs: [docs/platform/architecture.md, docs/product/ontology/rule.md]
   - prefix: Journeys.Core
-    docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md]
+    docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md, docs/product/ontology/draft-live.md]
   - prefix: Journeys.DTO
     docs: [docs/platform/architecture.md]
+  - prefix: Journeys.DAL/Adapters/CampaignAdapter
+    docs: [docs/platform/architecture.md, docs/product/ontology/campaign.md, docs/product/ontology/draft-live.md]
   - prefix: Journeys.DAL
     docs: [docs/platform/architecture.md]
   - prefix: Journeys.Agent
@@ -18,6 +32,6 @@ entries:
   - prefix: Journeys.Tests
     docs: [docs/developer/testing.md]
   - prefix: Journeys.Infra
-    docs: [docs/platform/architecture.md]
+    docs: [docs/platform/architecture.md, docs/platform/runtime.md, docs/platform/security.md]
   - prefix: Journeys.Notification
-    docs: [docs/platform/architecture.md]
+    docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]

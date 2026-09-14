@@ -1,0 +1,11 @@
+# Copy to linear-projection.yaml (gitignored) and fill teamId.
+teamId: ""
+teamKey: JOU
+githubRepoUrl: https://github.com/DerekJeremias-personal/Journeys
+maxCreate: 25
+states:
+  todo: Todo
+  inProgress: In Progress
+  devComplete: In Review
+  done: Done
+  cancelled: Canceled

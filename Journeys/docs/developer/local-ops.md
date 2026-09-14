@@ -25,6 +25,13 @@ dotnet user-secrets set "ANTHROPIC_API_KEY" "<your-key>" --project .\Journeys.Ag
 dotnet user-secrets set "MassTransit:Transport:Host" "<service-bus-connection-string>" --project .\Journeys.API\Journeys.API.csproj
 dotnet user-secrets set "MassTransit:SagaRepository:Key" "<cosmos-key>" --project .\Journeys.API\Journeys.API.csproj
 dotnet user-secrets set "DataLake:ConnectionString" "<storage-connection-string>" --project .\Journeys.API\Journeys.API.csproj
+dotnet user-secrets set "Serilog:WriteTo:0:Args:authenticationId" "<log-analytics-key>" --project .\Journeys.API\Journeys.API.csproj
 ```
 
 Alternatively, put overrides in `appsettings.Local.json` (gitignored). `ServiceBusAdapter` takes its connection string from DI — do not hardcode keys in source.
+
+Without a Log Analytics `authenticationId`, `Journeys.API` still starts and writes to the console. Azure Analytics is skipped until that secret is set. Without `DataLake:ConnectionString`, blob clients and the chunk/archive background jobs are not registered so the host can still start.
+
+## Linear projection (optional)
+
+The AI-DLC Linear board adapter reads `LINEAR_API_KEY` from the environment (not user secrets, not `appsettings`). See [linear-aidlc-projection.md](linear-aidlc-projection.md).

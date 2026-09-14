@@ -57,17 +57,31 @@ Console.WriteLine($"[Serilog Config] JourneysErrorLog: {journeysErrorLog ?? "NOT
 Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"[Serilog Internal] {msg}"));
 
 var azureServerIdService = builder.Services.BuildServiceProvider().GetRequiredService<AzureServerIdService>();
-Log.Logger = new LoggerConfiguration()
+var loggerConfiguration = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .Enrich.With(new Enrichers(new HttpContextAccessor(), azureServerIdService))
-    .WriteTo.Logger(lc => lc
-        .Filter.ByIncludingOnly(log => log.Level == LogEventLevel.Error || log.Level == LogEventLevel.Fatal)
-        .WriteTo.AzureAnalytics(workspaceId, authenticationId, journeysErrorLog)
-    )
-    .WriteTo.Logger(lc => lc
-        .Filter.ByIncludingOnly(log => log.Level != LogEventLevel.Error && log.Level != LogEventLevel.Fatal)
-        .WriteTo.AzureAnalytics(workspaceId, authenticationId, journeysLog)
-    )
+    .Enrich.With(new Enrichers(new HttpContextAccessor(), azureServerIdService));
+
+var azureAnalyticsEnabled = !string.IsNullOrWhiteSpace(workspaceId)
+    && !string.IsNullOrWhiteSpace(authenticationId)
+    && !string.IsNullOrWhiteSpace(journeysLog)
+    && !string.IsNullOrWhiteSpace(journeysErrorLog);
+
+if (azureAnalyticsEnabled)
+{
+    loggerConfiguration
+        .WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(log => log.Level == LogEventLevel.Error || log.Level == LogEventLevel.Fatal)
+            .WriteTo.AzureAnalytics(workspaceId, authenticationId, journeysErrorLog))
+        .WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(log => log.Level != LogEventLevel.Error && log.Level != LogEventLevel.Fatal)
+            .WriteTo.AzureAnalytics(workspaceId, authenticationId, journeysLog));
+}
+else
+{
+    Console.WriteLine("[Serilog Config] Azure Analytics sink skipped (workspaceId or authenticationId not set). Console logging only.");
+}
+
+Log.Logger = loggerConfiguration
     .WriteTo.Logger(lc => lc.WriteTo.Console())
     .CreateLogger();
 

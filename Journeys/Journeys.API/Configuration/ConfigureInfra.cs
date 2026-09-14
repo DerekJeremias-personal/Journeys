@@ -13,15 +13,18 @@ public static class ConfigureInfra
     {
         services.AddBackend(config);
         config.GetValue<string>("");
-        services.AddDataLake(config);
 
         // Add Azure Blob Service Configuration
         var dataLakeSection = config.GetSection("DataLake");
         var connectionString = dataLakeSection.GetValue<string>("ConnectionString");
         var containerName = dataLakeSection.GetValue<string>("DefaultFileSystem");
+        var hasDataLakeConnection = !string.IsNullOrWhiteSpace(connectionString);
+        var dataLakeEnabled = !config.GetValue<bool?>("DisableDataLake") ?? true;
 
-        if (!string.IsNullOrWhiteSpace(connectionString))
+        if (hasDataLakeConnection)
         {
+            services.AddDataLake(config);
+
             // Register BlobServiceClient as a singleton (thread-safe)
             services.AddSingleton(new BlobServiceClient(connectionString));
 
@@ -37,16 +40,15 @@ public static class ConfigureInfra
                 var blobClient = sp.GetRequiredService<BlobServiceClient>();
                 return new FileIngestionBlobAdapter(blobClient, containerName);
             });
+
+            // Register ChunkJobProcessor BackgroundService if DataLake is enabled
+            if (dataLakeEnabled)
+            {
+                services.AddHostedService<ChunkJobProcessor>();
+            }
+
+            services.AddHostedService<BlobArchiveJobProcessor>();
         }
-
-        // Register ChunkJobProcessor BackgroundService if DataLake is enabled
-        if (!config.GetValue<bool?>("DisableDataLake") ?? true)
-        {
-            services.AddHostedService<ChunkJobProcessor>();
-        }
-
-
-        services.AddHostedService<BlobArchiveJobProcessor>();
 
         return services;
     }
