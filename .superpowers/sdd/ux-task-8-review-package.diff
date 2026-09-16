@@ -1,0 +1,10 @@
+# Task 8 review package (verification only; no new product files)
+
+Controller ran the brief commands. See C:\Dev\Journeys\.superpowers\sdd\ux-task-8-report.md
+
+Evidence:
+- docs-impact exit 0: OK (2 files)
+- graph-impact exit 0: OK nodes=campaigns productUpdate=True
+- npm test: 21/21
+- sln compile: 0 errors when output redirected (in-place build locked by running Journeys.API)
+- Step 4: human-owned

@@ -1,0 +1,16 @@
+:root { font-family: system-ui, sans-serif; color: #111; }
+body { margin: 0; }
+a { color: inherit; }
+button { cursor: pointer; }
+.layout { display: flex; min-height: 100vh; }
+nav.loyalty-nav { width: 240px; padding: 1rem; background: #f4f4f5; }
+nav.loyalty-nav h1 { font-size: 1rem; margin: 0 0 1rem; }
+nav.loyalty-nav a, nav.loyalty-nav span { display: block; padding: 0.35rem 0; }
+nav.loyalty-nav .disabled { color: #888; }
+main { padding: 1.5rem; flex: 1; }
+.card-row { display: flex; gap: 1rem; }
+.card { border: 1px solid #ddd; padding: 1rem; min-width: 12rem; }
+.error { color: #b91c1c; }
+.empty { color: #555; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; }

@@ -20,7 +20,7 @@ Default shape is a **modular monolith**: one deployable API, one Core, one Dto, 
 
 ## Layers (center -> edge)
 
-`Journeys.DTO` -> `Journeys.Core` -> `Journeys.DAL` / `Journeys.Infra*` / `Journeys.Notification` -> `Journeys.API` / `Journeys.Agent`
+`Journeys.DTO` -> `Journeys.Core` -> `Journeys.DAL` / `Journeys.Infra*` / `Journeys.Notification` -> `Journeys.API` / `Journeys.Agent`. `Journeys.UX` is an HTTP client of `Journeys.API` (not in this C# arrow).
 
 Generic names: `Dto` -> `Core` -> `Adapters` -> `API`. This product’s Adapters are `Journeys.DAL`, `Journeys.Infra*`, and `Journeys.Notification`. See `overlays.md`.
 
@@ -34,7 +34,7 @@ Dependencies point inward. Controllers do not contain business logic. Infra talk
 | **Core** | `Journeys.Core` | Azure / Cosmos / store HTTP clients. UI types. |
 | **Adapters** | `Journeys.DAL`, `Journeys.Infra*`, `Journeys.Notification` | Product business rules. |
 | **Dto** | `Journeys.DTO` (required) | Business rules. Persistence SDKs. Core domain services. |
-| **UI** | Not in this solution | Project-reference Core or Adapters. |
+| **UI** | `Journeys.UX` | Project-reference Core or Adapters. Own writes of campaigns/accounts. |
 
 Drift control: a later shared-rule change is made in Backend, Journeys, and GoEducation in the same increment; the template is a starter kit only.
 
@@ -54,4 +54,4 @@ Drift control: a later shared-rule change is made in Backend, Journeys, and GoEd
 
 **Secrets:** committed `appsettings*.json` hold empty keys only. Live Azure, Anthropic, Databricks, and similar credentials stay in user secrets, environment variables, or a gitignored `appsettings.Local.json`. Do not hardcode connection strings in Infra adapters. Serilog Azure Analytics is registered only when workspace id and authentication id are both set; otherwise the host logs to console. When `DataLake:ConnectionString` is set, blob clients, Data Lake, and chunk/archive hosted services register. When it is unset, the host still starts: scoped unconfigured adapters satisfy DI (`IDataLakeAdapter`, `IFileStorageAdapter`, `IFileIngestionAdapter`), chunk/archive jobs are not registered, and blob/Data Lake calls fail at the call site (account-report existence checks and campaign-agent tool-audit appends no-op).
 
-**Not in this solution:** React/Next UI, terraform, Databricks.
+**Not in this solution:** terraform, Databricks.

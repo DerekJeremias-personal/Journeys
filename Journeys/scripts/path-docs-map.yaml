@@ -1,4 +1,9 @@
 entries:
+  - prefix: Journeys.UX
+    docs:
+      - docs/developer/journeys-ux.md
+      - docs/platform/architecture.md
+      - docs/platform/overlays.md
   - prefix: Journeys.Core/RulesEngine/Outcomes
     docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]
   - prefix: Journeys.Core/RulesEngine/Journey

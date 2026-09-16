@@ -1,6 +1,6 @@
 # Journeys — session contract
 
-Journeys is a multi-tenant **signal response engine** (program runtime): customer-owned event models, journey graphs and declarative rules, pluggable outcomes. This folder is the onion .NET solution (`Journeys.sln`). A Next.js UI is **not** in this solution.
+Journeys is a multi-tenant **signal response engine** (program runtime): customer-owned event models, journey graphs and declarative rules, pluggable outcomes. This folder is the onion .NET solution (`Journeys.sln`); `Journeys.UX` is a sibling Next.js app (HTTP to `Journeys.API` only), not a C# project.
 
 ## Essential reading (in order)
 

@@ -1,0 +1,11 @@
+# Task 5 review package (no commits — working tree)
+
+## Controller verification
+- `npx tsc --noEmit` then `npm test`: 16/16 pass, tsc exit 0
+
+## Files in scope (read under C:\Dev\Journeys\Journeys\Journeys.UX)
+- src/components/loyalty-nav.tsx
+- src/app/loyalty/layout.tsx
+- src/app/loyalty/page.tsx
+
+No routes for disabled nav items. No middleware.ts. No commits.

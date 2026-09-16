@@ -204,8 +204,8 @@ public class GlobalExceptionMiddleware
             context.Response.ContentType = "application/json";
             var response = new { 
                 message = ex.Message ?? "Entity not found", 
-                entityId = ex.EntityId ?? "unknown", 
-                modelId = ex.ModelId ?? "unknown" 
+                entityId = ex.EntityId, 
+                modelId = ex.ModelId 
             };
             var json = JsonSerializer.Serialize(response);
             if (!string.IsNullOrEmpty(json))

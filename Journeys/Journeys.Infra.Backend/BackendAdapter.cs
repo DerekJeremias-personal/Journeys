@@ -76,19 +76,21 @@ namespace Journeys.Infra.Backend
 
         public async Task<T?> GetEntityAsync<T>(string tenantid, string id, string modelId, string pk = null, string pk2 = null, JsonSerializerOptions serializerOptions = null)
         {
+            var resolvedModelId = BackendModelId.Require(modelId);
             using (var client = _clientFactory.CreateClient())
             {
                 client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
-                var route = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_URL), tenantid, MODEL_TYPE, modelId, id, pk, pk2);
+                var route = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_URL), tenantid, MODEL_TYPE, resolvedModelId, id, pk, pk2);
                 var response = await client.GetAsync(route);
 
-                return await HandleGetResponse<T>(response, serializerOptions, tenantid, id, modelId);
+                return await HandleGetResponse<T>(response, serializerOptions, tenantid, id, resolvedModelId);
             }
         }
 
         public async Task<PagedResultSet<T>> QueryEntitiesAsync<T>(string tenantId, string? modelId, string query, Dictionary<string, object> parameters, string sortBy, SortOrder sortOrder, int pageSize, CancellationToken token = default(CancellationToken), string continuationToken = null, JsonSerializerOptions serializerOptions = null, bool includeChildModels = false)
         {
-            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_ALL_BY_QUERY), tenantId, MODEL_TYPE, modelId);
+            var resolvedModelId = BackendModelId.Require(modelId);
+            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_ALL_BY_QUERY), tenantId, MODEL_TYPE, resolvedModelId);
             var request = new QueryObjectsRequest
             {
                 Query = query,
@@ -97,20 +99,21 @@ namespace Journeys.Infra.Backend
                 SortOrder = sortOrder,
                 PageSize = pageSize,
                 ContinuationToken = continuationToken,
-                ModelId = modelId,
+                ModelId = resolvedModelId,
                 ModelType = MODEL_TYPE,
                 IncludeChildModels = includeChildModels
             };
-            return await PostPagedRequest<T>(tenantId, null, url, request, null, serializerOptions ?? _serializerOptions);
+            return await PostPagedRequest<T>(tenantId, resolvedModelId, url, request, null, serializerOptions ?? _serializerOptions);
         }
 
         public async Task<PagedResultSet<T>> GetEntitiesByPKAsync<T>(string tenantId, string partitionKey, string modelId, int pageSize, string pk2 = null, string? continuationToken = null, JsonSerializerOptions serializerOptions = null)
         {
-            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_BY_PK_URL), tenantId, MODEL_TYPE, modelId);
+            var resolvedModelId = BackendModelId.Require(modelId);
+            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_BY_PK_URL), tenantId, MODEL_TYPE, resolvedModelId);
 
             var request = new GetByPKRequest
             {
-                ModelId = modelId,
+                ModelId = resolvedModelId,
                 ModelType = MODEL_TYPE,
                 PK = partitionKey,
                 PK2 = pk2,
@@ -120,17 +123,17 @@ namespace Journeys.Infra.Backend
 
             try
             {
-                var response = await PostPagedRequest<T>(tenantId, null, url, request, null, serializerOptions ?? _serializerOptions);
+                var response = await PostPagedRequest<T>(tenantId, resolvedModelId, url, request, null, serializerOptions ?? _serializerOptions);
                 if (response == null)
                 {
-                    _logger.LogWarning($"No entities found for tenant {tenantId} with partition key {partitionKey} and model ID {modelId}.");
-                    throw new APIErrorsException(new Dictionary<string, string> { { "NOT_FOUND", $"No entities found for tenant {tenantId} with partition key {partitionKey} and model ID {modelId}." } });
+                    _logger.LogWarning($"No entities found for tenant {tenantId} with partition key {partitionKey} and model ID {resolvedModelId}.");
+                    throw new APIErrorsException(new Dictionary<string, string> { { "NOT_FOUND", $"No entities found for tenant {tenantId} with partition key {partitionKey} and model ID {resolvedModelId}." } });
                 }
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting entities by PK for tenant {TenantId}, modelId {ModelId}, partitionKey {PartitionKey}", tenantId, modelId, partitionKey);
+                _logger.LogError(ex, "Error getting entities by PK for tenant {TenantId}, modelId {ModelId}, partitionKey {PartitionKey}", tenantId, resolvedModelId, partitionKey);
                 throw;
             }
         }
@@ -139,47 +142,50 @@ namespace Journeys.Infra.Backend
         {
             if ((ids?.Count ?? 0) == 0) return null;
 
+            var resolvedModelId = BackendModelId.Require(modelId);
             entityType = entityType ?? typeof(T);
-            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_MANY_URL), tenantId, MODEL_TYPE, modelId);
+            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_MANY_URL), tenantId, MODEL_TYPE, resolvedModelId);
             var req = new GetManyRequest
             {
-                ModelId = modelId,
+                ModelId = resolvedModelId,
                 ModelType = MODEL_TYPE,
                 ObjectIds = ids
             };
 
-            return await PostRequest<T>(tenantId, modelId, url, req, entityType, serializerOptions ?? _serializerOptions);
+            return await PostRequest<T>(tenantId, resolvedModelId, url, req, entityType, serializerOptions ?? _serializerOptions);
         }
 
         public async Task<List<T>> GetManyEntitiesAsync<T>(string tenantId, List<(string, Dictionary<string, string>)> ids, string modelId, Type? entityType = default(Type), JsonSerializerOptions serializerOptions = null)
         {
             if ((ids?.Count ?? 0) == 0) return null;
 
+            var resolvedModelId = BackendModelId.Require(modelId);
             entityType = null; // entityType ?? typeof(T);
-            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_MANY_URL), tenantId, MODEL_TYPE, modelId);
+            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_MANY_URL), tenantId, MODEL_TYPE, resolvedModelId);
             var req = new GetManyRequest
             {
-                ModelId = modelId,
+                ModelId = resolvedModelId,
                 ModelType = MODEL_TYPE,
                 ObjectIdsWithPKs = ids.Select(i => new ObjectIdWithPK(i.Item1, i.Item2)).ToList()
             };
 
-            return await PostRequest<T>(tenantId, modelId, url, req, entityType, serializerOptions ?? _serializerOptions);
+            return await PostRequest<T>(tenantId, resolvedModelId, url, req, entityType, serializerOptions ?? _serializerOptions);
         }
 
         public async Task<PagedResultSet<T>> GetAllEntitiesAsync<T>(string tenantId, string modelId, int pageSize, string? continuationToken = null, JsonSerializerOptions serializerOptions = null)
         {
-            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_ALL_URL), tenantId, MODEL_TYPE, modelId);
+            var resolvedModelId = BackendModelId.Require(modelId);
+            string url = String.Format(Path.Join(_keyValueStorageConfig.BaseUrl, GET_ALL_URL), tenantId, MODEL_TYPE, resolvedModelId);
 
             var request = new GetByPKRequest
             {
-                ModelId = modelId,
+                ModelId = resolvedModelId,
                 ModelType = MODEL_TYPE,
                 PageSize = pageSize,
                 ContinuationToken = continuationToken
             };
 
-            return await PostPagedRequest<T>(tenantId, null, url, request, null, serializerOptions ?? _serializerOptions);
+            return await PostPagedRequest<T>(tenantId, resolvedModelId, url, request, null, serializerOptions ?? _serializerOptions);
         }
 
         /// <summary>
@@ -187,6 +193,7 @@ namespace Journeys.Infra.Backend
         /// </summary>
         public async Task<T> SetEntityAsync<T>(string tenantId, T entity, string modelId, Type? entityType = default(Type), JsonSerializerOptions serializerOptions = null)
         {
+            var resolvedModelId = BackendModelId.Require(modelId);
             using (var client = _clientFactory.CreateClient())
             {
                 client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
@@ -194,20 +201,20 @@ namespace Journeys.Infra.Backend
                 try
                 {
                     var response = await client.PostAsJsonAsync(
-                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, UPSERT_URL), tenantId, MODEL_TYPE, modelId),
+                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, UPSERT_URL), tenantId, MODEL_TYPE, resolvedModelId),
                         entity,
                         serializerOptions ?? _serializerOptions);
 
-                    return await HandleSetEntityResponse<T>(response, entityType, serializerOptions, tenantId, modelId);
+                    return await HandleSetEntityResponse<T>(response, entityType, serializerOptions, tenantId, resolvedModelId);
                 }
                 catch (BackendEntityConcurrencyException ex)
                 {
-                    _logger.LogError(ex, "Concurrency error in SetEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                    _logger.LogError(ex, "Concurrency error in SetEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                     throw;
                 }
                 catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException))
                 {
-                    _logger.LogError(ex, "Unexpected error in SetEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                    _logger.LogError(ex, "Unexpected error in SetEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                     throw new BackendSystemException("unexpected_error", "An unexpected error occurred while communicating with the backend", ex.Message);
                 }
             }
@@ -218,7 +225,8 @@ namespace Journeys.Infra.Backend
         /// </summary>
         public async Task<T> MoveEntityAsync<T>(string tenantId, T entity, Dictionary<string, string> newPartition, string modelId, Type? entityType = default(Type), JsonSerializerOptions serializerOptions = null)
         {
-            var req = new KeyValueStorageMoveRequest<T>(MODEL_TYPE, modelId, entity, newPartition);
+            var resolvedModelId = BackendModelId.Require(modelId);
+            var req = new KeyValueStorageMoveRequest<T>(MODEL_TYPE, resolvedModelId, entity, newPartition);
 
             using (var client = _clientFactory.CreateClient())
             {
@@ -226,18 +234,16 @@ namespace Journeys.Infra.Backend
 
                 try
                 {
-                    var json = JsonSerializer.Serialize(req);
-
                     var response = await client.PostAsJsonAsync(
-                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, MOVE_URL), tenantId, MODEL_TYPE, modelId),
+                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, MOVE_URL), tenantId, MODEL_TYPE, resolvedModelId),
                         req,
                         serializerOptions ?? _serializerOptions);
 
-                    return await HandleSetEntityResponse<T>(response, entityType, serializerOptions, tenantId, modelId);
+                    return await HandleSetEntityResponse<T>(response, entityType, serializerOptions, tenantId, resolvedModelId);
                 }
                 catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException))
                 {
-                    _logger.LogError(ex, "Unexpected error in MoveEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                    _logger.LogError(ex, "Unexpected error in MoveEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                     throw new BackendSystemException("unexpected_error", "An unexpected error occurred while communicating with the backend", ex.Message);
                 }
             }
@@ -245,7 +251,8 @@ namespace Journeys.Infra.Backend
 
         public async Task<object> SetLogicalEntityAsync(string tenantId, JsonElement entity, string modelId, JsonSerializerOptions serializerOptions = null)
         {
-            var req = new UpsertRequest<JsonElement>(MODEL_TYPE, modelId, entity);
+            var resolvedModelId = BackendModelId.Require(modelId);
+            var req = new UpsertRequest<JsonElement>(MODEL_TYPE, resolvedModelId, entity);
 
             using (var client = _clientFactory.CreateClient())
             {
@@ -254,7 +261,7 @@ namespace Journeys.Infra.Backend
                 try
                 {
                     var response = await client.PostAsJsonAsync(
-                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, UPSERT_URL), tenantId, MODEL_TYPE, modelId),
+                        string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, UPSERT_URL), tenantId, MODEL_TYPE, resolvedModelId),
                         req);
 
                     if (response.StatusCode == HttpStatusCode.OK)
@@ -267,12 +274,12 @@ namespace Journeys.Infra.Backend
                     }
 
                     // Handle errors using the same pattern as other methods
-                    await HandleErrorResponse(response, tenantId, modelId);
+                    await HandleErrorResponse(response, tenantId, resolvedModelId);
                     return null; // This line should never be reached due to exception throwing above
                 }
                 catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException))
                 {
-                    _logger.LogError(ex, "Unexpected error in SetLogicalEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                    _logger.LogError(ex, "Unexpected error in SetLogicalEntityAsync for tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                     throw new BackendSystemException("unexpected_error", "An unexpected error occurred while communicating with the backend", ex.Message);
                 }
             }
@@ -280,12 +287,13 @@ namespace Journeys.Infra.Backend
 
         public async Task<bool> RemoveEntityAsync(string tenantId, string id, string modelId, Dictionary<string, string>? pks = null)
         {
+            var resolvedModelId = BackendModelId.Require(modelId);
             using var client = _clientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
 
             try
             {
-                var path = string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, DELETE_BY_ID_AND_PK_URL), tenantId, MODEL_TYPE, modelId, id);
+                var path = string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, DELETE_BY_ID_AND_PK_URL), tenantId, MODEL_TYPE, resolvedModelId, id);
 
                 var request = new HttpRequestMessage(HttpMethod.Delete, path)
                 {
@@ -300,24 +308,25 @@ namespace Journeys.Infra.Backend
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    _logger.LogWarning("Entity {EntityId} not found for deletion in tenant {TenantId}, modelId {ModelId}", id, tenantId, modelId);
+                    _logger.LogWarning("Entity {EntityId} not found for deletion in tenant {TenantId}, modelId {ModelId}", id, tenantId, resolvedModelId);
                     return false;
                 }
                 else
                 {
-                    await HandleErrorResponse(response, tenantId, modelId);
+                    await HandleErrorResponse(response, tenantId, resolvedModelId);
                     return false; // This line should never be reached due to exception throwing above
                 }
             }
             catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException))
             {
-                _logger.LogError(ex, "Unexpected error in RemoveEntityAsync for tenant {TenantId}, modelId {ModelId}, entityId {EntityId}", tenantId, modelId, id);
+                _logger.LogError(ex, "Unexpected error in RemoveEntityAsync for tenant {TenantId}, modelId {ModelId}, entityId {EntityId}", tenantId, resolvedModelId, id);
                 throw new BackendSystemException("unexpected_error", "An unexpected error occurred while communicating with the backend", ex.Message);
             }
         }
 
         public async Task<bool> RemoveEntityAsync<T>(string tenantId, T entity, string modelId)
         {
+            var resolvedModelId = BackendModelId.Require(modelId);
             using (var client = _clientFactory.CreateClient())
             {
                 client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
@@ -327,11 +336,11 @@ namespace Journeys.Infra.Backend
                     var request = new
                     {
                         Entity = entity as IDynamicEntity ?? throw new ArgumentException("Entity must implement IDynamicEntity"),
-                        ModelId = modelId,
+                        ModelId = resolvedModelId,
                         ModelType = MODEL_TYPE
                     };
 
-                    var path = string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, DELETE_URL), tenantId, MODEL_TYPE, modelId);
+                    var path = string.Format(Path.Join(_keyValueStorageConfig.BaseUrl, DELETE_URL), tenantId, MODEL_TYPE, resolvedModelId);
 
                     var httpRequest = new HttpRequestMessage(HttpMethod.Delete, path)
                     {
@@ -346,18 +355,18 @@ namespace Journeys.Infra.Backend
                     }
                     else if (response.StatusCode == HttpStatusCode.NotFound)
                     {
-                        _logger.LogWarning("Entity not found for deletion in tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                        _logger.LogWarning("Entity not found for deletion in tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                         return false;
                     }
                     else
                     {
-                        await HandleErrorResponse(response, tenantId, modelId);
+                        await HandleErrorResponse(response, tenantId, resolvedModelId);
                         return false; // This line should never be reached due to exception throwing above
                     }
                 }
                 catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException))
                 {
-                    _logger.LogError(ex, "Unexpected error in RemoveEntityAsync<T> for tenant {TenantId}, modelId {ModelId}", tenantId, modelId);
+                    _logger.LogError(ex, "Unexpected error in RemoveEntityAsync<T> for tenant {TenantId}, modelId {ModelId}", tenantId, resolvedModelId);
                     throw new BackendSystemException("unexpected_error", "An unexpected error occurred while communicating with the backend", ex.Message);
                 }
             }

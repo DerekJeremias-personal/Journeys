@@ -22,4 +22,4 @@ Also human-only (`AGENTS.md`): auth, ledger/money-like outcomes, tenant isolatio
 
 ## Isolation
 
-Do not add APIs or services that operate globally on member/program data without an explicit, documented exception. Do not log secrets, tokens, API keys, connection strings, or full event payloads (`docs/developer/logging.md`).
+Do not add APIs or services that operate globally on member/program data without an explicit, documented exception. Do not log secrets, tokens, API keys, connection strings, or full event payloads (`docs/developer/logging.md`). Backend entity routes are tenant-scoped **and** model-scoped: adapters must send a real model id from the calling screen/adapter, never `"unknown"`. Backend entity calls stay tenant-scoped **and** must carry a real model id from the calling screen or DAL adapter — never the fallback string `"unknown"`.

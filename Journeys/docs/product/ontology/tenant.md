@@ -8,7 +8,7 @@ Persona: `tenant-admin` (tenant-scoped Auth0 / API key access and configuration)
 
 ## What `TenantId` is
 
-The string that partitions **all program data**. It travels on the HTTP route (typically `{tenantId}`), into Core method arguments, onto `TenantedModelBase` / `DtoModelBase`, and into Backend/DAL queries. Persistence upserts normalize it to **lowercase** (`Journeys.DAL/Adapters/BaseAdapter.cs`).
+The string that partitions **all program data**. It travels on the HTTP route (typically `{tenantId}`), into Core method arguments, onto `TenantedModelBase` / `DtoModelBase`, and into Backend/DAL queries. Persistence upserts normalize it to **lowercase** (`Journeys.DAL/Adapters/BaseAdapter.cs`). Backend 404 JSON must not invent `modelId: "unknown"` when a model id was missing; omit or leave empty.
 
 It is **not**:
 

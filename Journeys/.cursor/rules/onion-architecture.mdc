@@ -12,7 +12,7 @@ alwaysApply: true
 - External systems (Cosmos, blob, auth, bus, Backend.*): `Journeys.Infra*` only, behind interfaces.
 - Every business operation is tenant-scoped (`TenantId`).
 - Do not delete existing comments without cause.
-- UI is not in this solution. Do not add a web frontend here.
+- `Journeys.UX` is the HTTP-only Next.js UI. Do not project-reference Core/DAL/Infra from it. Do not put a web frontend inside the C# onion projects.
 - If this solution stores user-boundary data, use a full local onion.
 - Prefer DDD in one modular monolith; do not create a microservice per noun.
 - `Journeys.DTO` is required.

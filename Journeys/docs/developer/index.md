@@ -6,3 +6,4 @@
 - [Coding standards](coding-standards.md)
 - [Tools](tools.md) — CampaignContextAudit outside this folder
 - [Linear AI-DLC projection](linear-aidlc-projection.md) — board for units; engine stays canon
+- [Journeys.UX](journeys-ux.md) — Loyalty admin Next app

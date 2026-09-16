@@ -10,4 +10,6 @@ dotnet test .\Journeys.Tests\Journeys.Tests.csproj
 
 `Configuration/ConfigureInfraTests.cs` asserts the API still registers Data Lake and blob adapters when `DataLake:ConnectionString` is missing, so `builder.Build()` does not fail.
 
+`Infra/BackendModelIdTests.cs` asserts entity/catalog JSON never emits `modelId` `"unknown"` and that catalog list bodies send `modelType: loyalty` without a model id.
+
 Wrapper persist tests in `Utility/WrappedEventPayloadPersistTests.cs` assert canonical lowercase JSON symbols, nested engine-state names (`nodememberships`), and that empty list properties are omitted.

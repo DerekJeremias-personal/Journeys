@@ -35,3 +35,7 @@ Without a Log Analytics `authenticationId`, `Journeys.API` still starts and writ
 ## Linear projection (optional)
 
 The AI-DLC Linear board adapter reads `LINEAR_API_KEY` from the environment (not user secrets, not `appsettings`). See [linear-aidlc-projection.md](linear-aidlc-projection.md).
+
+## Journeys.UX
+
+See [journeys-ux.md](journeys-ux.md) for how to run the Loyalty admin Next app.

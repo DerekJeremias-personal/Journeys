@@ -42,12 +42,7 @@ namespace Journeys.Infra.Backend
             {
                 string url = Path.Join(_keyValueStorageConfig.BaseUrl, $"/api/{tenantId}/model/all");
 
-                var request = new
-                {
-                    TenantId = tenantId,
-                    PageSize = pageSize,
-                    ContinuationToken = continuationToken
-                };
+                var request = BackendRequestJson.CreateCatalogListBody(tenantId, pageSize, continuationToken, groupingType);
 
                 return await PostPagedRequest<ModelDto>(tenantId, null, url, request, null, _serializerOptions);
             }
@@ -69,12 +64,11 @@ namespace Journeys.Infra.Backend
         {
             if (string.IsNullOrWhiteSpace(tenantId))
                 throw new ArgumentNullException(nameof(tenantId));
-            if (string.IsNullOrWhiteSpace(modelId))
-                throw new ArgumentNullException(nameof(modelId));
+            var resolvedModelId = BackendModelId.Require(modelId);
             if (string.IsNullOrWhiteSpace(modelType))
                 throw new ArgumentNullException(nameof(modelType));
 
-            string url = Path.Join(_keyValueStorageConfig.BaseUrl, $"/api/{tenantId}/model/{modelType}/{modelId}");
+            string url = Path.Join(_keyValueStorageConfig.BaseUrl, $"/api/{tenantId}/model/{modelType}/{resolvedModelId}");
 
             using var client = _clientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
@@ -85,7 +79,7 @@ namespace Journeys.Infra.Backend
                 if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.OK)
                     return;
 
-                await HandleErrorResponse(response, tenantId, modelId);
+                await HandleErrorResponse(response, tenantId, resolvedModelId);
             }
             catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException || ex is OperationCanceledException))
             {
@@ -98,13 +92,12 @@ namespace Journeys.Infra.Backend
         {
             if (string.IsNullOrWhiteSpace(tenantId))
                 throw new ArgumentNullException(nameof(tenantId));
-            if (string.IsNullOrWhiteSpace(modelId))
-                throw new ArgumentNullException(nameof(modelId));
+            var resolvedModelId = BackendModelId.Require(modelId);
             if (string.IsNullOrWhiteSpace(modelType))
                 throw new ArgumentNullException(nameof(modelType));
 
             var qs = $"?modelType={Uri.EscapeDataString(modelType)}&includeChildModels={(includeChildModels ? "true" : "false")}";
-            string url = Path.Join(_keyValueStorageConfig.BaseUrl, $"/api/{tenantId}/Model/get/{modelId}{qs}");
+            string url = Path.Join(_keyValueStorageConfig.BaseUrl, $"/api/{tenantId}/Model/get/{resolvedModelId}{qs}");
 
             using var client = _clientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("X-API-KEY", _keyValueStorageConfig.Key);
@@ -112,7 +105,7 @@ namespace Journeys.Infra.Backend
             try
             {
                 using var response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false);
-                return await HandleGetResponse<ModelDto>(response, _serializerOptions, tenantId, modelId, modelId).ConfigureAwait(false);
+                return await HandleGetResponse<ModelDto>(response, _serializerOptions, tenantId, resolvedModelId, resolvedModelId).ConfigureAwait(false);
             }
             catch (Exception ex) when (!(ex is BackendValidationException || ex is BackendSystemException || ex is BackendEntityNotFoundException || ex is OperationCanceledException))
             {

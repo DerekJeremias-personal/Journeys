@@ -1,0 +1,23 @@
+# Task 4 review package (no commits — working tree)
+
+## Controller verification
+- `npm test` in Journeys.UX: 16/16 pass (4 files)
+- `npx tsc --noEmit`: exit 0 after two type fixes (see below)
+
+## Typecheck fixes after implementer (controller)
+- `Journeys.UX/src/auth.ts` session callback: assign `token.*` only when `typeof === "string"` (JWT fields typed unknown at assign)
+- `Journeys.UX/src/lib/journeys-fetch.test.ts`: `as unknown as [string, RequestInit]` (pre-existing Task 3 test; surfaced by tsc)
+
+## Files in scope (read these under C:\Dev\Journeys\Journeys\Journeys.UX)
+- src/lib/api-key-login-enabled.ts
+- src/lib/api-key-login-enabled.test.ts
+- src/types/next-auth.d.ts
+- src/auth.ts
+- src/app/api/auth/[...nextauth]/route.ts
+- src/proxy.ts
+- src/app/signin/page.tsx
+- src/app/signin/sign-in-form.tsx
+
+Did not create middleware.ts (plan: do not implement both).
+
+No git commits. Diff is the working-tree files listed above.

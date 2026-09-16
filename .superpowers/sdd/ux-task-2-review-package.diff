@@ -1,0 +1,14 @@
+# Task 2 review package (no commits)
+
+## Tests (controller)
+cd Journeys.UX; npm test
+vitest 3.2.7: map-loyalty-path.test.ts 5/5, wrap-api-envelope.test.ts 5/5. Total 10 passed.
+
+## Files
+Journeys/Journeys.UX/src/lib/api-types.ts
+Journeys/Journeys.UX/src/lib/map-loyalty-path.ts
+Journeys/Journeys.UX/src/lib/wrap-api-envelope.ts
+Journeys/Journeys.UX/src/lib/map-loyalty-path.test.ts
+Journeys/Journeys.UX/src/lib/wrap-api-envelope.test.ts
+
+Read those files. Uncommitted working tree.

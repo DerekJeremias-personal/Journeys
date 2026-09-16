@@ -1,0 +1,14 @@
+# Task 6 review package (no commits — working tree)
+
+## Controller verification
+- `npm test`: 21/21 pass (5 files; 5 new parse-list tests)
+- `npx tsc --noEmit`: exit 0
+
+## Files in scope (read under C:\Dev\Journeys\Journeys\Journeys.UX)
+- src/services/loyalty/parse-list.ts
+- src/services/loyalty/parse-list.test.ts
+- src/services/loyalty/actions.ts
+- src/app/loyalty/campaigns/page.tsx
+- src/app/loyalty/accounts/page.tsx
+
+No commits.

@@ -110,7 +110,7 @@ namespace Journeys.Infra.Backend
 
                 case HttpStatusCode.NotFound:
                     _logger.LogWarning("Resource not found for tenant {TenantId}, modelId {ModelId}. Response: {Response}", tenantId, modelId, responseContent);
-                    throw new BackendEntityNotFoundException("unknown", modelId, tenantId);
+                    throw new BackendEntityNotFoundException(string.Empty, UsableModelIdOrEmpty(modelId), tenantId);
 
                 case HttpStatusCode.Unauthorized:
                     _logger.LogError("Unauthorized access for tenant {TenantId}, modelId {ModelId}. Response: {Response}", tenantId, modelId, responseContent);
@@ -158,7 +158,7 @@ namespace Journeys.Infra.Backend
                     if(!string.IsNullOrEmpty(opcurerror.Value))
                     {
                         //Throw optimistic concurrency error
-                        throw new BackendEntityConcurrencyException("unknown", modelId, tenantId);
+                        throw new BackendEntityConcurrencyException(string.Empty, UsableModelIdOrEmpty(modelId), tenantId);
                     }
 
                     _logger.LogWarning("Validation errors for tenant {TenantId}, modelId {ModelId}: {ValidationErrors}",
@@ -234,7 +234,7 @@ namespace Journeys.Infra.Backend
 
                 try
                 {
-                    string json = JsonSerializer.Serialize(req);
+                    string json = BackendRequestJson.Serialize(req, serializerOptions ?? _serializerOptions);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     HttpResponseMessage response = await client.PostAsync(url, content);
@@ -262,7 +262,7 @@ namespace Journeys.Infra.Backend
                     }
                     else
                     {
-                        await HandleErrorResponse(response, tenantId, modelId ?? "unknown");
+                        await HandleErrorResponse(response, tenantId, UsableModelIdOrEmpty(modelId));
                         return new List<T>(); // This line should never be reached due to exception throwing above
                     }
                 }
@@ -282,7 +282,7 @@ namespace Journeys.Infra.Backend
 
                 try
                 {
-                    string json = JsonSerializer.Serialize(req);
+                    string json = BackendRequestJson.Serialize(req, serializerOptions ?? _serializerOptions);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     HttpResponseMessage response = await client.PostAsync(url, content);
@@ -305,7 +305,7 @@ namespace Journeys.Infra.Backend
                     }
                     else
                     {
-                        await HandleErrorResponse(response, tenantId, modelName ?? "unknown");
+                        await HandleErrorResponse(response, tenantId, UsableModelIdOrEmpty(modelName));
                         return new PagedResultSet<T> { Entities = new List<T>(), Count = 0 }; // This line should never be reached due to exception throwing above
                     }
                 }
@@ -453,6 +453,9 @@ namespace Journeys.Infra.Backend
         {
             return new SingleObjectToListDictionaryConverter<T>();
         }
+
+        private static string UsableModelIdOrEmpty(string? modelId) =>
+            BackendModelId.IsUsable(modelId) ? modelId!.Trim() : string.Empty;
 
         #endregion
     }

@@ -44,6 +44,9 @@ nodes:
   - id: proj-tests
     label: Project
     name: Journeys.Tests
+  - id: proj-ux
+    label: Project
+    name: Journeys.UX
   - id: technical-buyer
     label: Persona
     name: Technical buyer
@@ -71,9 +74,6 @@ nodes:
   - id: backend-dll-external
     label: Constraint
     name: Backend DLLs external
-  - id: ui-in-this-sln
-    label: NonGoal
-    name: UI in this solution
   - id: terraform-in-this-tree
     label: NonGoal
     name: Terraform in this tree

@@ -1,5 +1,8 @@
 # Longest prefix wins. Paths are relative to C:\Dev\Journeys\Journeys and use /.
 entries:
+  - prefix: Journeys.UX
+    nodes: [campaigns]
+    meaningOptional: false
   - prefix: Journeys.Core/RulesEngine/Outcomes
     nodes: [outcomes]
     meaningOptional: false

@@ -35,7 +35,7 @@ namespace Journeys.DAL.Adapters
 
         public async Task<PagedResultSet<Campaign>> GetAllCampaignsAsync(string tenantId, int pageSize, string continuationToken = null)
         {
-            return await base.GetAllEntitiesAsync(tenantId, CAMPAIGN_MODEL_ID, pageSize, continuationToken);
+            return await base.GetAllEntitiesAsync(tenantId.ToLower(), CAMPAIGN_MODEL_ID, pageSize, continuationToken);
         }
 
         public async Task<PagedResultSet<Campaign>> GetCampaignsByFiltersAsync(string tenantId, GetCampaignsByFilterRequest req)

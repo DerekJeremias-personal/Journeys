@@ -1,0 +1,20 @@
+# Task 7 review package (no commits — working tree)
+
+## Controller verification
+Select-String nodes.yaml id: — seven capabilities unchanged; proj-ux present; ui-in-this-sln absent.
+
+## Files in scope (read under C:\Dev\Journeys\Journeys)
+- docs/developer/journeys-ux.md
+- docs/developer/index.md
+- docs/developer/local-ops.md
+- docs/platform/overlays.md
+- docs/platform/architecture.md
+- docs/roadmap/non-goals.md
+- docs/product/graph/nodes.yaml
+- docs/product/graph/edges.yaml
+- docs/product/graph/path-map.yaml
+- scripts/path-docs-map.yaml
+- AGENTS.md (first paragraph)
+- .cursor/rules/onion-architecture.mdc
+
+Do not treat Journeys.UX app code as in-scope. No commits.

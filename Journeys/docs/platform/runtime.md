@@ -10,6 +10,6 @@ What each store and adapter is for **today**. If this table and code disagree, f
 | Queue | `Journeys.Infra.ServiceBus` | Connection from DI, not source |
 | Notifications | `Journeys.Notification` | Adapters only; no campaign/journey rules |
 | Auth | `Journeys.Infra.Auth` | Auth0 + API keys (`docs/platform/security.md`) |
-| Key-value | `KeyValueStorage` | URL and key from config |
+| Key-value | `KeyValueStorage` | URL and key from config. Model catalog list (`/model/all`) is `modelType: loyalty` and omits `ModelId`. Entity routes (`/entity/{modelType}/{modelId}/…`) use the screen/adapter GUID (Campaigns: `CampaignAdapter` campaign model; Accounts query: wrapper GUID for `LoyaltyAccountDetails`). Never send `modelId` `"unknown"`. |
 
 Terraform and Databricks folders are not in this tree (`docs/roadmap/non-goals.md`).

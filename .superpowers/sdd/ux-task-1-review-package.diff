@@ -1,0 +1,22 @@
+# Task 1 review package (no commits — working tree)
+
+## Status
+Uncommitted. npm install + tsc --noEmit exit 0 (82 packages).
+
+## gitignore diff
+See git diff Journeys/.gitignore: added Journeys.UX/.env.local and Journeys.UX/.next
+
+## Files created under Journeys/Journeys.UX (excluding node_modules)
+- package.json (name journeys-ux, scripts dev/build/start/test, next 16, next-auth 5, react 19, zod, vitest)
+- tsconfig.json
+- next.config.ts reactStrictMode
+- vitest.config.ts node env, @ alias
+- .env.example AUTH_* AUTH0_* JOURNEYS_*
+- src/app/globals.css
+- src/app/layout.tsx title Journeys
+- src/app/page.tsx redirect /loyalty
+- next-env.d.ts (extra vs brief; for tsc)
+- package-lock.json (from npm install)
+- tsconfig.tsbuildinfo (tsc incremental)
+
+Read those files under C:\Dev\Journeys\Journeys\Journeys.UX to verify against the brief. Do not treat node_modules as in-scope.

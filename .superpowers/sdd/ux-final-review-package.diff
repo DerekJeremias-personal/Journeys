@@ -1,0 +1,36 @@
+# Whole-branch review package — Journeys.UX loyalty shell (uncommitted)
+
+Branch: feat/journeys-ux-loyalty-shell
+No commits. Inspect working tree.
+
+Plan: C:\Dev\Journeys\Journeys\docs\plans\2026-09-14-Journeys-ux-loyalty-shell.md
+Spec: C:\Dev\Journeys\Journeys\docs\specs\2026-09-14-Journeys-ux-loyalty-shell-design.md
+Ledger (minors roll-up): C:\Dev\Journeys\.superpowers\sdd\ux-loyalty-shell-progress.md
+
+## App files under C:\Dev\Journeys\Journeys\Journeys.UX
+- package.json, tsconfig.json, next.config.ts, vitest.config.ts, .env.example
+- src/app/{layout,page,globals.css}
+- src/app/signin/{page.tsx,sign-in-form.tsx}
+- src/app/api/auth/[...nextauth]/route.ts
+- src/app/loyalty/{layout.tsx,page.tsx,campaigns/page.tsx,accounts/page.tsx}
+- src/components/loyalty-nav.tsx
+- src/auth.ts, src/proxy.ts, src/types/next-auth.d.ts
+- src/lib/{api-types,map-loyalty-path,wrap-api-envelope,journeys-fetch,api-key-login-enabled}.ts + tests
+- src/services/loyalty/{actions.ts,parse-list.ts,parse-list.test.ts}
+
+## Docs / graph
+- docs/developer/journeys-ux.md, index.md, local-ops.md
+- docs/platform/architecture.md, overlays.md
+- docs/roadmap/non-goals.md
+- docs/product/graph/{nodes,edges,path-map}.yaml
+- scripts/path-docs-map.yaml
+- AGENTS.md first paragraph
+- .cursor/rules/onion-architecture.mdc
+
+## Controller evidence
+- npm test 21/21
+- tsc --noEmit 0
+- docs-impact 0, graph-impact 0
+- sln compile 0 errors via alternate -o
+
+Do not mutate. Do not commit.
