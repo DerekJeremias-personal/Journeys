@@ -1,0 +1,967 @@
+﻿# Review package: Task 5 re-review after hydrate fixes (uncommitted)
+
+## Stat
+
+
+## Untracked
+
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-hydrate.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-journey-builder-shell.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-form-provider.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-store.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-agent-campaign-sync.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-save-campaign-draft.ts
+
+## Diff (tracked)
+
+
+## Untracked contents
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-hydrate.test.ts =====
+
+import { hydrateDecision } from "@/lib/campaign-agent/hydrate-policy";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { applyDiscoveredCampaignToBuilder, decideAgentHydrate, shouldAutoFetchLinkedCampaign } from "./use-agent-campaign-sync";
+import { useJourneyBuilderStore } from "./journey-builder-store";
+
+describe("builder hydrate", () => {
+  it("conflicts when dirty", () => {
+    expect(hydrateDecision(true)).toBe("conflict");
+    expect(hydrateDecision(false)).toBe("apply");
+  });
+
+  it("does not hydrate over dirty local work", () => {
+    const hydrate = vi.fn();
+    const conflict = vi.fn();
+
+    expect(
+      decideAgentHydrate({
+        isDirty: true,
+        campaignId: "campaign-1",
+        campaign: { id: "campaign-1", status: "draft" },
+        hydrate,
+        conflict
+      })
+    ).toBe("conflict");
+
+    expect(hydrate).not.toHaveBeenCalled();
+    expect(conflict).toHaveBeenCalledOnce();
+  });
+});
+
+describe("store hydrate from snapshot", () => {
+  beforeEach(() => {
+    useJourneyBuilderStore.getState().actions.reset();
+  });
+
+  it("does not call hydrateFromCampaign when dirty", () => {
+    const actions = useJourneyBuilderStore.getState().actions;
+    actions.hydrateFromCampaign({
+      campaign: { name: "Local draft", status: "draft" },
+      builderPhase: "setup"
+    });
+    actions.setDirty(true);
+
+    const hydrate = vi.spyOn(useJourneyBuilderStore.getState().actions, "hydrateFromCampaign");
+
+    expect(
+      applyDiscoveredCampaignToBuilder("agent-1", {
+        id: "agent-1",
+        name: "Agent snapshot",
+        status: "draft"
+      })
+    ).toBe("conflict");
+
+    expect(hydrate).not.toHaveBeenCalled();
+    expect(useJourneyBuilderStore.getState().campaign?.name).toBe("Local draft");
+    expect(useJourneyBuilderStore.getState().isDirty).toBe(true);
+  });
+
+  it("increments hydrateGeneration when applying a same-id same-etag snapshot", () => {
+    const actions = useJourneyBuilderStore.getState().actions;
+    const local = { id: "campaign-1", etag: "etag-1", name: "Local name", status: "draft" };
+    actions.hydrateFromCampaign({ campaign: local, builderPhase: "setup" });
+    const generation = useJourneyBuilderStore.getState().hydrateGeneration;
+
+    actions.hydrateFromCampaign({
+      campaign: { ...local, name: "Agent name" },
+      builderPhase: "setup"
+    });
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.hydrateGeneration).toBeGreaterThan(generation);
+    expect(state.campaign?.name).toBe("Agent name");
+  });
+});
+
+describe("shouldAutoFetchLinkedCampaign", () => {
+  it("does not GET when the store already holds that campaign", () => {
+    expect(shouldAutoFetchLinkedCampaign("draft-1", "draft-1")).toBe(false);
+  });
+
+  it("does not GET when nothing is linked", () => {
+    expect(shouldAutoFetchLinkedCampaign(null, "draft-1")).toBe(false);
+  });
+
+  it("GETs when the linked id is not the campaign already in the store", () => {
+    expect(shouldAutoFetchLinkedCampaign("draft-2", "draft-1")).toBe(true);
+    expect(shouldAutoFetchLinkedCampaign("draft-2", null)).toBe(true);
+  });
+});
+
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-journey-builder-shell.tsx =====
+
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bot } from "lucide-react";
+
+import { AgentChat } from "@/components/loyalty/agent-chat";
+import { TemplatesPicker } from "@/components/loyalty/campaigns/wizard/components/templates-picker";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { isCampaignAgentWritable } from "@/lib/campaign-agent/campaign-mode";
+import type { Campaign } from "@/lib/campaign-types";
+
+import { BuilderCanvasSurface } from "./builder-canvas-surface";
+import { CampaignHealthSidebar } from "./campaign-health-sidebar";
+import { CampaignSyncStatusPill } from "./campaign-sync-status-pill";
+import { AgentLinkDraftBanner } from "./agent-link-draft-banner";
+import { AgentSyncConflictBanner } from "./agent-sync-conflict-banner";
+import { computeCampaignHealth } from "./compute-campaign-health";
+import { inferBuilderPhase, type BuilderPhase } from "./infer-builder-phase";
+import { JourneyBuilderFormProvider } from "./journey-builder-form-provider";
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  selectAgentPanelOpen,
+  selectDraftPersistence,
+  selectLayoutMode,
+  selectLinkedCampaignId,
+  selectMapViewModel,
+  selectSelectedNodeId,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore
+} from "./journey-builder-store";
+import { LinkDraftDialog } from "./link-draft-dialog";
+import { NodeStepPanel } from "./node-step-panel";
+import { useAgentCampaignSync, shouldAutoFetchLinkedCampaign } from "./use-agent-campaign-sync";
+import { useCreateEmptyDraft } from "./use-create-empty-draft";
+import { useSaveCampaignDraft } from "./use-save-campaign-draft";
+import { WorkspaceConfirmDialog } from "./workspace-confirm-dialog";
+
+const HEALTH_NODE_TO_PHASE: Partial<Record<string, BuilderPhase>> = {
+  setup: "setup",
+  eligibility: "eligibility",
+  criteria: "criteria",
+  actions: "actions"
+};
+
+export function CampaignJourneyBuilderShell() {
+  const layoutMode = useJourneyBuilderStore(selectLayoutMode);
+  const builderPhase = useJourneyBuilderStore(selectBuilderPhase);
+  const selectedNodeId = useJourneyBuilderStore(selectSelectedNodeId);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const linkedCampaignId = useJourneyBuilderStore(selectLinkedCampaignId);
+  const mapViewModel = useJourneyBuilderStore(selectMapViewModel);
+  const agentPanelOpen = useJourneyBuilderStore(selectAgentPanelOpen);
+  const draftPersistence = useJourneyBuilderStore(selectDraftPersistence);
+  const actions = useJourneyBuilderActions();
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [confirmNewDraftOpen, setConfirmNewDraftOpen] = useState(false);
+  const [confirmNewCampaignOpen, setConfirmNewCampaignOpen] = useState(false);
+  const [linkDraftBannerVisible, setLinkDraftBannerVisible] = useState(false);
+  const [linkDraftDialogOpen, setLinkDraftDialogOpen] = useState(false);
+  const { saveDraft, saving, canSave } = useSaveCampaignDraft();
+  const { createEmptyDraft, creating } = useCreateEmptyDraft();
+  const { hydrateFromCampaignId, agentConflict, keepLocalChanges, applyAgentVersion } = useAgentCampaignSync();
+
+  useEffect(() => {
+    if (!shouldAutoFetchLinkedCampaign(linkedCampaignId, campaign?.id)) {
+      return;
+    }
+    void hydrateFromCampaignId(linkedCampaignId);
+  }, [linkedCampaignId, campaign?.id, hydrateFromCampaignId]);
+
+  useEffect(() => {
+    if (linkedCampaignId || campaign?.id) {
+      setLinkDraftBannerVisible(false);
+    }
+  }, [linkedCampaignId, campaign?.id]);
+
+  const agentReadOnly = campaign?.status ? !isCampaignAgentWritable(campaign.status) : false;
+  const healthReport = useMemo(() => computeCampaignHealth(campaign), [campaign]);
+  const showHealthSidebar = builderPhase === "review" && layoutMode !== "focusEdit";
+
+  const handleLinkDraftSelect = useCallback(
+    (campaignId: string) => {
+      setLinkDraftBannerVisible(false);
+      void hydrateFromCampaignId(campaignId);
+    },
+    [hydrateFromCampaignId]
+  );
+
+  const handleTemplateSelect = (initial: Partial<Campaign>) => {
+    const nextCampaign: Campaign = {
+      name: initial.name ?? "Untitled campaign",
+      status: initial.status ?? "draft",
+      ...initial
+    };
+    actions.hydrateFromCampaign({
+      campaign: nextCampaign,
+      builderPhase: inferBuilderPhase({ previous: null, next: nextCampaign })
+    });
+    actions.setDraftPersistence("local");
+    actions.setLinkedCampaignId(null);
+    setTemplateOpen(false);
+  };
+
+  const runCreateEmptyDraft = () => {
+    void createEmptyDraft();
+  };
+
+  const handleStartBlank = () => {
+    if (draftPersistence === "persisted") {
+      setConfirmNewDraftOpen(true);
+      return;
+    }
+    runCreateEmptyDraft();
+  };
+
+  const handleNewCampaign = () => {
+    setConfirmNewCampaignOpen(true);
+  };
+
+  const confirmNewCampaign = () => {
+    actions.reset();
+  };
+
+  const handleHealthFix = (nodeId: string) => {
+    const phase = HEALTH_NODE_TO_PHASE[nodeId];
+    if (phase) {
+      actions.setBuilderPhase(phase);
+      return;
+    }
+    const mapNode = [...mapViewModel.coreNodes, ...mapViewModel.branches.flatMap((branch) => branch.seq)].find(
+      (node) => node.id === nodeId || node.journeyNodeId === nodeId
+    );
+    if (mapNode) {
+      actions.selectNode(mapNode.id);
+    }
+  };
+
+  return (
+    <JourneyBuilderFormProvider>
+      <div className="space-y-4">
+        {agentConflict ? (
+          <AgentSyncConflictBanner onKeepMine={keepLocalChanges} onUseAgentVersion={applyAgentVersion} />
+        ) : null}
+
+        {linkDraftBannerVisible ? (
+          <AgentLinkDraftBanner
+            onLinkDraft={() => setLinkDraftDialogOpen(true)}
+            onDismiss={() => setLinkDraftBannerVisible(false)}
+          />
+        ) : null}
+
+        {agentReadOnly ? (
+          <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+            The Agent is read-only because this linked campaign is not a draft.
+          </p>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CampaignSyncStatusPill />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => actions.setAgentPanelOpen(!agentPanelOpen)}
+            >
+              <Bot className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+              {agentPanelOpen ? "Hide Agent" : "Show Agent"}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setTemplateOpen(true)}>
+              Start from template
+            </Button>
+            <Button type="button" variant="outline" size="sm" disabled={creating} onClick={handleStartBlank}>
+              {creating ? "Creatingâ€¦" : "Start blank"}
+            </Button>
+            {builderPhase !== "idle" && builderPhase !== "review" ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => actions.setBuilderPhase("review")}>
+                Review
+              </Button>
+            ) : null}
+            <Button type="button" size="sm" disabled={!canSave || saving} onClick={() => void saveDraft()}>
+              {saving ? "Savingâ€¦" : "Save as draft"}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={handleNewCampaign}>
+              New campaign
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex min-h-[560px] gap-4 max-lg:flex-col">
+          {agentPanelOpen ? (
+            <aside className="w-full min-w-[320px] max-w-[360px] shrink-0" aria-label="Agent">
+              <AgentChat
+                linkedCampaignId={linkedCampaignId ?? campaign?.id ?? null}
+                onDiscoveredCampaignId={(id) => void hydrateFromCampaignId(id)}
+              />
+            </aside>
+          ) : null}
+
+          <div className="min-w-0 flex-1">
+            {layoutMode === "focusEdit" && selectedNodeId ? (
+              <div className="grid h-full min-h-[560px] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,520px)]">
+                <BuilderCanvasSurface />
+                <NodeStepPanel />
+              </div>
+            ) : showHealthSidebar ? (
+              <div className="grid h-full min-h-[560px] gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+                <BuilderCanvasSurface />
+                <CampaignHealthSidebar report={healthReport} mode="review" onFix={handleHealthFix} />
+              </div>
+            ) : (
+              <BuilderCanvasSurface />
+            )}
+          </div>
+        </div>
+
+        <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Start from template</DialogTitle>
+              <DialogDescription>Choose a starter campaign structure to hydrate the journey builder.</DialogDescription>
+            </DialogHeader>
+            <TemplatesPicker onSelect={handleTemplateSelect} />
+          </DialogContent>
+        </Dialog>
+
+        <LinkDraftDialog
+          open={linkDraftDialogOpen}
+          onOpenChange={setLinkDraftDialogOpen}
+          onSelect={handleLinkDraftSelect}
+        />
+
+        <WorkspaceConfirmDialog
+          open={confirmNewDraftOpen}
+          onOpenChange={setConfirmNewDraftOpen}
+          title="Create new draft?"
+          description="Creates a new empty draft you can edit manually or with the Agent. Your current saved draft stays in the campaigns list."
+          confirmLabel="Create draft"
+          onConfirm={runCreateEmptyDraft}
+        />
+
+        <WorkspaceConfirmDialog
+          open={confirmNewCampaignOpen}
+          onOpenChange={setConfirmNewCampaignOpen}
+          title="Start a new campaign?"
+          description="Clears the builder. Unsaved local changes will be lost."
+          confirmLabel="New campaign"
+          onConfirm={confirmNewCampaign}
+        />
+      </div>
+    </JourneyBuilderFormProvider>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-form-provider.tsx =====
+
+"use client";
+
+import { useEffect, useRef, type ReactNode } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import {
+  buildCampaignWizardDefaults,
+  campaignWizardSchema,
+  type CampaignWizardValues,
+} from "@/components/loyalty/campaigns/wizard/campaign-wizard";
+
+import { selectCampaign, selectHydrateGeneration, useJourneyBuilderActions, useJourneyBuilderStore } from "./journey-builder-store";
+
+export function JourneyBuilderFormProvider({ children }: { children: ReactNode }) {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const hydrateGeneration = useJourneyBuilderStore(selectHydrateGeneration);
+  const actions = useJourneyBuilderActions();
+  const hydratingRef = useRef(false);
+
+  const form = useForm<CampaignWizardValues>({
+    resolver: zodResolver(campaignWizardSchema),
+    defaultValues: buildCampaignWizardDefaults(campaign ?? undefined),
+  });
+
+  useEffect(() => {
+    hydratingRef.current = true;
+    form.reset(buildCampaignWizardDefaults(useJourneyBuilderStore.getState().campaign ?? undefined));
+    hydratingRef.current = false;
+  }, [hydrateGeneration, form]);
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      if (hydratingRef.current || !values) {
+        return;
+      }
+      actions.patchCampaignScalars(values as Partial<Campaign>);
+    });
+    return () => subscription.unsubscribe();
+  }, [actions, form]);
+
+  return <FormProvider {...form}>{children}</FormProvider>;
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-store.ts =====
+
+import { create } from "zustand";
+
+import type { Campaign, Journey, LoyaltySchema, Rule } from "@/lib/campaign-types";
+
+import { campaignToMapViewModel, type CampaignMapViewModel } from "./campaign-to-map-view-model";
+import type { BuilderPhase } from "./infer-builder-phase";
+import { previousBuilderPhase } from "./advance-station";
+import { ensureCampaignJourney, patchJourneyNodeInTree } from "./journey-builder-journey-utils";
+
+export type StationRuleVariant = "eligibility" | "criteria";
+
+export type AgentConflictState = {
+  readonly campaignId: string;
+  readonly campaign: Campaign;
+} | null;
+
+export type LayoutMode = "discover" | "stream" | "focusEdit";
+export type CanvasPhase = "idle" | "traveling" | "entering" | "exiting";
+export type DraftPersistence = "none" | "local" | "persisted";
+
+export interface HydrateFromCampaignInput {
+  readonly campaign: Campaign;
+  readonly builderPhase: BuilderPhase;
+  readonly markDirty?: boolean;
+}
+
+export interface JourneyBuilderActions {
+  hydrateFromCampaign: (input: HydrateFromCampaignInput) => void;
+  patchCampaignScalars: (patch: Partial<Campaign>) => void;
+  patchJourneyNode: (nodeId: string, patch: Partial<Journey>) => void;
+  setStationRuleDraft: (variant: StationRuleVariant, rule: Partial<Rule> | null) => void;
+  setSelectedSchema: (schema: LoyaltySchema | null) => void;
+  setLayoutMode: (mode: LayoutMode) => void;
+  setBuilderPhase: (phase: BuilderPhase) => void;
+  advanceStation: (input: { direction: "forward" | "back"; nextPhase?: BuilderPhase }) => void;
+  setCanvasPhase: (phase: CanvasPhase) => void;
+  selectNode: (nodeId: string) => void;
+  clearSelection: () => void;
+  setDirty: (dirty: boolean) => void;
+  setLinkedCampaignId: (campaignId: string | null) => void;
+  setAgentConflict: (conflict: NonNullable<AgentConflictState>) => void;
+  clearAgentConflict: () => void;
+  setAgentPanelOpen: (open: boolean) => void;
+  setDraftPersistence: (mode: DraftPersistence) => void;
+  clearAgentCampaignLink: () => void;
+  reset: () => void;
+}
+
+export interface JourneyBuilderState {
+  campaign: Campaign | null;
+  mapViewModel: CampaignMapViewModel;
+  builderPhase: BuilderPhase;
+  layoutMode: LayoutMode;
+  selectedNodeId: string | null;
+  activeStationIndex: number;
+  canvasPhase: CanvasPhase;
+  isDirty: boolean;
+  linkedCampaignId: string | null;
+  selectedSchema: LoyaltySchema | null;
+  stationRuleDrafts: Partial<Record<StationRuleVariant, Partial<Rule>>>;
+  agentConflict: AgentConflictState;
+  agentPanelOpen: boolean;
+  draftPersistence: DraftPersistence;
+  hydrateGeneration: number;
+  actions: JourneyBuilderActions;
+}
+
+const EMPTY_MAP_VIEW_MODEL: CampaignMapViewModel = {
+  coreNodes: [],
+  branches: []
+};
+
+const INITIAL_STATE: Omit<JourneyBuilderState, "actions"> = {
+  campaign: null,
+  mapViewModel: EMPTY_MAP_VIEW_MODEL,
+  builderPhase: "idle",
+  layoutMode: "discover",
+  selectedNodeId: null,
+  activeStationIndex: -1,
+  canvasPhase: "idle",
+  isDirty: false,
+  linkedCampaignId: null,
+  selectedSchema: null,
+  stationRuleDrafts: {},
+  agentConflict: null,
+  agentPanelOpen: true,
+  draftPersistence: "none",
+  hydrateGeneration: 0
+};
+
+export function builderPhaseToStationIndex(phase: BuilderPhase): number {
+  switch (phase) {
+    case "idle":
+      return -1;
+    case "setup":
+      return 0;
+    case "eligibility":
+      return 1;
+    case "criteria":
+      return 2;
+    case "actions":
+      return 3;
+    case "review":
+      return 4;
+    default: {
+      const exhaustive: never = phase;
+      return exhaustive;
+    }
+  }
+}
+
+export const useJourneyBuilderStore = create<JourneyBuilderState>((set) => ({
+  ...INITIAL_STATE,
+  actions: {
+    hydrateFromCampaign: ({ campaign, builderPhase, markDirty = false }) =>
+      set((state) => {
+        const withJourney = ensureCampaignJourney(campaign);
+        return {
+          campaign: withJourney,
+          mapViewModel: campaignToMapViewModel(withJourney),
+          builderPhase,
+          activeStationIndex: builderPhaseToStationIndex(builderPhase),
+          linkedCampaignId: withJourney.id ?? state.linkedCampaignId,
+          isDirty: markDirty ? true : state.isDirty,
+          hydrateGeneration: state.hydrateGeneration + 1
+        };
+      }),
+    patchCampaignScalars: (patch) =>
+      set((state) => {
+        if (!state.campaign) {
+          return state;
+        }
+        const next = ensureCampaignJourney({ ...state.campaign, ...patch });
+        return {
+          campaign: next,
+          mapViewModel: campaignToMapViewModel(next),
+          isDirty: true
+        };
+      }),
+    patchJourneyNode: (nodeId, nodePatch) =>
+      set((state) => {
+        if (!state.campaign?.journey) {
+          return state;
+        }
+        const nextJourney = patchJourneyNodeInTree(state.campaign.journey, nodeId, nodePatch);
+        const nextCampaign = { ...state.campaign, journey: nextJourney };
+        return {
+          campaign: nextCampaign,
+          mapViewModel: campaignToMapViewModel(nextCampaign),
+          isDirty: true
+        };
+      }),
+    setStationRuleDraft: (variant, rule) =>
+      set((state) => ({
+        stationRuleDrafts: {
+          ...state.stationRuleDrafts,
+          [variant]: rule ?? undefined
+        },
+        isDirty: true
+      })),
+    setSelectedSchema: (selectedSchema) => set({ selectedSchema }),
+    setLayoutMode: (layoutMode) => set({ layoutMode }),
+    setBuilderPhase: (builderPhase) =>
+      set({
+        builderPhase,
+        activeStationIndex: builderPhaseToStationIndex(builderPhase)
+      }),
+    advanceStation: ({ direction, nextPhase }) =>
+      set((state) => {
+        if (direction === "back") {
+          const previous = previousBuilderPhase(state.builderPhase);
+          if (!previous) {
+            return state;
+          }
+          return {
+            builderPhase: previous,
+            activeStationIndex: builderPhaseToStationIndex(previous),
+            canvasPhase: "traveling" as const
+          };
+        }
+        if (!nextPhase) {
+          return state;
+        }
+        return {
+          builderPhase: nextPhase,
+          activeStationIndex: builderPhaseToStationIndex(nextPhase),
+          canvasPhase: "traveling" as const
+        };
+      }),
+    setCanvasPhase: (canvasPhase) => set({ canvasPhase }),
+    selectNode: (nodeId) =>
+      set({
+        selectedNodeId: nodeId,
+        layoutMode: "focusEdit"
+      }),
+    clearSelection: () =>
+      set({
+        selectedNodeId: null,
+        layoutMode: "discover"
+      }),
+    setDirty: (isDirty) => set({ isDirty }),
+    setLinkedCampaignId: (linkedCampaignId) => set({ linkedCampaignId }),
+    setAgentConflict: (agentConflict) => set({ agentConflict }),
+    clearAgentConflict: () => set({ agentConflict: null }),
+    setAgentPanelOpen: (agentPanelOpen) => set({ agentPanelOpen }),
+    setDraftPersistence: (draftPersistence) => set({ draftPersistence }),
+    clearAgentCampaignLink: () =>
+      set((state) => ({
+        campaign: null,
+        mapViewModel: EMPTY_MAP_VIEW_MODEL,
+        builderPhase: "idle",
+        activeStationIndex: -1,
+        layoutMode: state.layoutMode === "focusEdit" ? "discover" : state.layoutMode,
+        selectedNodeId: null,
+        linkedCampaignId: null,
+        draftPersistence: "none",
+        isDirty: false,
+        agentConflict: null,
+        hydrateGeneration: state.hydrateGeneration + 1
+      })),
+    reset: () =>
+      set((state) => ({
+        ...INITIAL_STATE,
+        hydrateGeneration: state.hydrateGeneration + 1,
+        actions: state.actions
+      }))
+  }
+}));
+
+export const selectCampaign = (state: JourneyBuilderState): Campaign | null => state.campaign;
+export const selectMapViewModel = (state: JourneyBuilderState): CampaignMapViewModel => state.mapViewModel;
+export const selectBuilderPhase = (state: JourneyBuilderState): BuilderPhase => state.builderPhase;
+export const selectLayoutMode = (state: JourneyBuilderState): LayoutMode => state.layoutMode;
+export const selectSelectedNodeId = (state: JourneyBuilderState): string | null => state.selectedNodeId;
+export const selectActiveStationIndex = (state: JourneyBuilderState): number => state.activeStationIndex;
+export const selectCanvasPhase = (state: JourneyBuilderState): CanvasPhase => state.canvasPhase;
+export const selectSelectedSchema = (state: JourneyBuilderState): LoyaltySchema | null => state.selectedSchema;
+export const selectStationRuleDrafts = (
+  state: JourneyBuilderState
+): Partial<Record<StationRuleVariant, Partial<Rule>>> => state.stationRuleDrafts;
+export const selectAgentConflict = (state: JourneyBuilderState): AgentConflictState => state.agentConflict;
+export const selectLinkedCampaignId = (state: JourneyBuilderState): string | null => state.linkedCampaignId;
+export const selectAgentPanelOpen = (state: JourneyBuilderState): boolean => state.agentPanelOpen;
+export const selectDraftPersistence = (state: JourneyBuilderState): DraftPersistence => state.draftPersistence;
+export const selectHydrateGeneration = (state: JourneyBuilderState): number => state.hydrateGeneration;
+export const selectIsDirty = (state: JourneyBuilderState): boolean => state.isDirty;
+
+export const useJourneyBuilderActions = (): JourneyBuilderActions => useJourneyBuilderStore((state) => state.actions);
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-agent-campaign-sync.ts =====
+
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+
+import { hydrateDecision } from "@/lib/campaign-agent/hydrate-policy";
+import type { Campaign } from "@/lib/campaign-types";
+import { getCampaign } from "@/services/loyalty/actions";
+
+import { inferBuilderPhase } from "./infer-builder-phase";
+import { useJourneyBuilderStore } from "./journey-builder-store";
+
+export function decideAgentHydrate(args: {
+  isDirty: boolean;
+  campaignId: string;
+  campaign: Campaign;
+  hydrate: (campaign: Campaign) => void;
+  conflict: (campaignId: string, campaign: Campaign) => void;
+}): "apply" | "conflict" {
+  const decision = hydrateDecision(args.isDirty);
+  if (decision === "conflict") {
+    args.conflict(args.campaignId, args.campaign);
+  } else {
+    args.hydrate(args.campaign);
+  }
+  return decision;
+}
+
+export function shouldAutoFetchLinkedCampaign(
+  linkedCampaignId: string | null,
+  storeCampaignId: string | null | undefined
+): linkedCampaignId is string {
+  if (!linkedCampaignId) {
+    return false;
+  }
+  return storeCampaignId !== linkedCampaignId;
+}
+
+export function applyDiscoveredCampaignToBuilder(campaignId: string, campaign: Campaign): "apply" | "conflict" {
+  const state = useJourneyBuilderStore.getState();
+  return decideAgentHydrate({
+    isDirty: state.isDirty,
+    campaignId,
+    campaign,
+    hydrate: (next) => {
+      state.actions.hydrateFromCampaign({
+        campaign: next,
+        builderPhase: inferBuilderPhase({ previous: state.campaign, next })
+      });
+      state.actions.setLinkedCampaignId(next.id ?? campaignId);
+      state.actions.setDraftPersistence("persisted");
+      state.actions.setDirty(false);
+    },
+    conflict: (id, next) => {
+      state.actions.setAgentConflict({ campaignId: id, campaign: next });
+    }
+  });
+}
+
+export function useAgentCampaignSync() {
+  const [hydrating, setHydrating] = useState(false);
+  const lastHydratedIdRef = useRef<string | null>(null);
+  const agentConflict = useJourneyBuilderStore((state) => state.agentConflict);
+
+  useEffect(() => {
+    return () => {
+      lastHydratedIdRef.current = null;
+    };
+  }, []);
+
+  const hydrateFromCampaignId = useCallback(async (campaignId: string) => {
+    const state = useJourneyBuilderStore.getState();
+    if (
+      lastHydratedIdRef.current === campaignId &&
+      state.campaign?.id === campaignId &&
+      state.builderPhase !== "idle"
+    ) {
+      return;
+    }
+
+    setHydrating(true);
+    try {
+      const result = await getCampaign(campaignId, "draft");
+      if (!result.success || !result.data) {
+        toast.error(result.error ?? "Could not load the Agent draft.");
+        return;
+      }
+
+      const decision = applyDiscoveredCampaignToBuilder(campaignId, result.data as Campaign);
+      if (decision === "apply") {
+        lastHydratedIdRef.current = campaignId;
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not load the Agent draft.");
+    } finally {
+      setHydrating(false);
+    }
+  }, []);
+
+  const keepLocalChanges = useCallback(() => {
+    useJourneyBuilderStore.getState().actions.clearAgentConflict();
+  }, []);
+
+  const applyAgentVersion = useCallback(() => {
+    const conflict = useJourneyBuilderStore.getState().agentConflict;
+    if (!conflict) {
+      return;
+    }
+
+    const current = useJourneyBuilderStore.getState();
+    current.actions.hydrateFromCampaign({
+      campaign: conflict.campaign,
+      builderPhase: inferBuilderPhase({ previous: current.campaign, next: conflict.campaign })
+    });
+    current.actions.setLinkedCampaignId(conflict.campaign.id ?? conflict.campaignId);
+    current.actions.setDraftPersistence("persisted");
+    current.actions.setDirty(false);
+    current.actions.clearAgentConflict();
+    lastHydratedIdRef.current = conflict.campaign.id ?? conflict.campaignId;
+  }, []);
+
+  return {
+    hydrateFromCampaignId,
+    hydrating,
+    agentConflict,
+    keepLocalChanges,
+    applyAgentVersion
+  };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.test.ts =====
+
+import { describe, expect, it, vi } from "vitest";
+
+import { buildEmptyDraftPayload } from "./use-create-empty-draft";
+
+describe("buildEmptyDraftPayload", () => {
+  it("includes startDate so CampaignShellValidator accepts the draft", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-18T17:00:00.000Z"));
+    try {
+      const payload = buildEmptyDraftPayload();
+
+      expect(payload).toEqual({
+        name: "Untitled campaign",
+        status: "draft",
+        startDate: "2026-09-18T17:00:00.000Z"
+      });
+      expect(payload.id).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.ts =====
+
+"use client";
+
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
+
+import type { Campaign } from "@/lib/campaign-types";
+import { updateCampaign } from "@/services/loyalty/actions";
+
+import { useJourneyBuilderActions } from "./journey-builder-store";
+
+export function buildEmptyDraftPayload(): Campaign {
+  return {
+    name: "Untitled campaign",
+    status: "draft",
+    startDate: new Date().toISOString()
+  };
+}
+
+export function useCreateEmptyDraft(): {
+  createEmptyDraft: () => Promise<Campaign | null>;
+  creating: boolean;
+} {
+  const actions = useJourneyBuilderActions();
+  const [creating, setCreating] = useState(false);
+
+  const createEmptyDraft = useCallback(async () => {
+    setCreating(true);
+    try {
+      const payload = buildEmptyDraftPayload();
+      const response = await updateCampaign(payload);
+      if (!response.success || !response.data) {
+        throw new Error(response.error ?? "Failed to create draft");
+      }
+
+      actions.hydrateFromCampaign({
+        campaign: response.data as Campaign,
+        builderPhase: "setup"
+      });
+      actions.setDraftPersistence("persisted");
+      actions.setLinkedCampaignId(response.data.id ?? null);
+      actions.setDirty(false);
+      toast.success("Draft created");
+      return response.data as Campaign;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+      return null;
+    } finally {
+      setCreating(false);
+    }
+  }, [actions]);
+
+  return { createEmptyDraft, creating };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-save-campaign-draft.ts =====
+
+"use client";
+
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
+
+import type { CampaignListItem } from "@/lib/api-types";
+import type { Campaign } from "@/lib/campaign-types";
+import { updateCampaign, validateCampaign } from "@/services/loyalty/actions";
+
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore
+} from "./journey-builder-store";
+
+export function useSaveCampaignDraft(): {
+  saveDraft: () => Promise<void>;
+  saving: boolean;
+  canSave: boolean;
+} {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+  const [saving, setSaving] = useState(false);
+
+  const saveDraft = useCallback(async () => {
+    const current = useJourneyBuilderStore.getState().campaign;
+    if (!current) {
+      toast.error("Nothing to save yet.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const payload: Campaign = {
+        ...current,
+        name: current.name?.trim() || "Untitled campaign",
+        status: current.status ?? "draft"
+      };
+      const validation = await validateCampaign(payload as CampaignListItem);
+      if (!validation.success) {
+        throw new Error(validation.error ?? "Campaign validation failed.");
+      }
+
+      const response = await updateCampaign(payload);
+      if (!response.success || !response.data) {
+        throw new Error(response.error ?? "Failed to save draft");
+      }
+
+      actions.hydrateFromCampaign({
+        campaign: response.data as Campaign,
+        builderPhase: selectBuilderPhase(useJourneyBuilderStore.getState())
+      });
+      actions.setDraftPersistence("persisted");
+      if (response.data.id) {
+        actions.setLinkedCampaignId(response.data.id);
+      }
+      actions.setDirty(false);
+      toast.success("Draft saved");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save draft");
+    } finally {
+      setSaving(false);
+    }
+  }, [actions]);
+
+  return {
+    saveDraft,
+    saving,
+    canSave: Boolean(campaign)
+  };
+}
+

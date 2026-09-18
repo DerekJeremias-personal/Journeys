@@ -3,6 +3,7 @@ using Journeys.API.CampaignAgent.DataWarehouse;
 using Journeys.Core.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,9 +13,7 @@ namespace Journeys.Tests.CampaignAgent;
 
 public class CampaignAgentPromptComposerTests
 {
-    private static readonly string ApiContentRoot = Path.GetFullPath(Path.Combine(
-        AppContext.BaseDirectory,
-        "..", "..", "..", "..", "Journeys.API"));
+    private static readonly string ApiContentRoot = JourneysApiContentPaths.ContentRoot;
 
     [Theory]
     [InlineData(CampaignWorkflowPhase.DataAnalysis, "DATA ANALYSIS", "WAREHOUSE TOOL PLAYBOOK")]
@@ -263,13 +262,46 @@ public class CampaignAgentPromptComposerTests
         Assert.Contains("Never guess casing", ctx.Instructions, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static CampaignAgentPromptComposer CreateComposer(bool dataWarehouseEnabled = true) =>
+    [Fact]
+    public async Task BuildAsync_AppendsOllamaAddendum_WhenProviderOllama()
+    {
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["CampaignAgent:Provider"] = "Ollama"
+            })
+            .Build();
+        var composer = CreateComposer(configuration: config);
+        var state = CampaignWorkflowState.CreateDefault("t", "u", "c");
+        state.Phase = CampaignWorkflowPhase.DataAnalysis;
+
+        var ctx = await composer.BuildAsync("t", null, null, null, state);
+
+        Assert.Contains("OLLAMA / SMALL MODEL", ctx.Instructions, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task BuildAsync_DoesNotAppendOllamaAddendum_WhenProviderDefault()
+    {
+        var composer = CreateComposer();
+        var state = CampaignWorkflowState.CreateDefault("t", "u", "c");
+        state.Phase = CampaignWorkflowPhase.DataAnalysis;
+
+        var ctx = await composer.BuildAsync("t", null, null, null, state);
+
+        Assert.DoesNotContain("OLLAMA / SMALL MODEL", ctx.Instructions, StringComparison.Ordinal);
+    }
+
+    private static CampaignAgentPromptComposer CreateComposer(
+        bool dataWarehouseEnabled = true,
+        IConfiguration? configuration = null) =>
         new(
             new TestHostEnvironment(ApiContentRoot),
             new MemoryCache(new MemoryCacheOptions()),
             new NullTenantContextProvider(),
             Options.Create(new DataWarehouseProxyOptions { Enabled = dataWarehouseEnabled }),
-            NullLogger<CampaignAgentPromptComposer>.Instance);
+            NullLogger<CampaignAgentPromptComposer>.Instance,
+            configuration ?? new ConfigurationBuilder().Build());
 
     private sealed class TestHostEnvironment(string contentRoot) : IHostEnvironment
     {

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { attributeNamesFromRows, extractEntities, normalizeSchema, pickLiveSchema } from "./parse-list";
+import {
+  attributeNamesFromRows,
+  extractContinuationToken,
+  extractConversationIds,
+  extractEntities,
+  normalizeCampaignRow,
+  normalizeSchema,
+  pickLiveSchema
+} from "./parse-list";
 
 describe("extractEntities", () => {
   it("returns arrays as-is", () => {
@@ -10,6 +18,40 @@ describe("extractEntities", () => {
   });
   it("reads Items", () => {
     expect(extractEntities({ Items: [{ id: "2" }] })).toEqual([{ id: "2" }]);
+  });
+});
+
+describe("extractConversationIds", () => {
+  it("reads camelCase items.conversationId", () => {
+    expect(extractConversationIds({ items: [{ conversationId: "abc" }] })).toEqual(["abc"]);
+  });
+
+  it("reads PascalCase Items.ConversationId", () => {
+    expect(
+      extractConversationIds({ Items: [{ ConversationId: "def" }] })
+    ).toEqual(["def"]);
+  });
+});
+
+describe("normalizeCampaignRow", () => {
+  it("keeps the journey tree so account tier progress can read it", () => {
+    const row = normalizeCampaignRow({
+      id: "camp-1",
+      name: "Tier campaign",
+      journey: { id: "journey-1", rootNodeId: "root-1", children: [{ id: "tier-bronze" }] }
+    });
+    expect(row?.journey).toEqual({
+      id: "journey-1",
+      rootNodeId: "root-1",
+      children: [{ id: "tier-bronze" }]
+    });
+  });
+
+  it("reads a PascalCase journey and omits a non-object one", () => {
+    expect(normalizeCampaignRow({ id: "camp-1", Journey: { id: "journey-1" } })?.journey).toEqual({
+      id: "journey-1"
+    });
+    expect(normalizeCampaignRow({ id: "camp-1", journey: "nope" })?.journey).toBeUndefined();
   });
 });
 
@@ -52,6 +94,18 @@ describe("pickLiveSchema", () => {
         "LoyaltyAccountDetails"
       )
     ).toBeNull();
+  });
+});
+
+describe("extractContinuationToken", () => {
+  it("reads continuationToken", () => {
+    expect(extractContinuationToken({ entities: [], continuationToken: "tok" })).toBe("tok");
+  });
+  it("reads ContinuationToken", () => {
+    expect(extractContinuationToken({ Entities: [], ContinuationToken: "tok2" })).toBe("tok2");
+  });
+  it("returns null when missing", () => {
+    expect(extractContinuationToken({ entities: [] })).toBeNull();
   });
 });
 

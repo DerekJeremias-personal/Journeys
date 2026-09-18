@@ -1,0 +1,4913 @@
+﻿# Review package: Task 5 Journey Builder (uncommitted working tree)
+
+## Files changed (stat)
+
+ Journeys/docs/developer/journeys-ux.md | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+## Untracked
+
+Journeys/Journeys.UX/src/app/loyalty/campaigns/new/page.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/compute-campaign-health.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/infer-builder-phase.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/journey-builder-journey-utils.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/journey-builder-store.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/progressive-map-utils.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/validate-station.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/actions-review-modal.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/advance-station.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-hydrate.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-link-draft-banner.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-sync-conflict-banner.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/builder-canvas-surface.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-health-sidebar.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-journey-builder-shell.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-map-canvas.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-sync-status-pill.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-to-map-view-model.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/compute-affected-estimate.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/compute-campaign-health.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/criteria-review-modal.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/index.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/infer-builder-phase.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-form-provider.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-journey-utils.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-steps.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-store.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-canvas.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/link-draft-dialog.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/node-step-panel.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/outcome-utils.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/progressive-map-canvas.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/progressive-map-utils.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/station-editor-slot.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/station-footer.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/step-panel.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/step-summary.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-advance-station.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-agent-campaign-sync.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.test.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-save-campaign-draft.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/validate-station.ts
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/welcome-canvas.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/actions-station-editor.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/criteria-station-editor.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/outcome-list-editor.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/setup-station-editor.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/workspace-confirm-dialog.tsx
+Journeys/Journeys.UX/src/lib/campaign-agent/campaign-mode.ts
+Journeys/docs/product/graph/waivers/2026-09-18-campaigns-new-builder.md
+
+## Diff (tracked)
+
+diff --git a/Journeys/docs/developer/journeys-ux.md b/Journeys/docs/developer/journeys-ux.md
+index 6f2f87c..e23c5b3 100644
+--- a/Journeys/docs/developer/journeys-ux.md
++++ b/Journeys/docs/developer/journeys-ux.md
+@@ -19,15 +19,38 @@ If swagger on `https://localhost:7001` itself times out, the API process is list
+ 
+ `src/services/loyalty/actions.ts` is a `"use server"` module: export only async functions. Schema name constants live in `src/services/loyalty/schema-names.ts`.
+ 
+ Each Loyalty screen owns its Backend model. Do not send `modelId: "unknown"`.
+ 
+ | Screen | What the UX sends | Where the Backend model id comes from |
+ |--------|-------------------|----------------------------------------|
+ | **Campaigns** | `POST campaigns/{tenant}/getall` with page size only | `CampaignAdapter` constant `CAMPAIGN_MODEL_ID` `eeae67ca-7bf9-4d2b-9131-83717b219a3a` (platform campaign container). Model type is always `loyalty`. |
+ | **Accounts** | `POST events/{tenant}/LoyaltyAccountDetails/admin/query` | Screen name `LoyaltyAccountDetails` (customer event model). `EventService` loads that schema from the tenant catalog, then queries the **wrapper** model GUID from its `Wrapper` metadata. The loyalty-account container GUID `e2cc2404-c60b-4cbc-9f50-6db7ee58e01d` is used by DAL account adapters, not this list. |
+ 
++## Agent
++
++Unlabeled chat at `/loyalty/campaigns/agent` (link from Campaigns). Browser POSTs to Next `/api/loyalty/campaign-agent/messages/stream`; the server forwards to `POST /api/v1/{tenantId}/campaign-agent/messages/stream`. Secrets stay on the Next server. LLM provider is API startup config (`docs/developer/campaign-agent-llm.md`), not a UX control.
++
++Live smoke: API + Ollama tray ΓåÆ sign in ΓåÆ Campaigns ΓåÆ Agent ΓåÆ one turn with streamed assistant text and at least one successful MCP tool. Not required: Draft upsert or Live publish.
++
++The composer is a textarea with **Send** under it. **Enter** sends; **Shift+Enter** inserts a newline. After `started`, the conversation id is labeled **Conversation**, shown in monospace, with a copy icon.
++
++Turns persist as Backend model `AgentMessage` (`12f6e8d4-5b3a-491c-9f2e-8a7d6c5b4a31`, type `loyalty`, partition `owneruserid` + `conversationid`). If that container is missing for the tenant, the API fails at load history with a generic Backend 500 (`An unexpected error occurred`). Create it via Backend `POST /api/{tenantId}/Model/save` (local `TestTenant1` already has it).
++
+ Catalog list (`/model/all`) sends `modelType: loyalty` and **omits** `ModelId`. Entity routes require a real GUID and never coalesce a missing id to `"unknown"`. After C# adapter changes, **restart `Journeys.API`** in Visual Studio.
+ 
+ ## This specΓÇÖs screens
+ 
+-Overview, Accounts table, Campaigns list. Other Loyalty nav items are disabled on purpose.
++Overview, Accounts table, and Campaigns IA (`docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md`). Other Loyalty nav items may still be disabled.
++
++Campaigns routes (HTTP-only to `Journeys.API`):
++
++| Href | Role |
++|------|------|
++| `/loyalty/campaigns` | Cards + kebab + New + resume agent |
++| `/loyalty/campaigns/new` | Journey Builder + `AgentChat` rail |
++
++`/new` is the EXP progressive Journey Builder (stations, review modals, health sidebar, welcome canvas) with an unlabeled Agent rail. Title is page text plus `CampaignJsonDisclosure` inside `AgentChat` when a campaign id is linked ΓÇö no second JSON inspector. Discovered ids `GET` Draft and hydrate; dirty local work shows keep-local / apply-Agent and never silent-overwrite. Save/create-empty persist through `updateCampaign` (no EXP create composite). The wizard edit page (`/[id]`) is unchanged.
++| `/loyalty/campaigns/[id]?campaignStatus=` | **Wizard edit**. Query is required to fetch the status partition |
++| `/loyalty/campaigns/[id]/agent` | Live-only agent rail |
++
++Wizard Live-edit does not upsert the Live journey in place. If a Draft already exists for that `extCampaignId`, the wizard edits the Draft id. If not, save POSTs a **new** id (omit `id`) with the **same** `extCampaignId` and `status: draft`. Unpublish is Pause, not LiveΓåÆDraft on the same id.
+
+## Untracked file contents
+
+
+===== BEGIN Journeys/Journeys.UX/src/app/loyalty/campaigns/new/page.tsx =====
+
+import Link from "next/link";
+
+import { CampaignJourneyBuilderShell } from "@/components/loyalty/campaign-journey-builder";
+
+export default function NewCampaignPage() {
+  return (
+    <main className="space-y-5 p-6">
+      <div>
+        <Link className="text-sm text-muted-foreground hover:text-foreground" href="/loyalty/campaigns">
+          â† Campaigns
+        </Link>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">New campaign</h1>
+        <p className="text-sm text-muted-foreground">
+          Build the journey directly or work with the Agent in the side rail.
+        </p>
+      </div>
+      <CampaignJourneyBuilderShell />
+    </main>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/compute-campaign-health.test.ts =====
+
+import { describe, expect, it } from "vitest";
+
+import { computeCampaignHealth } from "../compute-campaign-health";
+
+describe("computeCampaignHealth", () => {
+  it("flags missing name and open-ended schedule", () => {
+    const report = computeCampaignHealth({
+      name: "",
+      status: "draft",
+      startDate: "2026-01-01T00:00:00.000Z",
+    });
+
+    expect(report.warnings.some((issue) => issue.id === "missing-name")).toBe(true);
+    expect(report.warnings.some((issue) => issue.id === "no-end-date")).toBe(true);
+  });
+
+  it("recommends outcomes when journey has no configured actions", () => {
+    const report = computeCampaignHealth({
+      name: "Promo",
+      status: "draft",
+      startDate: "2026-01-01T00:00:00.000Z",
+      endDate: "2026-12-31T00:00:00.000Z",
+      journey: {
+        id: "root",
+        name: "Root",
+        rules: [],
+        children: [],
+      },
+    });
+
+    expect(report.recs.some((issue) => issue.id === "missing-outcomes")).toBe(true);
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/infer-builder-phase.test.ts =====
+
+import { describe, expect, it } from "vitest";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import { inferBuilderPhase, type BuilderPhase } from "../infer-builder-phase";
+
+function campaign(overrides: Partial<Campaign> = {}): Campaign {
+  return {
+    name: "Test",
+    status: "draft",
+    ...overrides,
+  };
+}
+
+describe("inferBuilderPhase", () => {
+  it("returns idle when next campaign has no id and no journey", () => {
+    expect(inferBuilderPhase({ previous: null, next: campaign() })).toBe("idle");
+  });
+
+  it("returns setup when campaign id first appears", () => {
+    const next = campaign({ id: "3c4a8633-3a76-491f-b7b3-c592037ec9da" });
+    expect(inferBuilderPhase({ previous: null, next })).toBe("setup");
+  });
+
+  it("returns review when workflow phase mentions validate", () => {
+    expect(
+      inferBuilderPhase({
+        previous: campaign({ id: "abc" }),
+        next: campaign({ id: "abc" }),
+        workflowPhase: "validate_campaign",
+      })
+    ).toBe("review");
+  });
+
+  it("maps tool names to builder phases", () => {
+    const withId = campaign({ id: "abc" });
+    const cases: Array<{ tools: string[]; expected: BuilderPhase }> = [
+      { tools: ["create_campaign"], expected: "setup" },
+      { tools: ["update_eligibility_rules"], expected: "eligibility" },
+      { tools: ["add_purchase_criteria"], expected: "criteria" },
+      { tools: ["deposit_points_outcome"], expected: "actions" },
+      { tools: ["validate_campaign"], expected: "review" },
+    ];
+
+    for (const { tools, expected } of cases) {
+      expect(
+        inferBuilderPhase({
+          previous: withId,
+          next: withId,
+          toolNames: tools,
+        })
+      ).toBe(expected);
+    }
+  });
+
+  it("advances one phase when journey gains a new rule set", () => {
+    const previous = campaign({
+      id: "abc",
+      journey: {
+        id: "j1",
+        name: "Root",
+        rules: [],
+        children: [],
+      },
+    });
+    const next = campaign({
+      id: "abc",
+      journey: {
+        id: "j1",
+        name: "Root",
+        rules: [{ name: "Eligibility", ruleJsonElement: {}, outcomesJsonElement: [] }],
+        children: [],
+      },
+    });
+
+    expect(inferBuilderPhase({ previous, next })).toBe("eligibility");
+  });
+
+  it("infers phase from journey content when previous is null", () => {
+    const next = campaign({
+      id: "abc",
+      journey: {
+        id: "j1",
+        name: "Root",
+        rules: [{ name: "Bronze", ruleJsonElement: {}, outcomesJsonElement: [{ $type: "DepositPointsOutcome" }] }],
+        children: [],
+      },
+    });
+
+    expect(inferBuilderPhase({ previous: null, next })).toBe("actions");
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/journey-builder-journey-utils.test.ts =====
+
+import { describe, expect, it } from "vitest";
+
+import {
+  createEmptyJourney,
+  getActionsTargetNode,
+  getCriteriaTargetNode,
+  getEligibilityTargetNode,
+  patchJourneyNodeInTree,
+} from "../journey-builder-journey-utils";
+
+describe("journey-builder-journey-utils", () => {
+  it("returns the first child for eligibility targeting", () => {
+    const root = createEmptyJourney();
+    const child = { ...createEmptyJourney(), id: "child-1", name: "Eligibility" };
+    root.children = [child];
+
+    expect(getEligibilityTargetNode(root).id).toBe("child-1");
+  });
+
+  it("returns the second node for criteria targeting", () => {
+    const root = createEmptyJourney();
+    const child = { ...createEmptyJourney(), id: "child-1", name: "Eligibility" };
+    const grandchild = { ...createEmptyJourney(), id: "child-2", name: "Criteria" };
+    child.children = [grandchild];
+    root.children = [child];
+
+    expect(getCriteriaTargetNode(root).id).toBe("child-2");
+  });
+
+  it("returns the third node for actions targeting", () => {
+    const root = createEmptyJourney();
+    const child = { ...createEmptyJourney(), id: "child-1", name: "Eligibility" };
+    const grandchild = { ...createEmptyJourney(), id: "child-2", name: "Criteria" };
+    const great = { ...createEmptyJourney(), id: "child-3", name: "Actions" };
+    grandchild.children = [great];
+    child.children = [grandchild];
+    root.children = [child];
+
+    expect(getActionsTargetNode(root).id).toBe("child-3");
+  });
+
+  it("patches a node in the journey tree", () => {
+    const root = createEmptyJourney();
+    const child = { ...createEmptyJourney(), id: "child-1", name: "Before" };
+    root.children = [child];
+
+    const next = patchJourneyNodeInTree(root, "child-1", { name: "After" });
+    expect(next.children?.[0]?.name).toBe("After");
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/journey-builder-store.test.ts =====
+
+import { describe, expect, it, beforeEach } from "vitest";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import { builderPhaseToStationIndex, useJourneyBuilderStore } from "../journey-builder-store";
+
+function campaign(overrides: Partial<Campaign> = {}): Campaign {
+  return {
+    name: "Test campaign",
+    status: "draft",
+    id: "campaign-1",
+    ...overrides,
+  };
+}
+
+describe("useJourneyBuilderStore", () => {
+  beforeEach(() => {
+    useJourneyBuilderStore.getState().actions.reset();
+  });
+
+  it("hydrates campaign and map view model", () => {
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign({
+        journey: {
+          id: "journey-1",
+          name: "Root journey",
+          rules: [],
+          children: [],
+        },
+      }),
+      builderPhase: "setup",
+    });
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.campaign?.name).toBe("Test campaign");
+    expect(state.mapViewModel.coreNodes[0]?.kind).toBe("Campaign");
+    expect(state.builderPhase).toBe("setup");
+    expect(state.activeStationIndex).toBe(0);
+  });
+
+  it("enters focus edit when selecting a node", () => {
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign(),
+      builderPhase: "review",
+    });
+    useJourneyBuilderStore.getState().actions.selectNode("campaign-1");
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.selectedNodeId).toBe("campaign-1");
+    expect(state.layoutMode).toBe("focusEdit");
+  });
+
+  it("clears focus edit when selection is cleared", () => {
+    useJourneyBuilderStore.getState().actions.selectNode("campaign-1");
+    useJourneyBuilderStore.getState().actions.clearSelection();
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.selectedNodeId).toBeNull();
+    expect(state.layoutMode).toBe("discover");
+  });
+
+  it("patches scalar campaign fields and marks dirty", () => {
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign({ name: "Before" }),
+      builderPhase: "setup",
+    });
+
+    useJourneyBuilderStore.getState().actions.patchCampaignScalars({ name: "After" });
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.campaign?.name).toBe("After");
+    expect(state.isDirty).toBe(true);
+  });
+
+  it("patches a journey node and recomputes map view model", () => {
+    const journeyId = "journey-1";
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign({
+        journey: {
+          id: journeyId,
+          name: "Root",
+          rules: [],
+          children: [],
+        },
+      }),
+      builderPhase: "eligibility",
+    });
+
+    useJourneyBuilderStore.getState().actions.patchJourneyNode(journeyId, { name: "Updated root" });
+
+    const state = useJourneyBuilderStore.getState();
+    expect(state.campaign?.journey?.name).toBe("Updated root");
+    expect(state.isDirty).toBe(true);
+    expect(state.mapViewModel.coreNodes.length).toBeGreaterThan(0);
+  });
+
+  it("stores and clears agent sync conflicts", () => {
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign({ name: "Local draft" }),
+      builderPhase: "setup",
+      markDirty: true,
+    });
+
+    useJourneyBuilderStore.getState().actions.setAgentConflict({
+      campaignId: "campaign-1",
+      campaign: campaign({ id: "campaign-1", name: "Agent draft" }),
+    });
+
+    expect(useJourneyBuilderStore.getState().agentConflict?.campaign.name).toBe("Agent draft");
+    useJourneyBuilderStore.getState().actions.clearAgentConflict();
+    expect(useJourneyBuilderStore.getState().agentConflict).toBeNull();
+  });
+  it("advances forward and back", () => {
+    useJourneyBuilderStore.getState().actions.hydrateFromCampaign({
+      campaign: campaign(),
+      builderPhase: "setup",
+    });
+
+    useJourneyBuilderStore.getState().actions.advanceStation({
+      direction: "forward",
+      nextPhase: "eligibility",
+    });
+    expect(useJourneyBuilderStore.getState().builderPhase).toBe("eligibility");
+
+    useJourneyBuilderStore.getState().actions.advanceStation({ direction: "back" });
+    expect(useJourneyBuilderStore.getState().builderPhase).toBe("setup");
+  });
+});
+
+describe("builderPhaseToStationIndex", () => {
+  it("maps builder phases to station indexes", () => {
+    expect(builderPhaseToStationIndex("idle")).toBe(-1);
+    expect(builderPhaseToStationIndex("setup")).toBe(0);
+    expect(builderPhaseToStationIndex("eligibility")).toBe(1);
+    expect(builderPhaseToStationIndex("review")).toBe(4);
+  });
+});
+
+describe("workspace state", () => {
+  beforeEach(() => {
+    useJourneyBuilderStore.getState().actions.reset();
+  });
+
+  it("defaults agentPanelOpen true and draftPersistence none", () => {
+    const state = useJourneyBuilderStore.getState();
+    expect(state.agentPanelOpen).toBe(true);
+    expect(state.draftPersistence).toBe("none");
+  });
+
+  it("setAgentPanelOpen toggles visibility", () => {
+    useJourneyBuilderStore.getState().actions.setAgentPanelOpen(false);
+    expect(useJourneyBuilderStore.getState().agentPanelOpen).toBe(false);
+  });
+
+  it("setDraftPersistence updates mode", () => {
+    useJourneyBuilderStore.getState().actions.setDraftPersistence("local");
+    expect(useJourneyBuilderStore.getState().draftPersistence).toBe("local");
+  });
+
+  it("reset restores workspace defaults", () => {
+    useJourneyBuilderStore.getState().actions.setAgentPanelOpen(false);
+    useJourneyBuilderStore.getState().actions.setDraftPersistence("persisted");
+    useJourneyBuilderStore.getState().actions.reset();
+    const state = useJourneyBuilderStore.getState();
+    expect(state.agentPanelOpen).toBe(true);
+    expect(state.draftPersistence).toBe("none");
+    expect(state.builderPhase).toBe("idle");
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/progressive-map-utils.test.ts =====
+
+import { describe, expect, it } from "vitest";
+
+import { computeAffectedEstimate } from "../compute-affected-estimate";
+import { sliceMapViewModel, visibleNodeCountForPhase } from "../progressive-map-utils";
+
+describe("computeAffectedEstimate", () => {
+  it("returns a rounded estimate", () => {
+    expect(
+      computeAffectedEstimate({ eligibilityRuleCount: 1, criteriaRuleCount: 1, hasEventRule: false })
+    ).toBeGreaterThan(420);
+  });
+});
+
+describe("progressive map utils", () => {
+  it("reveals more nodes as phases advance", () => {
+    expect(visibleNodeCountForPhase("setup")).toBe(1);
+    expect(visibleNodeCountForPhase("actions")).toBe(4);
+  });
+
+  it("slices core nodes", () => {
+    const node = (id: string) => ({
+      id,
+      kind: "Campaign" as const,
+      title: id,
+      summary: null,
+      journeyNodeId: id,
+      core: true
+    });
+    const vm = {
+      coreNodes: [node("1"), node("2"), node("3")],
+      branches: []
+    };
+    expect(sliceMapViewModel(vm, 2).coreNodes).toHaveLength(2);
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/__tests__/validate-station.test.ts =====
+
+import { describe, expect, it } from "vitest";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import { nextBuilderPhase, resolveForwardAdvance } from "../advance-station";
+import { validateStationForContinue } from "../validate-station";
+
+function campaign(overrides: Partial<Campaign> = {}): Campaign {
+  return {
+    name: "Test",
+    status: "draft",
+    startDate: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
+describe("validateStationForContinue", () => {
+  it("requires setup fields", () => {
+    expect(validateStationForContinue("setup", campaign({ name: "", startDate: "" })).ok).toBe(false);
+    expect(validateStationForContinue("setup", campaign()).ok).toBe(true);
+  });
+});
+
+describe("resolveForwardAdvance", () => {
+  it("opens criteria review before actions", () => {
+    const intent = resolveForwardAdvance("criteria", { ok: true });
+    expect(intent).toEqual({ type: "review_modal", modal: "criteria" });
+  });
+
+  it("advances setup to eligibility when valid", () => {
+    const intent = resolveForwardAdvance("setup", { ok: true });
+    expect(intent).toEqual({ type: "advance", nextPhase: "eligibility" });
+  });
+});
+
+describe("nextBuilderPhase", () => {
+  it("walks the wizard order", () => {
+    expect(nextBuilderPhase("setup")).toBe("eligibility");
+    expect(nextBuilderPhase("actions")).toBe("review");
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/actions-review-modal.tsx =====
+
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import { getActionsTargetNode } from "./journey-builder-journey-utils";
+import { labelForOutcomeKind, outcomesFromRuleSet, primaryRuleSet } from "./outcome-utils";
+
+export interface ActionsReviewModalProps {
+  readonly open: boolean;
+  readonly campaign: Campaign | null;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onContinue: () => void;
+}
+
+export function ActionsReviewModal({ open, campaign, onOpenChange, onContinue }: ActionsReviewModalProps) {
+  const actionsNode = campaign?.journey ? getActionsTargetNode(campaign.journey) : null;
+  const outcomes = outcomesFromRuleSet(primaryRuleSet(actionsNode));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Review actions</DialogTitle>
+          <DialogDescription>Confirm resulting actions before opening the campaign map.</DialogDescription>
+        </DialogHeader>
+        <ul className="space-y-2 text-sm">
+          {outcomes.map((outcome, index) => (
+            <li key={`${outcome.Kind}-${String(index)}`} className="rounded-md border px-3 py-2">
+              {labelForOutcomeKind(outcome.Kind)}
+            </li>
+          ))}
+        </ul>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            Keep editing
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Continue to Review
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/advance-station.ts =====
+
+import type { BuilderPhase } from "./infer-builder-phase";
+import { JOURNEY_BUILDER_STEPS, type JourneyBuilderStepKey } from "./journey-builder-steps";
+import type { StationValidationResult } from "./validate-station";
+
+export type ReviewModalKind = "criteria" | "actions";
+
+export type AdvanceIntent =
+  | { type: "advance"; nextPhase: BuilderPhase }
+  | { type: "review_modal"; modal: ReviewModalKind }
+  | { type: "blocked" };
+
+const PHASE_ORDER: readonly JourneyBuilderStepKey[] = JOURNEY_BUILDER_STEPS.map((step) => step.key);
+
+export function nextBuilderPhase(phase: BuilderPhase): BuilderPhase | null {
+  if (phase === "idle" || phase === "review") {
+    return null;
+  }
+  const index = PHASE_ORDER.indexOf(phase);
+  if (index < 0 || index >= PHASE_ORDER.length - 1) {
+    return null;
+  }
+  const nextKey = PHASE_ORDER[index + 1];
+  return nextKey ?? null;
+}
+
+export function previousBuilderPhase(phase: BuilderPhase): BuilderPhase | null {
+  if (phase === "idle" || phase === "setup") {
+    return null;
+  }
+  if (phase === "review") {
+    return "actions";
+  }
+  const index = PHASE_ORDER.indexOf(phase);
+  if (index <= 0) {
+    return null;
+  }
+  const prevKey = PHASE_ORDER[index - 1];
+  return prevKey ?? null;
+}
+
+export function resolveForwardAdvance(
+  phase: BuilderPhase,
+  validation: StationValidationResult,
+  options?: { skipReviewModal?: boolean }
+): AdvanceIntent {
+  if (!validation.ok) {
+    return { type: "blocked" };
+  }
+
+  if (phase === "criteria" && !options?.skipReviewModal) {
+    return { type: "review_modal", modal: "criteria" };
+  }
+
+  if (phase === "actions" && !options?.skipReviewModal) {
+    return { type: "review_modal", modal: "actions" };
+  }
+
+  const nextPhase = nextBuilderPhase(phase);
+  if (!nextPhase) {
+    return { type: "blocked" };
+  }
+
+  return { type: "advance", nextPhase };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-hydrate.test.ts =====
+
+import { hydrateDecision } from "@/lib/campaign-agent/hydrate-policy";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { applyDiscoveredCampaignToBuilder, decideAgentHydrate } from "./use-agent-campaign-sync";
+import { useJourneyBuilderStore } from "./journey-builder-store";
+
+describe("builder hydrate", () => {
+  it("conflicts when dirty", () => {
+    expect(hydrateDecision(true)).toBe("conflict");
+    expect(hydrateDecision(false)).toBe("apply");
+  });
+
+  it("does not hydrate over dirty local work", () => {
+    const hydrate = vi.fn();
+    const conflict = vi.fn();
+
+    expect(
+      decideAgentHydrate({
+        isDirty: true,
+        campaignId: "campaign-1",
+        campaign: { id: "campaign-1", status: "draft" },
+        hydrate,
+        conflict
+      })
+    ).toBe("conflict");
+
+    expect(hydrate).not.toHaveBeenCalled();
+    expect(conflict).toHaveBeenCalledOnce();
+  });
+});
+
+describe("store hydrate from snapshot", () => {
+  beforeEach(() => {
+    useJourneyBuilderStore.getState().actions.reset();
+  });
+
+  it("does not call hydrateFromCampaign when dirty", () => {
+    const actions = useJourneyBuilderStore.getState().actions;
+    actions.hydrateFromCampaign({
+      campaign: { name: "Local draft", status: "draft" },
+      builderPhase: "setup"
+    });
+    actions.setDirty(true);
+
+    const hydrate = vi.spyOn(useJourneyBuilderStore.getState().actions, "hydrateFromCampaign");
+
+    expect(
+      applyDiscoveredCampaignToBuilder("agent-1", {
+        id: "agent-1",
+        name: "Agent snapshot",
+        status: "draft"
+      })
+    ).toBe("conflict");
+
+    expect(hydrate).not.toHaveBeenCalled();
+    expect(useJourneyBuilderStore.getState().campaign?.name).toBe("Local draft");
+    expect(useJourneyBuilderStore.getState().isDirty).toBe(true);
+  });
+});
+
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-link-draft-banner.tsx =====
+
+"use client";
+
+import { Button } from "@/components/ui/button";
+
+export interface AgentLinkDraftBannerProps {
+  readonly onLinkDraft: () => void;
+  readonly onDismiss: () => void;
+}
+
+export function AgentLinkDraftBanner({ onLinkDraft, onDismiss }: AgentLinkDraftBannerProps) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+      <p className="text-foreground">
+        The Agent saved a campaign but it is not linked to this workspace yet. Link a draft to show the journey on the
+        canvas.
+      </p>
+      <div className="flex shrink-0 gap-2">
+        <Button type="button" size="sm" onClick={onLinkDraft}>
+          Link draftâ€¦
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onDismiss}>
+          Dismiss
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/agent-sync-conflict-banner.tsx =====
+
+"use client";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+
+export interface AgentSyncConflictBannerProps {
+  readonly onKeepMine: () => void;
+  readonly onUseAgentVersion: () => void;
+}
+
+export function AgentSyncConflictBanner({ onKeepMine, onUseAgentVersion }: AgentSyncConflictBannerProps) {
+  return (
+    <Alert variant="destructive">
+      <AlertTitle>Agent updated the draft</AlertTitle>
+      <AlertDescription className="space-y-3">
+        <p>You have unsaved changes in the journey builder. Choose which version to keep.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={onKeepMine}>
+            Keep local
+          </Button>
+          <Button type="button" size="sm" onClick={onUseAgentVersion}>
+            Apply Agent
+          </Button>
+        </div>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/builder-canvas-surface.tsx =====
+
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import type { ReviewModalKind } from "./advance-station";
+import { ActionsReviewModal } from "./actions-review-modal";
+import { CampaignMapCanvas } from "./campaign-map-canvas";
+import { CriteriaReviewModal } from "./criteria-review-modal";
+import { JourneyCanvas } from "./journey-canvas";
+import { JOURNEY_BUILDER_STEPS } from "./journey-builder-steps";
+import { ProgressiveMapCanvas } from "./progressive-map-canvas";
+import {
+  selectActiveStationIndex,
+  selectBuilderPhase,
+  selectCampaign,
+  selectCanvasPhase,
+  selectDraftPersistence,
+  selectLayoutMode,
+  selectMapViewModel,
+  selectSelectedNodeId,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore,
+} from "./journey-builder-store";
+import { renderJourneyStationEditor } from "./station-editor-slot";
+import { StationFooter } from "./station-footer";
+import { StepSummary } from "./step-summary";
+import { useAdvanceStation } from "./use-advance-station";
+import { WelcomeCanvas } from "./welcome-canvas";
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") {
+      return;
+    }
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = (): void => setReduced(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return reduced;
+}
+
+function buildHeadings(campaign: Campaign | null) {
+  const name = campaign?.name?.trim();
+  return JOURNEY_BUILDER_STEPS.map((step) => {
+    switch (step.key) {
+      case "setup":
+        return {
+          title: step.title,
+          subtitle: step.description,
+          mini: name || "Not started",
+        };
+      case "eligibility":
+        return {
+          title: step.title,
+          subtitle: step.description,
+          mini: campaign?.journey?.children?.[0]?.name?.trim() || "Define audience",
+        };
+      case "criteria":
+        return {
+          title: step.title,
+          subtitle: step.description,
+          mini: campaign?.journey ? "Purchase & event rules" : "No criteria yet",
+        };
+      case "actions":
+        return {
+          title: step.title,
+          subtitle: step.description,
+          mini: campaign?.journey ? "Outcomes configured" : "No actions yet",
+        };
+      case "review":
+        return {
+          title: step.title,
+          subtitle: step.description,
+          mini: "Generate campaign path",
+        };
+      default: {
+        const exhaustive: never = step.key;
+        return exhaustive;
+      }
+    }
+  });
+}
+
+export function BuilderCanvasSurface() {
+  const builderPhase = useJourneyBuilderStore(selectBuilderPhase);
+  const activeStationIndex = useJourneyBuilderStore(selectActiveStationIndex);
+  const canvasPhase = useJourneyBuilderStore(selectCanvasPhase);
+  const layoutMode = useJourneyBuilderStore(selectLayoutMode);
+  const mapViewModel = useJourneyBuilderStore(selectMapViewModel);
+  const selectedNodeId = useJourneyBuilderStore(selectSelectedNodeId);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const draftPersistence = useJourneyBuilderStore(selectDraftPersistence);
+  const actions = useJourneyBuilderActions();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [reviewModal, setReviewModal] = useState<ReviewModalKind | null>(null);
+
+  const { validation, continuing, advanceBack, advanceForward, completeReviewAdvance } = useAdvanceStation(
+    useCallback((modal) => setReviewModal(modal), [])
+  );
+
+  const showMapSurface = builderPhase === "review" || layoutMode === "focusEdit";
+  const showJourneySurface =
+    (builderPhase !== "idle" || Boolean(campaign?.journey || campaign?.id)) &&
+    builderPhase !== "review" &&
+    layoutMode !== "focusEdit";
+  const showProgressiveMap =
+    showJourneySurface && builderPhase !== "idle" && mapViewModel.coreNodes.length > 0;
+  const transitionClass = prefersReducedMotion ? "" : "transition-opacity duration-300";
+
+  if (builderPhase === "idle" && !campaign?.id && !campaign?.journey) {
+    return <WelcomeCanvas />;
+  }
+
+  if (layoutMode === "focusEdit") {
+    return (
+      <CampaignMapCanvas
+        viewModel={mapViewModel}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={(nodeId) => actions.selectNode(nodeId)}
+        onBackgroundClick={() => actions.clearSelection()}
+      />
+    );
+  }
+
+  if (builderPhase === "review" && !showJourneySurface) {
+    return (
+      <CampaignMapCanvas
+        viewModel={mapViewModel}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={(nodeId) => actions.selectNode(nodeId)}
+        onBackgroundClick={() => actions.clearSelection()}
+      />
+    );
+  }
+
+  return (
+    <>
+      <div className={`grid gap-4 ${showProgressiveMap ? "xl:grid-cols-[minmax(0,1fr)_280px]" : ""}`}>
+        <div className="relative min-h-[520px]">
+          <div
+            className={`${transitionClass} ${showJourneySurface ? "opacity-100" : "pointer-events-none absolute inset-0 opacity-0"}`}
+          >
+            <div className={`grid gap-4 ${showProgressiveMap ? "lg:grid-cols-[minmax(0,1fr)_240px]" : ""}`}>
+              <JourneyCanvas
+                activeIndex={Math.max(activeStationIndex, 0)}
+                canvasPhase={canvasPhase}
+                headings={buildHeadings(campaign)}
+                renderStationEditor={renderJourneyStationEditor}
+                renderSummary={<StepSummary phase={builderPhase} campaign={campaign} />}
+                renderFooter={
+                  <StationFooter
+                    phase={builderPhase}
+                    validation={validation}
+                    draftPersistence={draftPersistence}
+                    onBack={advanceBack}
+                    onContinue={() => void advanceForward()}
+                    continuing={continuing}
+                  />
+                }
+                onJumpBack={(index) => {
+                  const step = JOURNEY_BUILDER_STEPS[index];
+                  if (step) {
+                    actions.setBuilderPhase(step.key);
+                  }
+                }}
+              />
+              {showProgressiveMap ? (
+                <ProgressiveMapCanvas
+                  viewModel={mapViewModel}
+                  builderPhase={builderPhase}
+                  activeStationIndex={Math.max(activeStationIndex, 0)}
+                  selectedNodeId={selectedNodeId}
+                  onSelectNode={(nodeId) => actions.selectNode(nodeId)}
+                  onJumpToPhase={(phase) => actions.setBuilderPhase(phase)}
+                />
+              ) : null}
+            </div>
+          </div>
+
+          <div
+            className={`${transitionClass} ${showMapSurface ? "opacity-100" : "pointer-events-none absolute inset-0 opacity-0"}`}
+          >
+            <CampaignMapCanvas
+              viewModel={mapViewModel}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={(nodeId) => actions.selectNode(nodeId)}
+              onBackgroundClick={() => actions.clearSelection()}
+            />
+          </div>
+        </div>
+
+        {showProgressiveMap ? (
+          <aside className="hidden xl:block">
+            <StepSummary phase={builderPhase} campaign={campaign} />
+          </aside>
+        ) : null}
+      </div>
+
+      <CriteriaReviewModal
+        open={reviewModal === "criteria"}
+        campaign={campaign}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReviewModal(null);
+          }
+        }}
+        onContinue={() => void completeReviewAdvance("criteria").then(() => setReviewModal(null))}
+      />
+      <ActionsReviewModal
+        open={reviewModal === "actions"}
+        campaign={campaign}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReviewModal(null);
+          }
+        }}
+        onContinue={() => void completeReviewAdvance("actions").then(() => setReviewModal(null))}
+      />
+    </>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-health-sidebar.tsx =====
+
+"use client";
+
+import { AlertTriangle, Lightbulb, XCircle } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+import type { CampaignHealthIssue, CampaignHealthReport } from "./compute-campaign-health";
+
+export interface CampaignHealthSidebarProps {
+  readonly report: CampaignHealthReport;
+  readonly mode?: "review" | "build";
+  readonly onFix?: (nodeId: string) => void;
+  readonly className?: string;
+}
+
+function issueIcon(kind: CampaignHealthIssue["kind"]) {
+  switch (kind) {
+    case "error":
+      return XCircle;
+    case "warning":
+      return AlertTriangle;
+    case "rec":
+      return Lightbulb;
+    default: {
+      const exhaustive: never = kind;
+      return exhaustive;
+    }
+  }
+}
+
+function issueStyles(kind: CampaignHealthIssue["kind"]): string {
+  switch (kind) {
+    case "error":
+      return "border-destructive/30 bg-destructive/5";
+    case "warning":
+      return "border-amber-500/30 bg-amber-500/5";
+    case "rec":
+      return "border-sky-500/30 bg-sky-500/5";
+    default: {
+      const exhaustive: never = kind;
+      return exhaustive;
+    }
+  }
+}
+
+function HealthIssueCard({ issue, onFix }: { issue: CampaignHealthIssue; onFix?: (nodeId: string) => void }) {
+  const Icon = issueIcon(issue.kind);
+  return (
+    <div className={cn("rounded-xl border p-3", issueStyles(issue.kind))}>
+      <div className="flex items-start gap-2">
+        <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+        <div className="min-w-0 space-y-2">
+          <p className="text-sm font-medium">{issue.title}</p>
+          <ul className="space-y-1 text-xs text-muted-foreground">
+            <li>{issue.why}</li>
+            <li>{issue.fix}</li>
+          </ul>
+          {issue.nodeId && onFix ? (
+            <Button type="button" size="sm" variant="outline" onClick={() => onFix(issue.nodeId!)}>
+              {issue.fixLabel ?? "Resolve"}
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CampaignHealthSidebar({ report, mode = "review", onFix, className }: CampaignHealthSidebarProps) {
+  const total = report.errors.length + report.warnings.length + report.recs.length;
+
+  return (
+    <aside className={cn("flex h-full min-h-[520px] flex-col rounded-xl border bg-background p-4", className)}>
+      <div className="space-y-1 border-b pb-4">
+        <p className="text-sm font-semibold">{mode === "review" ? "Campaign health" : "Build checklist"}</p>
+        <p className="text-xs text-muted-foreground">
+          {mode === "review"
+            ? "Select a step on the map to edit it, or resolve issues below."
+            : "Resolve these items before launch."}
+        </p>
+      </div>
+
+      <div className="flex-1 space-y-4 overflow-auto py-4">
+        {total === 0 ? (
+          <p className="text-sm text-muted-foreground">No issues detected for the current draft.</p>
+        ) : null}
+
+        {report.errors.length > 0 ? (
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-destructive">Errors</h3>
+            {report.errors.map((issue) => (
+              <HealthIssueCard key={issue.id} issue={issue} onFix={onFix} />
+            ))}
+          </section>
+        ) : null}
+
+        {report.warnings.length > 0 ? (
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Warnings
+            </h3>
+            {report.warnings.map((issue) => (
+              <HealthIssueCard key={issue.id} issue={issue} onFix={onFix} />
+            ))}
+          </section>
+        ) : null}
+
+        {report.recs.length > 0 ? (
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-400">
+              Recommendations
+            </h3>
+            {report.recs.map((issue) => (
+              <HealthIssueCard key={issue.id} issue={issue} onFix={onFix} />
+            ))}
+          </section>
+        ) : null}
+      </div>
+    </aside>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-journey-builder-shell.tsx =====
+
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bot } from "lucide-react";
+
+import { AgentChat } from "@/components/loyalty/agent-chat";
+import { TemplatesPicker } from "@/components/loyalty/campaigns/wizard/components/templates-picker";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { isCampaignAgentWritable } from "@/lib/campaign-agent/campaign-mode";
+import type { Campaign } from "@/lib/campaign-types";
+
+import { BuilderCanvasSurface } from "./builder-canvas-surface";
+import { CampaignHealthSidebar } from "./campaign-health-sidebar";
+import { CampaignSyncStatusPill } from "./campaign-sync-status-pill";
+import { AgentLinkDraftBanner } from "./agent-link-draft-banner";
+import { AgentSyncConflictBanner } from "./agent-sync-conflict-banner";
+import { computeCampaignHealth } from "./compute-campaign-health";
+import { inferBuilderPhase, type BuilderPhase } from "./infer-builder-phase";
+import { JourneyBuilderFormProvider } from "./journey-builder-form-provider";
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  selectAgentPanelOpen,
+  selectDraftPersistence,
+  selectLayoutMode,
+  selectLinkedCampaignId,
+  selectMapViewModel,
+  selectSelectedNodeId,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore
+} from "./journey-builder-store";
+import { LinkDraftDialog } from "./link-draft-dialog";
+import { NodeStepPanel } from "./node-step-panel";
+import { useAgentCampaignSync } from "./use-agent-campaign-sync";
+import { useCreateEmptyDraft } from "./use-create-empty-draft";
+import { useSaveCampaignDraft } from "./use-save-campaign-draft";
+import { WorkspaceConfirmDialog } from "./workspace-confirm-dialog";
+
+const HEALTH_NODE_TO_PHASE: Partial<Record<string, BuilderPhase>> = {
+  setup: "setup",
+  eligibility: "eligibility",
+  criteria: "criteria",
+  actions: "actions"
+};
+
+export function CampaignJourneyBuilderShell() {
+  const layoutMode = useJourneyBuilderStore(selectLayoutMode);
+  const builderPhase = useJourneyBuilderStore(selectBuilderPhase);
+  const selectedNodeId = useJourneyBuilderStore(selectSelectedNodeId);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const linkedCampaignId = useJourneyBuilderStore(selectLinkedCampaignId);
+  const mapViewModel = useJourneyBuilderStore(selectMapViewModel);
+  const agentPanelOpen = useJourneyBuilderStore(selectAgentPanelOpen);
+  const draftPersistence = useJourneyBuilderStore(selectDraftPersistence);
+  const actions = useJourneyBuilderActions();
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [confirmNewDraftOpen, setConfirmNewDraftOpen] = useState(false);
+  const [confirmNewCampaignOpen, setConfirmNewCampaignOpen] = useState(false);
+  const [linkDraftBannerVisible, setLinkDraftBannerVisible] = useState(false);
+  const [linkDraftDialogOpen, setLinkDraftDialogOpen] = useState(false);
+  const { saveDraft, saving, canSave } = useSaveCampaignDraft();
+  const { createEmptyDraft, creating } = useCreateEmptyDraft();
+  const { hydrateFromCampaignId, agentConflict, keepLocalChanges, applyAgentVersion } = useAgentCampaignSync();
+
+  useEffect(() => {
+    if (linkedCampaignId) {
+      void hydrateFromCampaignId(linkedCampaignId);
+    }
+  }, [linkedCampaignId, hydrateFromCampaignId]);
+
+  useEffect(() => {
+    if (linkedCampaignId || campaign?.id) {
+      setLinkDraftBannerVisible(false);
+    }
+  }, [linkedCampaignId, campaign?.id]);
+
+  const agentReadOnly = campaign?.status ? !isCampaignAgentWritable(campaign.status) : false;
+  const healthReport = useMemo(() => computeCampaignHealth(campaign), [campaign]);
+  const showHealthSidebar = builderPhase === "review" && layoutMode !== "focusEdit";
+
+  const handleLinkDraftSelect = useCallback(
+    (campaignId: string) => {
+      setLinkDraftBannerVisible(false);
+      void hydrateFromCampaignId(campaignId);
+    },
+    [hydrateFromCampaignId]
+  );
+
+  const handleTemplateSelect = (initial: Partial<Campaign>) => {
+    const nextCampaign: Campaign = {
+      name: initial.name ?? "Untitled campaign",
+      status: initial.status ?? "draft",
+      ...initial
+    };
+    actions.hydrateFromCampaign({
+      campaign: nextCampaign,
+      builderPhase: inferBuilderPhase({ previous: null, next: nextCampaign })
+    });
+    actions.setDraftPersistence("local");
+    actions.setLinkedCampaignId(null);
+    setTemplateOpen(false);
+  };
+
+  const runCreateEmptyDraft = () => {
+    void createEmptyDraft();
+  };
+
+  const handleStartBlank = () => {
+    if (draftPersistence === "persisted") {
+      setConfirmNewDraftOpen(true);
+      return;
+    }
+    runCreateEmptyDraft();
+  };
+
+  const handleNewCampaign = () => {
+    setConfirmNewCampaignOpen(true);
+  };
+
+  const confirmNewCampaign = () => {
+    actions.reset();
+  };
+
+  const handleHealthFix = (nodeId: string) => {
+    const phase = HEALTH_NODE_TO_PHASE[nodeId];
+    if (phase) {
+      actions.setBuilderPhase(phase);
+      return;
+    }
+    const mapNode = [...mapViewModel.coreNodes, ...mapViewModel.branches.flatMap((branch) => branch.seq)].find(
+      (node) => node.id === nodeId || node.journeyNodeId === nodeId
+    );
+    if (mapNode) {
+      actions.selectNode(mapNode.id);
+    }
+  };
+
+  return (
+    <JourneyBuilderFormProvider>
+      <div className="space-y-4">
+        {agentConflict ? (
+          <AgentSyncConflictBanner onKeepMine={keepLocalChanges} onUseAgentVersion={applyAgentVersion} />
+        ) : null}
+
+        {linkDraftBannerVisible ? (
+          <AgentLinkDraftBanner
+            onLinkDraft={() => setLinkDraftDialogOpen(true)}
+            onDismiss={() => setLinkDraftBannerVisible(false)}
+          />
+        ) : null}
+
+        {agentReadOnly ? (
+          <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+            The Agent is read-only because this linked campaign is not a draft.
+          </p>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CampaignSyncStatusPill />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => actions.setAgentPanelOpen(!agentPanelOpen)}
+            >
+              <Bot className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+              {agentPanelOpen ? "Hide Agent" : "Show Agent"}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setTemplateOpen(true)}>
+              Start from template
+            </Button>
+            <Button type="button" variant="outline" size="sm" disabled={creating} onClick={handleStartBlank}>
+              {creating ? "Creatingâ€¦" : "Start blank"}
+            </Button>
+            {builderPhase !== "idle" && builderPhase !== "review" ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => actions.setBuilderPhase("review")}>
+                Review
+              </Button>
+            ) : null}
+            <Button type="button" size="sm" disabled={!canSave || saving} onClick={() => void saveDraft()}>
+              {saving ? "Savingâ€¦" : "Save as draft"}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={handleNewCampaign}>
+              New campaign
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex min-h-[560px] gap-4 max-lg:flex-col">
+          {agentPanelOpen ? (
+            <aside className="w-full min-w-[320px] max-w-[360px] shrink-0" aria-label="Agent">
+              <AgentChat
+                linkedCampaignId={linkedCampaignId ?? campaign?.id ?? null}
+                onDiscoveredCampaignId={(id) => void hydrateFromCampaignId(id)}
+              />
+            </aside>
+          ) : null}
+
+          <div className="min-w-0 flex-1">
+            {layoutMode === "focusEdit" && selectedNodeId ? (
+              <div className="grid h-full min-h-[560px] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,520px)]">
+                <BuilderCanvasSurface />
+                <NodeStepPanel />
+              </div>
+            ) : showHealthSidebar ? (
+              <div className="grid h-full min-h-[560px] gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+                <BuilderCanvasSurface />
+                <CampaignHealthSidebar report={healthReport} mode="review" onFix={handleHealthFix} />
+              </div>
+            ) : (
+              <BuilderCanvasSurface />
+            )}
+          </div>
+        </div>
+
+        <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Start from template</DialogTitle>
+              <DialogDescription>Choose a starter campaign structure to hydrate the journey builder.</DialogDescription>
+            </DialogHeader>
+            <TemplatesPicker onSelect={handleTemplateSelect} />
+          </DialogContent>
+        </Dialog>
+
+        <LinkDraftDialog
+          open={linkDraftDialogOpen}
+          onOpenChange={setLinkDraftDialogOpen}
+          onSelect={handleLinkDraftSelect}
+        />
+
+        <WorkspaceConfirmDialog
+          open={confirmNewDraftOpen}
+          onOpenChange={setConfirmNewDraftOpen}
+          title="Create new draft?"
+          description="Creates a new empty draft you can edit manually or with the Agent. Your current saved draft stays in the campaigns list."
+          confirmLabel="Create draft"
+          onConfirm={runCreateEmptyDraft}
+        />
+
+        <WorkspaceConfirmDialog
+          open={confirmNewCampaignOpen}
+          onOpenChange={setConfirmNewCampaignOpen}
+          title="Start a new campaign?"
+          description="Clears the builder. Unsaved local changes will be lost."
+          confirmLabel="New campaign"
+          onConfirm={confirmNewCampaign}
+        />
+      </div>
+    </JourneyBuilderFormProvider>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-map-canvas.tsx =====
+
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { cn } from "@/lib/utils";
+
+import type { CampaignMapBranch, CampaignMapNode, CampaignMapViewModel } from "./campaign-to-map-view-model";
+
+const KIND_STYLES: Record<CampaignMapNode["kind"], string> = {
+  Campaign: "border-primary/50 bg-primary/5",
+  Eligibility: "border-violet-500/40 bg-violet-500/5",
+  Qualification: "border-sky-500/40 bg-sky-500/5",
+  Outcome: "border-emerald-500/40 bg-emerald-500/5",
+};
+
+function MapNodeCard({
+  node,
+  selected,
+  onSelect,
+  nodeRef,
+}: {
+  node: CampaignMapNode;
+  selected: boolean;
+  onSelect: (nodeId: string) => void;
+  nodeRef: (element: HTMLButtonElement | null) => void;
+}) {
+  return (
+    <button
+      ref={nodeRef}
+      type="button"
+      onClick={() => onSelect(node.id)}
+      className={cn(
+        "mnode w-full max-w-xs rounded-xl border px-4 py-3 text-left transition-shadow",
+        KIND_STYLES[node.kind],
+        selected ? "ring-2 ring-primary shadow-md" : "hover:shadow-sm"
+      )}
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{node.kind}</p>
+      <p className="mt-1 text-sm font-semibold">{node.title}</p>
+      {node.summary ? <p className="mt-1 text-xs text-muted-foreground">{node.summary}</p> : null}
+    </button>
+  );
+}
+
+function Column({
+  nodes,
+  selectedNodeId,
+  onSelect,
+  registerNodeRef,
+}: {
+  nodes: readonly CampaignMapNode[];
+  selectedNodeId: string | null;
+  onSelect: (nodeId: string) => void;
+  registerNodeRef: (nodeId: string, element: HTMLButtonElement | null) => void;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {nodes.map((node, index) => (
+        <div key={node.id} className="flex flex-col items-center gap-3">
+          <MapNodeCard
+            node={node}
+            selected={selectedNodeId === node.id}
+            onSelect={onSelect}
+            nodeRef={(element) => registerNodeRef(node.id, element)}
+          />
+          {index < nodes.length - 1 ? <div className="h-8 w-px bg-border" aria-hidden /> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export interface CampaignMapCanvasProps {
+  readonly viewModel: CampaignMapViewModel;
+  readonly selectedNodeId: string | null;
+  readonly onSelectNode: (nodeId: string) => void;
+  readonly onBackgroundClick?: () => void;
+  readonly panTarget?: number;
+}
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") {
+      return;
+    }
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = (): void => setReduced(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return reduced;
+}
+
+export function CampaignMapCanvas({
+  viewModel,
+  selectedNodeId,
+  onSelectNode,
+  onBackgroundClick,
+  panTarget = 48,
+}: CampaignMapCanvasProps) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const nodeRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const registerNodeRef = useCallback((nodeId: string, element: HTMLButtonElement | null) => {
+    nodeRefs.current[nodeId] = element;
+  }, []);
+
+  useEffect(() => {
+    if (!selectedNodeId || !wrapRef.current) {
+      return;
+    }
+    const wrap = wrapRef.current;
+    const node = nodeRefs.current[selectedNodeId];
+    if (!node) {
+      return;
+    }
+
+    const scrollToTarget = (): void => {
+      const wrapRect = wrap.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      wrap.scrollLeft += nodeRect.left - (wrapRect.left + panTarget);
+      wrap.scrollTop += nodeRect.top + nodeRect.height / 2 - (wrapRect.top + wrapRect.height / 2);
+    };
+
+    if (prefersReducedMotion) {
+      scrollToTarget();
+      return;
+    }
+
+    const fromLeft = wrap.scrollLeft;
+    const fromTop = wrap.scrollTop;
+    const wrapRect = wrap.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    const toLeft = fromLeft + (nodeRect.left - (wrapRect.left + panTarget));
+    const toTop = fromTop + (nodeRect.top + nodeRect.height / 2 - (wrapRect.top + wrapRect.height / 2));
+    const duration = 460;
+    const start = performance.now();
+    const easeOutCubic = (value: number): number => 1 - Math.pow(1 - value, 3);
+
+    let frame = 0;
+    const tick = (now: number): void => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = easeOutCubic(progress);
+      wrap.scrollLeft = fromLeft + (toLeft - fromLeft) * eased;
+      wrap.scrollTop = fromTop + (toTop - fromTop) * eased;
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [panTarget, prefersReducedMotion, selectedNodeId]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        onBackgroundClick?.();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onBackgroundClick]);
+
+  const root = viewModel.coreNodes[0];
+  const primaryColumn = viewModel.coreNodes.slice(1);
+
+  if (!root) {
+    return (
+      <div className="flex h-full min-h-[520px] items-center justify-center rounded-xl border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+        Campaign map will appear once the campaign has a journey path.
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative h-full min-h-[520px] overflow-auto rounded-xl border bg-muted/10 p-8"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onBackgroundClick?.();
+        }
+      }}
+    >
+      <div className="mx-auto flex min-w-max flex-col items-center gap-6">
+        <MapNodeCard
+          node={root}
+          selected={selectedNodeId === root.id}
+          onSelect={onSelectNode}
+          nodeRef={(element) => registerNodeRef(root.id, element)}
+        />
+
+        {(primaryColumn.length > 0 || viewModel.branches.length > 0) && (
+          <>
+            <div className="h-10 w-px bg-border" aria-hidden />
+            <div className="flex flex-wrap items-start justify-center gap-10">
+              {primaryColumn.length > 0 ? (
+                <Column
+                  nodes={primaryColumn}
+                  selectedNodeId={selectedNodeId}
+                  onSelect={onSelectNode}
+                  registerNodeRef={registerNodeRef}
+                />
+              ) : null}
+              {viewModel.branches.map((branch: CampaignMapBranch) => (
+                <Column
+                  key={branch.id}
+                  nodes={branch.seq}
+                  selectedNodeId={selectedNodeId}
+                  onSelect={onSelectNode}
+                  registerNodeRef={registerNodeRef}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-sync-status-pill.tsx =====
+
+"use client";
+
+import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
+
+import {
+  selectAgentConflict,
+  selectCampaign,
+  selectDraftPersistence,
+  selectIsDirty,
+  selectLayoutMode,
+  useJourneyBuilderStore
+} from "./journey-builder-store";
+
+type SyncLabel = {
+  readonly text: string;
+  readonly variant: "default" | "secondary" | "destructive" | "outline";
+  readonly spinning: boolean;
+};
+
+export function CampaignSyncStatusPill() {
+  const agentConflict = useJourneyBuilderStore(selectAgentConflict);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const isDirty = useJourneyBuilderStore(selectIsDirty);
+  const draftPersistence = useJourneyBuilderStore(selectDraftPersistence);
+  const layoutMode = useJourneyBuilderStore(selectLayoutMode);
+
+  const label = useMemo((): SyncLabel => {
+    if (agentConflict) {
+      return { text: "Conflict â€” resolve below", variant: "destructive", spinning: false };
+    }
+    if (isDirty) {
+      return { text: "Unsaved changes", variant: "outline", spinning: false };
+    }
+    if (draftPersistence === "local") {
+      return { text: "Save draft to sync with Agent", variant: "secondary", spinning: false };
+    }
+    if (layoutMode === "stream") {
+      return { text: "Agent is updatingâ€¦", variant: "default", spinning: true };
+    }
+    if (campaign?.journey && !campaign.id) {
+      return { text: "Agent preview â€” not saved yet", variant: "secondary", spinning: false };
+    }
+    if (draftPersistence === "persisted" && campaign?.id) {
+      return { text: "Synced", variant: "secondary", spinning: false };
+    }
+    return { text: "No draft yet", variant: "outline", spinning: false };
+  }, [agentConflict, campaign?.id, campaign?.journey, isDirty, draftPersistence, layoutMode]);
+
+  const spinning = label.spinning || layoutMode === "stream";
+
+  return (
+    <Badge variant={label.variant} className="gap-1 font-normal">
+      {spinning ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> : null}
+      {label.text}
+    </Badge>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/campaign-to-map-view-model.ts =====
+
+import type { Campaign, Journey } from "@/lib/campaign-types";
+
+export type MapNodeKind = "Campaign" | "Eligibility" | "Qualification" | "Outcome";
+
+export interface CampaignMapNode {
+  readonly id: string;
+  readonly kind: MapNodeKind;
+  readonly title: string;
+  readonly summary: string | null;
+  readonly journeyNodeId: string | null;
+  readonly core: boolean;
+}
+
+export interface CampaignMapBranch {
+  readonly id: string;
+  readonly parentId: string;
+  readonly seq: readonly CampaignMapNode[];
+}
+
+export interface CampaignMapViewModel {
+  readonly coreNodes: readonly CampaignMapNode[];
+  readonly branches: readonly CampaignMapBranch[];
+}
+
+function journeyNodeId(node: Journey, fallback: string): string {
+  return node.id ?? fallback;
+}
+
+function hasRules(node: Journey): boolean {
+  return (node.rules?.length ?? 0) > 0;
+}
+
+function hasOutcomes(node: Journey): boolean {
+  if (!node.rules) {
+    return false;
+  }
+  return node.rules.some((ruleSet) => {
+    const outcomes = ruleSet.outcomesJsonElement;
+    return Array.isArray(outcomes) && outcomes.length > 0;
+  });
+}
+
+function summarizeNode(node: Journey): string | null {
+  const ruleCount = node.rules?.length ?? 0;
+  if (ruleCount === 0) {
+    return null;
+  }
+  const outcomeCount =
+    node.rules?.reduce((acc, ruleSet) => {
+      const outcomes = ruleSet.outcomesJsonElement;
+      return acc + (Array.isArray(outcomes) ? outcomes.length : 0);
+    }, 0) ?? 0;
+  if (outcomeCount > 0) {
+    return `${String(ruleCount)} rule set${ruleCount === 1 ? "" : "s"} Â· ${String(outcomeCount)} outcome${outcomeCount === 1 ? "" : "s"}`;
+  }
+  return `${String(ruleCount)} rule set${ruleCount === 1 ? "" : "s"}`;
+}
+
+function kindForPathNode(node: Journey, index: number, pathLength: number): MapNodeKind {
+  if (pathLength === 1) {
+    if (hasOutcomes(node)) {
+      return "Outcome";
+    }
+    if (hasRules(node)) {
+      return "Qualification";
+    }
+    return "Eligibility";
+  }
+  if (index === 0) {
+    return "Eligibility";
+  }
+  if (index === pathLength - 1) {
+    return "Outcome";
+  }
+  return "Qualification";
+}
+
+function flattenFirstChildPath(root: Journey): Journey[] {
+  const path: Journey[] = [root];
+  let current: Journey | undefined = root;
+  while (current.children && current.children.length > 0) {
+    const firstChild: Journey | undefined = current.children[0];
+    if (!firstChild) {
+      break;
+    }
+    path.push(firstChild);
+    current = firstChild;
+  }
+  return path;
+}
+
+function journeyNodeToMapNode(node: Journey, index: number, pathLength: number, core: boolean): CampaignMapNode {
+  const id = journeyNodeId(node, `journey-node-${String(index)}`);
+  return {
+    id,
+    kind: kindForPathNode(node, index, pathLength),
+    title: node.name ?? "Untitled step",
+    summary: summarizeNode(node),
+    journeyNodeId: node.id ?? id,
+    core,
+  };
+}
+
+function pathToBranchSeq(path: Journey[], _parentId: string): readonly CampaignMapNode[] {
+  return path.map((node, index) => journeyNodeToMapNode(node, index, path.length, false));
+}
+
+function collectBranches(root: Journey, campaignNodeId: string): CampaignMapBranch[] {
+  const branches: CampaignMapBranch[] = [];
+
+  const visit = (node: Journey, parentMapId: string): void => {
+    const children = node.children ?? [];
+    for (let i = 1; i < children.length; i += 1) {
+      const child = children[i];
+      if (!child) {
+        continue;
+      }
+      const branchRootPath = flattenFirstChildPath(child);
+      const branchId = journeyNodeId(child, `branch-${String(i)}`);
+      branches.push({
+        id: branchId,
+        parentId: parentMapId,
+        seq: pathToBranchSeq(branchRootPath, campaignNodeId),
+      });
+      for (const branchNode of branchRootPath) {
+        visit(branchNode, branchId);
+      }
+    }
+    const firstChild = children[0];
+    if (firstChild) {
+      visit(firstChild, parentMapId);
+    }
+  };
+
+  visit(root, campaignNodeId);
+  return branches;
+}
+
+export function campaignToMapViewModel(campaign: Campaign): CampaignMapViewModel {
+  const campaignNodeId = campaign.id ?? "campaign-root";
+  const root: CampaignMapNode = {
+    id: campaignNodeId,
+    kind: "Campaign",
+    title: campaign.name ?? "Untitled Campaign",
+    summary: null,
+    journeyNodeId: null,
+    core: true,
+  };
+
+  if (!campaign.journey) {
+    return { coreNodes: [root], branches: [] };
+  }
+
+  const primaryPath = flattenFirstChildPath(campaign.journey);
+  const coreJourneyNodes = primaryPath.map((node, index) =>
+    journeyNodeToMapNode(node, index, primaryPath.length, true)
+  );
+
+  return {
+    coreNodes: [root, ...coreJourneyNodes],
+    branches: collectBranches(campaign.journey, campaignNodeId),
+  };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/compute-affected-estimate.ts =====
+
+export function computeAffectedEstimate(input: {
+  eligibilityRuleCount: number;
+  criteriaRuleCount: number;
+  hasEventRule: boolean;
+}): number {
+  const base = 24000;
+  const profileFactor = Math.pow(0.72, input.eligibilityRuleCount);
+  const purchaseFactor = Math.pow(0.8, input.criteriaRuleCount);
+  const eventFactor = input.hasEventRule ? 0.6 : 1;
+  const raw = base * profileFactor * purchaseFactor * eventFactor;
+  return Math.max(420, Math.round(raw / 10) * 10);
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/compute-campaign-health.ts =====
+
+import type { Campaign } from "@/lib/campaign-types";
+
+export type CampaignHealthIssueKind = "error" | "warning" | "rec";
+
+export interface CampaignHealthIssue {
+  readonly id: string;
+  readonly kind: CampaignHealthIssueKind;
+  readonly title: string;
+  readonly why: string;
+  readonly fix: string;
+  readonly nodeId?: string;
+  readonly fixLabel?: string;
+}
+
+export interface CampaignHealthReport {
+  readonly errors: readonly CampaignHealthIssue[];
+  readonly warnings: readonly CampaignHealthIssue[];
+  readonly recs: readonly CampaignHealthIssue[];
+}
+
+function countOutcomeRuleSets(campaign: Campaign): number {
+  const journey = campaign.journey;
+  if (!journey) {
+    return 0;
+  }
+
+  const walk = (node: typeof journey): number => {
+    let count = 0;
+    for (const ruleSet of node.rules ?? []) {
+      const outcomes = ruleSet.outcomesJsonElement;
+      if (Array.isArray(outcomes) && outcomes.length > 0) {
+        count += 1;
+      }
+    }
+    for (const child of node.children ?? []) {
+      count += walk(child);
+    }
+    return count;
+  };
+
+  return walk(journey);
+}
+
+/** Client-side campaign health checks ported from the journey builder mockup. */
+export function computeCampaignHealth(campaign: Campaign | null): CampaignHealthReport {
+  const errors: CampaignHealthIssue[] = [];
+  const warnings: CampaignHealthIssue[] = [];
+  const recs: CampaignHealthIssue[] = [];
+
+  if (!campaign) {
+    return { errors, warnings, recs };
+  }
+
+  if (!campaign.name?.trim()) {
+    warnings.push({
+      id: "missing-name",
+      kind: "warning",
+      title: "Campaign name is missing",
+      why: "Draft campaigns should have a recognizable name before launch.",
+      fix: "Add a campaign name in Setup.",
+      nodeId: "setup",
+      fixLabel: "Edit Setup",
+    });
+  }
+
+  if (!campaign.endDate) {
+    warnings.push({
+      id: "no-end-date",
+      kind: "warning",
+      title: "This campaign has no end date",
+      why: "Your campaign will continue running until manually stopped.",
+      fix: "Add an end date or confirm the campaign should run indefinitely.",
+      nodeId: "setup",
+      fixLabel: "Add end date",
+    });
+  }
+
+  if (!campaign.startDate) {
+    warnings.push({
+      id: "missing-start-date",
+      kind: "warning",
+      title: "Start date is not set",
+      why: "Campaigns need a schedule before they can go live.",
+      fix: "Pick a start date in Setup.",
+      nodeId: "setup",
+      fixLabel: "Edit Setup",
+    });
+  }
+
+  if ((campaign.events?.length ?? 0) === 0) {
+    recs.push({
+      id: "missing-events",
+      kind: "rec",
+      title: "Pick event types for this campaign",
+      why: "Event schemas drive purchase and event criteria in later steps.",
+      fix: "Select at least one event type in Setup.",
+      nodeId: "setup",
+      fixLabel: "Edit Setup",
+    });
+  }
+
+  if (countOutcomeRuleSets(campaign) === 0) {
+    recs.push({
+      id: "missing-outcomes",
+      kind: "rec",
+      title: "Add resulting actions",
+      why: "Customers need points, messages, or profile updates when they qualify.",
+      fix: "Configure outcomes on a journey step or ask the Agent to add actions.",
+      nodeId: "actions",
+      fixLabel: "Review actions",
+    });
+  }
+
+  return { errors, warnings, recs };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/criteria-review-modal.tsx =====
+
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import {
+  getCriteriaTargetNode,
+  getEligibilityTargetNode,
+  summarizeJourneyRules,
+} from "./journey-builder-journey-utils";
+
+export interface CriteriaReviewModalProps {
+  readonly open: boolean;
+  readonly campaign: Campaign | null;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onContinue: () => void;
+}
+
+export function CriteriaReviewModal({ open, campaign, onOpenChange, onContinue }: CriteriaReviewModalProps) {
+  const eligibility = campaign?.journey ? getEligibilityTargetNode(campaign.journey) : null;
+  const criteria = campaign?.journey ? getCriteriaTargetNode(campaign.journey) : null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Review criteria</DialogTitle>
+          <DialogDescription>Confirm eligibility and triggers before defining actions.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 text-sm">
+          <div>
+            <p className="font-medium">Eligibility â€” {eligibility?.name || "Audience"}</p>
+            <p className="text-muted-foreground">{eligibility ? summarizeJourneyRules(eligibility) : "None"}</p>
+          </div>
+          <div>
+            <p className="font-medium">Triggers â€” {criteria?.name || "Criteria"}</p>
+            <p className="text-muted-foreground">{criteria ? summarizeJourneyRules(criteria) : "None"}</p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            Keep editing
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Continue to Actions
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/index.ts =====
+
+export { CampaignJourneyBuilderShell } from "./campaign-journey-builder-shell";
+export { CampaignMapCanvas } from "./campaign-map-canvas";
+export { JourneyCanvas } from "./journey-canvas";
+export { StepPanel } from "./step-panel";
+export { campaignToMapViewModel } from "./campaign-to-map-view-model";
+export { inferBuilderPhase } from "./infer-builder-phase";
+export { builderPhaseToStationIndex, useJourneyBuilderActions, useJourneyBuilderStore } from "./journey-builder-store";
+export { useAgentCampaignSync } from "./use-agent-campaign-sync";
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/infer-builder-phase.ts =====
+
+import type { Campaign, Journey } from "@/lib/campaign-types";
+
+export type BuilderPhase = "idle" | "setup" | "eligibility" | "criteria" | "actions" | "review";
+
+export interface InferBuilderPhaseInput {
+  readonly previous: Campaign | null;
+  readonly next: Campaign;
+  readonly toolNames?: readonly string[];
+  readonly workflowPhase?: string | null;
+}
+
+const PHASE_ORDER: readonly BuilderPhase[] = ["idle", "setup", "eligibility", "criteria", "actions", "review"];
+
+function phaseIndex(phase: BuilderPhase): number {
+  return PHASE_ORDER.indexOf(phase);
+}
+
+function maxPhase(a: BuilderPhase, b: BuilderPhase): BuilderPhase {
+  return phaseIndex(a) >= phaseIndex(b) ? a : b;
+}
+
+function normalizeToken(value: string): string {
+  return value.toLowerCase();
+}
+
+function phaseFromWorkflow(workflowPhase: string | null | undefined): BuilderPhase | null {
+  if (!workflowPhase) {
+    return null;
+  }
+  const token = normalizeToken(workflowPhase);
+  if (token.includes("review") || token.includes("validate")) {
+    return "review";
+  }
+  if (token.includes("action") || token.includes("outcome")) {
+    return "actions";
+  }
+  if (token.includes("criteria") || token.includes("qualification")) {
+    return "criteria";
+  }
+  if (token.includes("eligibility") || token.includes("audience")) {
+    return "eligibility";
+  }
+  if (token.includes("setup") || token.includes("create")) {
+    return "setup";
+  }
+  return null;
+}
+
+function phaseFromToolNames(toolNames: readonly string[] | undefined): BuilderPhase | null {
+  if (!toolNames || toolNames.length === 0) {
+    return null;
+  }
+
+  let inferred: BuilderPhase = "idle";
+  for (const toolName of toolNames) {
+    const token = normalizeToken(toolName);
+    if (token.includes("validate") || token.includes("review")) {
+      inferred = maxPhase(inferred, "review");
+      continue;
+    }
+    if (
+      token.includes("outcome") ||
+      token.includes("promotion") ||
+      token.includes("deposit") ||
+      token.includes("points") ||
+      token.includes("action")
+    ) {
+      inferred = maxPhase(inferred, "actions");
+      continue;
+    }
+    if (token.includes("criteria") || token.includes("purchase") || token.includes("event")) {
+      inferred = maxPhase(inferred, "criteria");
+      continue;
+    }
+    if (token.includes("eligibility") || token.includes("profile") || token.includes("audience")) {
+      inferred = maxPhase(inferred, "eligibility");
+      continue;
+    }
+    if (token.includes("create_campaign") || token.includes("createcampaign") || token === "create") {
+      inferred = maxPhase(inferred, "setup");
+    }
+  }
+
+  return inferred === "idle" ? null : inferred;
+}
+
+function countRuleSets(journey: Journey | null | undefined): number {
+  if (!journey) {
+    return 0;
+  }
+
+  let count = journey.rules?.length ?? 0;
+  for (const child of journey.children ?? []) {
+    count += countRuleSets(child);
+  }
+  return count;
+}
+
+function countOutcomes(journey: Journey | null | undefined): number {
+  if (!journey) {
+    return 0;
+  }
+
+  let count = 0;
+  for (const ruleSet of journey.rules ?? []) {
+    if (Array.isArray(ruleSet.outcomesJsonElement)) {
+      count += ruleSet.outcomesJsonElement.length;
+    }
+  }
+  for (const child of journey.children ?? []) {
+    count += countOutcomes(child);
+  }
+  return count;
+}
+
+function phaseFromCampaignDiff(previous: Campaign | null, next: Campaign): BuilderPhase | null {
+  if (!previous?.id && next.id) {
+    return "setup";
+  }
+
+  const previousRules = countRuleSets(previous?.journey);
+  const nextRules = countRuleSets(next.journey);
+  const previousOutcomes = countOutcomes(previous?.journey);
+  const nextOutcomes = countOutcomes(next.journey);
+
+  if (nextOutcomes > previousOutcomes) {
+    return "actions";
+  }
+  if (nextRules > previousRules) {
+    return "eligibility";
+  }
+  if ((next.journey?.children?.length ?? 0) > (previous?.journey?.children?.length ?? 0)) {
+    return "criteria";
+  }
+
+  return null;
+}
+
+function phaseFromCampaignContent(next: Campaign): BuilderPhase | null {
+  if (!next.journey) {
+    return next.id ? "setup" : null;
+  }
+
+  if (countOutcomes(next.journey) > 0) {
+    return "actions";
+  }
+  if (countRuleSets(next.journey) > 0) {
+    return "eligibility";
+  }
+  if ((next.journey.children?.length ?? 0) > 0) {
+    return "criteria";
+  }
+  if (next.id) {
+    return "setup";
+  }
+
+  return null;
+}
+
+export function inferBuilderPhase(input: InferBuilderPhaseInput): BuilderPhase {
+  const workflowPhase = phaseFromWorkflow(input.workflowPhase);
+  if (workflowPhase) {
+    return workflowPhase;
+  }
+
+  const toolPhase = phaseFromToolNames(input.toolNames);
+  if (toolPhase) {
+    return toolPhase;
+  }
+
+  const contentPhase = phaseFromCampaignContent(input.next);
+  if (contentPhase && contentPhase !== "setup") {
+    return contentPhase;
+  }
+
+  const diffPhase = phaseFromCampaignDiff(input.previous, input.next);
+  if (diffPhase) {
+    return diffPhase;
+  }
+
+  if (contentPhase) {
+    return contentPhase;
+  }
+
+  if (input.next.id) {
+    return "setup";
+  }
+
+  return "idle";
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-form-provider.tsx =====
+
+"use client";
+
+import { useEffect, useRef, type ReactNode } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import type { Campaign } from "@/lib/campaign-types";
+
+import {
+  buildCampaignWizardDefaults,
+  campaignWizardSchema,
+  type CampaignWizardValues,
+} from "@/components/loyalty/campaigns/wizard/campaign-wizard";
+
+import { selectCampaign, useJourneyBuilderActions, useJourneyBuilderStore } from "./journey-builder-store";
+
+export function JourneyBuilderFormProvider({ children }: { children: ReactNode }) {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+  const hydratingRef = useRef(false);
+
+  const form = useForm<CampaignWizardValues>({
+    resolver: zodResolver(campaignWizardSchema),
+    defaultValues: buildCampaignWizardDefaults(campaign ?? undefined),
+  });
+
+  useEffect(() => {
+    if (!campaign) {
+      return;
+    }
+    hydratingRef.current = true;
+    form.reset(buildCampaignWizardDefaults(campaign));
+    hydratingRef.current = false;
+  }, [campaign?.id, campaign?.etag, form]);
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      if (hydratingRef.current || !values) {
+        return;
+      }
+      actions.patchCampaignScalars(values as Partial<Campaign>);
+    });
+    return () => subscription.unsubscribe();
+  }, [actions, form]);
+
+  return <FormProvider {...form}>{children}</FormProvider>;
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-journey-utils.ts =====
+
+import type { Campaign, Journey } from "@/lib/campaign-types";
+
+import type { BuilderPhase } from "./infer-builder-phase";
+
+/** Build an empty single-node Journey graph for manual blank starts. */
+export function createEmptyJourney(): Journey {
+  const id = crypto.randomUUID();
+  return {
+    id,
+    rootNodeId: id,
+    name: "Root",
+    rules: [],
+    children: [],
+    navigation: {},
+    tenantId: null,
+  };
+}
+
+export function findJourneyNode(node: Journey, nodeId: string): Journey | null {
+  if (node.id === nodeId) {
+    return node;
+  }
+  for (const child of node.children ?? []) {
+    const hit = findJourneyNode(child, nodeId);
+    if (hit) {
+      return hit;
+    }
+  }
+  return null;
+}
+
+function mapJourney(node: Journey, transform: (current: Journey) => Journey): Journey {
+  const next = transform(node);
+  if (!next.children || next.children.length === 0) {
+    return next;
+  }
+  return {
+    ...next,
+    children: next.children.map((child) => mapJourney(child, transform)),
+  };
+}
+
+export function patchJourneyNodeInTree(root: Journey, nodeId: string, patch: Partial<Journey>): Journey {
+  return mapJourney(root, (node) => (node.id === nodeId ? { ...node, ...patch } : node));
+}
+
+/** First child on the main path, falling back to the root node. */
+export function getEligibilityTargetNode(journey: Journey): Journey {
+  return journey.children?.[0] ?? journey;
+}
+
+/** Second node on the main child chain, or eligibility node when only one exists. */
+export function getCriteriaTargetNode(journey: Journey): Journey {
+  const firstChild = journey.children?.[0];
+  if (!firstChild) {
+    return journey;
+  }
+  return firstChild.children?.[0] ?? firstChild;
+}
+
+/** Third node on the main child chain, or criteria node when only two exist. */
+export function getActionsTargetNode(journey: Journey): Journey {
+  const criteria = getCriteriaTargetNode(journey);
+  return criteria.children?.[0] ?? criteria;
+}
+
+function emptyChildNode(name: string): Journey {
+  return {
+    id: crypto.randomUUID(),
+    name,
+    rules: [],
+    children: [],
+    tenantId: null,
+  };
+}
+
+/** Ensures main-path journey nodes exist before entering a wizard station. */
+export function ensureProgressiveJourneyScaffold(campaign: Campaign, targetPhase: BuilderPhase): Campaign {
+  const journey = campaign.journey ?? createEmptyJourney();
+  let root = { ...journey };
+
+  if (
+    targetPhase === "eligibility" ||
+    targetPhase === "criteria" ||
+    targetPhase === "actions" ||
+    targetPhase === "review"
+  ) {
+    const children = [...(root.children ?? [])];
+    if (children.length === 0) {
+      children.push(emptyChildNode("Audience"));
+    }
+    const eligibility = { ...children[0]! };
+    if (targetPhase === "criteria" || targetPhase === "actions" || targetPhase === "review") {
+      const critChildren = [...(eligibility.children ?? [])];
+      if (critChildren.length === 0) {
+        critChildren.push(emptyChildNode("Criteria"));
+      }
+      const criteria = { ...critChildren[0]! };
+      if (targetPhase === "actions" || targetPhase === "review") {
+        const actChildren = [...(criteria.children ?? [])];
+        if (actChildren.length === 0) {
+          actChildren.push(emptyChildNode("Actions"));
+        }
+        critChildren[0] = { ...criteria, children: actChildren };
+      }
+      eligibility.children = critChildren;
+    }
+    children[0] = eligibility;
+    root = { ...root, children };
+  }
+
+  return { ...campaign, journey: root };
+}
+
+export function ensureCampaignJourney(campaign: Campaign): Campaign {
+  if (campaign.journey) {
+    return campaign;
+  }
+  return {
+    ...campaign,
+    journey: createEmptyJourney(),
+  };
+}
+
+export function summarizeJourneyRules(node: Journey): string {
+  const ruleCount = node.rules?.length ?? 0;
+  if (ruleCount === 0) {
+    return "No rule sets on this step yet.";
+  }
+  return `${String(ruleCount)} rule set${ruleCount === 1 ? "" : "s"} configured on this journey step.`;
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-steps.ts =====
+
+import type { LucideIcon } from "lucide-react";
+import { Filter, Rocket, Target, Users, Zap } from "lucide-react";
+
+export type JourneyBuilderStepKey = "setup" | "eligibility" | "criteria" | "actions" | "review";
+
+export interface JourneyBuilderStepMeta {
+  readonly key: JourneyBuilderStepKey;
+  readonly number: number;
+  readonly title: string;
+  readonly description: string;
+  readonly icon: LucideIcon;
+}
+
+export const JOURNEY_BUILDER_STEPS: readonly JourneyBuilderStepMeta[] = [
+  {
+    key: "setup",
+    number: 1,
+    title: "Campaign Setup",
+    description: "Name, type & schedule",
+    icon: Target,
+  },
+  {
+    key: "eligibility",
+    number: 2,
+    title: "Eligibility",
+    description: "Audience to target",
+    icon: Users,
+  },
+  {
+    key: "criteria",
+    number: 3,
+    title: "Audience Criteria",
+    description: "Purchase & event rules",
+    icon: Filter,
+  },
+  {
+    key: "actions",
+    number: 4,
+    title: "Resulting Actions",
+    description: "What happens",
+    icon: Zap,
+  },
+  {
+    key: "review",
+    number: 5,
+    title: "Review & Launch",
+    description: "Visual campaign path",
+    icon: Rocket,
+  },
+] as const;
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-builder-store.ts =====
+
+import { create } from "zustand";
+
+import type { Campaign, Journey, LoyaltySchema, Rule } from "@/lib/campaign-types";
+
+import { campaignToMapViewModel, type CampaignMapViewModel } from "./campaign-to-map-view-model";
+import type { BuilderPhase } from "./infer-builder-phase";
+import { previousBuilderPhase } from "./advance-station";
+import { ensureCampaignJourney, patchJourneyNodeInTree } from "./journey-builder-journey-utils";
+
+export type StationRuleVariant = "eligibility" | "criteria";
+
+export type AgentConflictState = {
+  readonly campaignId: string;
+  readonly campaign: Campaign;
+} | null;
+
+export type LayoutMode = "discover" | "stream" | "focusEdit";
+export type CanvasPhase = "idle" | "traveling" | "entering" | "exiting";
+export type DraftPersistence = "none" | "local" | "persisted";
+
+export interface HydrateFromCampaignInput {
+  readonly campaign: Campaign;
+  readonly builderPhase: BuilderPhase;
+  readonly markDirty?: boolean;
+}
+
+export interface JourneyBuilderActions {
+  hydrateFromCampaign: (input: HydrateFromCampaignInput) => void;
+  patchCampaignScalars: (patch: Partial<Campaign>) => void;
+  patchJourneyNode: (nodeId: string, patch: Partial<Journey>) => void;
+  setStationRuleDraft: (variant: StationRuleVariant, rule: Partial<Rule> | null) => void;
+  setSelectedSchema: (schema: LoyaltySchema | null) => void;
+  setLayoutMode: (mode: LayoutMode) => void;
+  setBuilderPhase: (phase: BuilderPhase) => void;
+  advanceStation: (input: { direction: "forward" | "back"; nextPhase?: BuilderPhase }) => void;
+  setCanvasPhase: (phase: CanvasPhase) => void;
+  selectNode: (nodeId: string) => void;
+  clearSelection: () => void;
+  setDirty: (dirty: boolean) => void;
+  setLinkedCampaignId: (campaignId: string | null) => void;
+  setAgentConflict: (conflict: NonNullable<AgentConflictState>) => void;
+  clearAgentConflict: () => void;
+  setAgentPanelOpen: (open: boolean) => void;
+  setDraftPersistence: (mode: DraftPersistence) => void;
+  clearAgentCampaignLink: () => void;
+  reset: () => void;
+}
+
+export interface JourneyBuilderState {
+  campaign: Campaign | null;
+  mapViewModel: CampaignMapViewModel;
+  builderPhase: BuilderPhase;
+  layoutMode: LayoutMode;
+  selectedNodeId: string | null;
+  activeStationIndex: number;
+  canvasPhase: CanvasPhase;
+  isDirty: boolean;
+  linkedCampaignId: string | null;
+  selectedSchema: LoyaltySchema | null;
+  stationRuleDrafts: Partial<Record<StationRuleVariant, Partial<Rule>>>;
+  agentConflict: AgentConflictState;
+  agentPanelOpen: boolean;
+  draftPersistence: DraftPersistence;
+  actions: JourneyBuilderActions;
+}
+
+const EMPTY_MAP_VIEW_MODEL: CampaignMapViewModel = {
+  coreNodes: [],
+  branches: []
+};
+
+const INITIAL_STATE: Omit<JourneyBuilderState, "actions"> = {
+  campaign: null,
+  mapViewModel: EMPTY_MAP_VIEW_MODEL,
+  builderPhase: "idle",
+  layoutMode: "discover",
+  selectedNodeId: null,
+  activeStationIndex: -1,
+  canvasPhase: "idle",
+  isDirty: false,
+  linkedCampaignId: null,
+  selectedSchema: null,
+  stationRuleDrafts: {},
+  agentConflict: null,
+  agentPanelOpen: true,
+  draftPersistence: "none"
+};
+
+export function builderPhaseToStationIndex(phase: BuilderPhase): number {
+  switch (phase) {
+    case "idle":
+      return -1;
+    case "setup":
+      return 0;
+    case "eligibility":
+      return 1;
+    case "criteria":
+      return 2;
+    case "actions":
+      return 3;
+    case "review":
+      return 4;
+    default: {
+      const exhaustive: never = phase;
+      return exhaustive;
+    }
+  }
+}
+
+export const useJourneyBuilderStore = create<JourneyBuilderState>((set) => ({
+  ...INITIAL_STATE,
+  actions: {
+    hydrateFromCampaign: ({ campaign, builderPhase, markDirty = false }) =>
+      set((state) => {
+        const withJourney = ensureCampaignJourney(campaign);
+        return {
+          campaign: withJourney,
+          mapViewModel: campaignToMapViewModel(withJourney),
+          builderPhase,
+          activeStationIndex: builderPhaseToStationIndex(builderPhase),
+          linkedCampaignId: withJourney.id ?? state.linkedCampaignId,
+          isDirty: markDirty ? true : state.isDirty
+        };
+      }),
+    patchCampaignScalars: (patch) =>
+      set((state) => {
+        if (!state.campaign) {
+          return state;
+        }
+        const next = ensureCampaignJourney({ ...state.campaign, ...patch });
+        return {
+          campaign: next,
+          mapViewModel: campaignToMapViewModel(next),
+          isDirty: true
+        };
+      }),
+    patchJourneyNode: (nodeId, nodePatch) =>
+      set((state) => {
+        if (!state.campaign?.journey) {
+          return state;
+        }
+        const nextJourney = patchJourneyNodeInTree(state.campaign.journey, nodeId, nodePatch);
+        const nextCampaign = { ...state.campaign, journey: nextJourney };
+        return {
+          campaign: nextCampaign,
+          mapViewModel: campaignToMapViewModel(nextCampaign),
+          isDirty: true
+        };
+      }),
+    setStationRuleDraft: (variant, rule) =>
+      set((state) => ({
+        stationRuleDrafts: {
+          ...state.stationRuleDrafts,
+          [variant]: rule ?? undefined
+        },
+        isDirty: true
+      })),
+    setSelectedSchema: (selectedSchema) => set({ selectedSchema }),
+    setLayoutMode: (layoutMode) => set({ layoutMode }),
+    setBuilderPhase: (builderPhase) =>
+      set({
+        builderPhase,
+        activeStationIndex: builderPhaseToStationIndex(builderPhase)
+      }),
+    advanceStation: ({ direction, nextPhase }) =>
+      set((state) => {
+        if (direction === "back") {
+          const previous = previousBuilderPhase(state.builderPhase);
+          if (!previous) {
+            return state;
+          }
+          return {
+            builderPhase: previous,
+            activeStationIndex: builderPhaseToStationIndex(previous),
+            canvasPhase: "traveling" as const
+          };
+        }
+        if (!nextPhase) {
+          return state;
+        }
+        return {
+          builderPhase: nextPhase,
+          activeStationIndex: builderPhaseToStationIndex(nextPhase),
+          canvasPhase: "traveling" as const
+        };
+      }),
+    setCanvasPhase: (canvasPhase) => set({ canvasPhase }),
+    selectNode: (nodeId) =>
+      set({
+        selectedNodeId: nodeId,
+        layoutMode: "focusEdit"
+      }),
+    clearSelection: () =>
+      set({
+        selectedNodeId: null,
+        layoutMode: "discover"
+      }),
+    setDirty: (isDirty) => set({ isDirty }),
+    setLinkedCampaignId: (linkedCampaignId) => set({ linkedCampaignId }),
+    setAgentConflict: (agentConflict) => set({ agentConflict }),
+    clearAgentConflict: () => set({ agentConflict: null }),
+    setAgentPanelOpen: (agentPanelOpen) => set({ agentPanelOpen }),
+    setDraftPersistence: (draftPersistence) => set({ draftPersistence }),
+    clearAgentCampaignLink: () =>
+      set((state) => ({
+        campaign: null,
+        mapViewModel: EMPTY_MAP_VIEW_MODEL,
+        builderPhase: "idle",
+        activeStationIndex: -1,
+        layoutMode: state.layoutMode === "focusEdit" ? "discover" : state.layoutMode,
+        selectedNodeId: null,
+        linkedCampaignId: null,
+        draftPersistence: "none",
+        isDirty: false,
+        agentConflict: null
+      })),
+    reset: () => set({ ...INITIAL_STATE, actions: useJourneyBuilderStore.getState().actions })
+  }
+}));
+
+export const selectCampaign = (state: JourneyBuilderState): Campaign | null => state.campaign;
+export const selectMapViewModel = (state: JourneyBuilderState): CampaignMapViewModel => state.mapViewModel;
+export const selectBuilderPhase = (state: JourneyBuilderState): BuilderPhase => state.builderPhase;
+export const selectLayoutMode = (state: JourneyBuilderState): LayoutMode => state.layoutMode;
+export const selectSelectedNodeId = (state: JourneyBuilderState): string | null => state.selectedNodeId;
+export const selectActiveStationIndex = (state: JourneyBuilderState): number => state.activeStationIndex;
+export const selectCanvasPhase = (state: JourneyBuilderState): CanvasPhase => state.canvasPhase;
+export const selectSelectedSchema = (state: JourneyBuilderState): LoyaltySchema | null => state.selectedSchema;
+export const selectStationRuleDrafts = (
+  state: JourneyBuilderState
+): Partial<Record<StationRuleVariant, Partial<Rule>>> => state.stationRuleDrafts;
+export const selectAgentConflict = (state: JourneyBuilderState): AgentConflictState => state.agentConflict;
+export const selectLinkedCampaignId = (state: JourneyBuilderState): string | null => state.linkedCampaignId;
+export const selectAgentPanelOpen = (state: JourneyBuilderState): boolean => state.agentPanelOpen;
+export const selectDraftPersistence = (state: JourneyBuilderState): DraftPersistence => state.draftPersistence;
+export const selectIsDirty = (state: JourneyBuilderState): boolean => state.isDirty;
+
+export const useJourneyBuilderActions = (): JourneyBuilderActions => useJourneyBuilderStore((state) => state.actions);
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/journey-canvas.tsx =====
+
+"use client";
+
+import { Check, Pencil } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { JOURNEY_BUILDER_STEPS, type JourneyBuilderStepMeta } from "./journey-builder-steps";
+import type { CanvasPhase } from "./journey-builder-store";
+
+export interface JourneyCanvasHeading {
+  readonly title: string;
+  readonly subtitle: string;
+  readonly mini?: string;
+}
+
+export interface JourneyCanvasProps {
+  readonly activeIndex: number;
+  readonly canvasPhase?: CanvasPhase;
+  readonly direction?: "forward" | "backward";
+  readonly steps?: readonly JourneyBuilderStepMeta[];
+  readonly headings?: readonly JourneyCanvasHeading[];
+  readonly zoom?: number;
+  readonly renderStationEditor?: (index: number) => ReactNode;
+  readonly renderFooter?: ReactNode;
+  readonly renderSummary?: ReactNode;
+  readonly onJumpBack?: (index: number) => void;
+}
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") {
+      return;
+    }
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = (): void => {
+      setReduced(media.matches);
+    };
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return reduced;
+}
+
+function defaultHeadings(steps: readonly JourneyBuilderStepMeta[]): JourneyCanvasHeading[] {
+  return steps.map((step) => ({
+    title: step.title,
+    subtitle: step.description,
+    mini: step.description,
+  }));
+}
+
+function StationConnector({
+  isDone,
+  isActive,
+  reverseCue,
+  nextTitle,
+  backTitle,
+}: {
+  isDone: boolean;
+  isActive: boolean;
+  reverseCue: boolean;
+  nextTitle: string;
+  backTitle: string;
+}) {
+  const stroke = isDone ? "stroke-emerald-500" : isActive ? "stroke-primary" : "stroke-muted-foreground/40";
+
+  return (
+    <div className={cn("flex flex-col items-center gap-1 py-1 text-muted-foreground/70", isActive && "text-primary")}>
+      <svg viewBox="0 0 26 56" className="h-14 w-6" aria-hidden>
+        <path
+          d="M13 2 V44"
+          className={cn(stroke, isActive ? "stroke-[2]" : "stroke-[2] [stroke-dasharray:5_5]")}
+          fill="none"
+        />
+        {reverseCue ? (
+          <path
+            d="M5 18 L13 8 L21 18"
+            className="stroke-primary stroke-[2.4] fill-none [stroke-linecap:round] [stroke-linejoin:round]"
+          />
+        ) : (
+          <path
+            d="M5 38 L13 48 L21 38"
+            className={cn(
+              isDone ? "stroke-emerald-500" : isActive ? "stroke-primary" : "stroke-current",
+              "stroke-[2.4] fill-none [stroke-linecap:round] [stroke-linejoin:round]"
+            )}
+          />
+        )}
+      </svg>
+      <span className="text-[11px] font-medium tracking-wide">
+        {reverseCue ? `Back to ${backTitle}` : `Next: ${nextTitle}`}
+      </span>
+    </div>
+  );
+}
+
+export function JourneyCanvas({
+  activeIndex,
+  canvasPhase = "idle",
+  direction = "forward",
+  steps = JOURNEY_BUILDER_STEPS,
+  headings,
+  zoom = 1,
+  renderStationEditor,
+  renderFooter,
+  renderSummary,
+  onJumpBack,
+}: JourneyCanvasProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const stageRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [center, setCenter] = useState({ y: 0, origin: 300 });
+  const resolvedHeadings = headings ?? defaultHeadings(steps);
+
+  const recenter = useCallback(() => {
+    const stage = stageRef.current;
+    const card = cardRefs.current[activeIndex];
+    if (!stage || !card) {
+      return;
+    }
+    const stageHeight = stage.clientHeight;
+    const midpoint = card.offsetTop + card.offsetHeight / 2;
+    setCenter({ y: stageHeight / 2 - midpoint, origin: midpoint });
+  }, [activeIndex]);
+
+  useLayoutEffect(() => {
+    recenter();
+  }, [activeIndex, recenter]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(recenter, prefersReducedMotion ? 0 : 60);
+    window.addEventListener("resize", recenter);
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("resize", recenter);
+    };
+  }, [prefersReducedMotion, recenter]);
+
+  const trackStyle = prefersReducedMotion
+    ? undefined
+    : {
+        transform: `translateY(${center.y}px) scale(${zoom})`,
+        transformOrigin: `50% ${center.origin}px`,
+      };
+
+  return (
+    <div ref={stageRef} className="relative h-full min-h-[520px] overflow-hidden rounded-xl border bg-muted/10">
+      <div
+        className={cn(
+          "mx-auto flex w-full max-w-2xl flex-col px-4 py-8",
+          !prefersReducedMotion && zoom !== 1 && "transition-transform duration-300 ease-out"
+        )}
+        style={trackStyle}
+      >
+        {steps.map((step, index) => {
+          const state = index < activeIndex ? "done" : index === activeIndex ? "active" : "upcoming";
+          const heading = resolvedHeadings[index] ?? {
+            title: step.title,
+            subtitle: step.description,
+            mini: step.description,
+          };
+          const reverseCue =
+            index === activeIndex &&
+            direction === "backward" &&
+            (canvasPhase === "traveling" || canvasPhase === "entering");
+
+          return (
+            <div key={step.key}>
+              <div
+                ref={(element) => {
+                  cardRefs.current[index] = element;
+                }}
+                className="w-full"
+              >
+                {state === "active" ? (
+                  <>
+                    <div
+                      className={cn(
+                        "overflow-hidden rounded-2xl border-2 border-primary bg-background shadow-sm",
+                        canvasPhase === "exiting" && "opacity-60"
+                      )}
+                    >
+                      <div className="flex items-start gap-4 border-b bg-primary/5 px-6 py-5">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-violet-600 text-sm font-bold text-primary-foreground">
+                          {step.number}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                            Step {step.number} of {steps.length}
+                          </p>
+                          <h2 className="mt-0.5 text-xl font-semibold tracking-tight">{heading.title}</h2>
+                        </div>
+                      </div>
+                      <p className="px-6 pt-3 text-sm text-muted-foreground">{heading.subtitle}</p>
+                      {renderStationEditor ? (
+                        <div className="px-6 py-4">{renderStationEditor(index)}</div>
+                      ) : (
+                        <div className="px-6 py-8 text-sm text-muted-foreground">
+                          Station editor will appear here as the Agent builds this step.
+                        </div>
+                      )}
+                      {renderFooter ? <div className="border-t">{renderFooter}</div> : null}
+                    </div>
+                    {renderSummary ? (
+                      <aside className="mt-4 rounded-xl border bg-muted/10 p-4 xl:hidden">{renderSummary}</aside>
+                    ) : null}
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={state !== "done"}
+                    onClick={() => state === "done" && onJumpBack?.(index)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-xl border bg-background px-4 py-3 text-left transition-colors",
+                      state === "done" && "cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5",
+                      state === "upcoming" && "cursor-default opacity-60"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
+                        state === "done"
+                          ? "border-emerald-500 bg-emerald-500 text-white"
+                          : "border-muted bg-muted/40 text-muted-foreground"
+                      )}
+                    >
+                      {state === "done" ? <Check className="h-4 w-4" aria-hidden /> : step.number}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{step.title}</div>
+                      <div className="truncate text-xs text-muted-foreground">{heading.mini ?? step.description}</div>
+                    </div>
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        state === "done" ? "text-emerald-600" : "text-muted-foreground"
+                      )}
+                    >
+                      {state === "done" ? "Complete" : "Upcoming"}
+                    </span>
+                    {state === "done" ? (
+                      <Pencil className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                    ) : null}
+                  </button>
+                )}
+              </div>
+
+              {index < steps.length - 1 ? (
+                <StationConnector
+                  isDone={index < activeIndex}
+                  isActive={index === activeIndex}
+                  reverseCue={reverseCue}
+                  nextTitle={steps[index + 1]?.title ?? ""}
+                  backTitle={step.title}
+                />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/link-draft-dialog.tsx =====
+
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+import type { Campaign } from "@/lib/campaign-types";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getCampaigns } from "@/services/loyalty/actions";
+
+export interface LinkDraftDialogProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onSelect: (campaignId: string) => void;
+}
+
+export function LinkDraftDialog({ open, onOpenChange, onSelect }: LinkDraftDialogProps) {
+  const [drafts, setDrafts] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadDrafts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getCampaigns();
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? "Failed to load campaigns");
+      }
+      const draftOnly = result.data.filter(
+        (campaign) => campaign.status?.toLowerCase() === "draft" && campaign.id?.trim()
+      );
+      setDrafts(draftOnly as Campaign[]);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Failed to load campaigns");
+      setDrafts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      void loadDrafts();
+    }
+  }, [open, loadDrafts]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Link draft campaign</DialogTitle>
+          <DialogDescription>
+            Choose the draft the Agent created. The journey builder canvas will load from that campaign.
+          </DialogDescription>
+        </DialogHeader>
+
+        {loading ? <p className="text-sm text-muted-foreground">Loading draftsâ€¦</p> : null}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+        {!loading && !error && drafts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No draft campaigns found.</p>
+        ) : null}
+
+        <ul className="max-h-64 space-y-2 overflow-auto">
+          {drafts.map((draft) => {
+            const id = draft.id;
+            if (!id) {
+              return null;
+            }
+            return (
+              <li key={id}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto w-full justify-start px-3 py-2 text-left"
+                  onClick={() => {
+                    onSelect(id);
+                    onOpenChange(false);
+                  }}
+                >
+                  <span className="font-medium">{draft.name?.trim() || "Untitled campaign"}</span>
+                  {draft.extCampaignId ? (
+                    <span className="ml-2 text-xs text-muted-foreground">{draft.extCampaignId}</span>
+                  ) : null}
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/node-step-panel.tsx =====
+
+"use client";
+
+import { useMemo } from "react";
+
+import { CriteriaStationEditor } from "./wizard-station-editors/criteria-station-editor";
+import { OutcomeListEditor } from "./wizard-station-editors/outcome-list-editor";
+import { SetupStationEditor } from "./wizard-station-editors/setup-station-editor";
+import type { CampaignMapNode } from "./campaign-to-map-view-model";
+import { findJourneyNode, getActionsTargetNode } from "./journey-builder-journey-utils";
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  selectMapViewModel,
+  selectSelectedNodeId,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore,
+} from "./journey-builder-store";
+import { StepPanel } from "./step-panel";
+import { StepSummary } from "./step-summary";
+
+function findMapNode(nodes: readonly CampaignMapNode[], nodeId: string): CampaignMapNode | null {
+  for (const node of nodes) {
+    if (node.id === nodeId) {
+      return node;
+    }
+  }
+  return null;
+}
+
+function findNodeInViewModel(viewModel: ReturnType<typeof selectMapViewModel>, nodeId: string): CampaignMapNode | null {
+  const coreHit = findMapNode(viewModel.coreNodes, nodeId);
+  if (coreHit) {
+    return coreHit;
+  }
+  for (const branch of viewModel.branches) {
+    const branchHit = findMapNode(branch.seq, nodeId);
+    if (branchHit) {
+      return branchHit;
+    }
+  }
+  return null;
+}
+
+export function NodeStepPanel() {
+  const selectedNodeId = useJourneyBuilderStore(selectSelectedNodeId);
+  const builderPhase = useJourneyBuilderStore(selectBuilderPhase);
+  const mapViewModel = useJourneyBuilderStore(selectMapViewModel);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+
+  const node = useMemo(
+    () => (selectedNodeId ? findNodeInViewModel(mapViewModel, selectedNodeId) : null),
+    [mapViewModel, selectedNodeId]
+  );
+
+  const journeyNode = useMemo(() => {
+    if (!campaign?.journey || !node?.journeyNodeId) {
+      return null;
+    }
+    return findJourneyNode(campaign.journey, node.journeyNodeId);
+  }, [campaign?.journey, node?.journeyNodeId]);
+
+  if (!node) {
+    return null;
+  }
+
+  const editor =
+    node.kind === "Campaign" ? (
+      <SetupStationEditor />
+    ) : node.kind === "Eligibility" ? (
+      <CriteriaStationEditor variant="eligibility" />
+    ) : node.kind === "Qualification" ? (
+      <CriteriaStationEditor variant="criteria" />
+    ) : journeyNode ? (
+      <OutcomeListEditor
+        targetNode={journeyNode}
+        onPatchNode={(patch) => actions.patchJourneyNode(journeyNode.id!, patch)}
+      />
+    ) : (
+      <OutcomeListEditor
+        targetNode={campaign?.journey ? getActionsTargetNode(campaign.journey) : { id: "", rules: [] }}
+        onPatchNode={(patch) => {
+          const target = campaign?.journey ? getActionsTargetNode(campaign.journey) : null;
+          if (target?.id) {
+            actions.patchJourneyNode(target.id, patch);
+          }
+        }}
+      />
+    );
+
+  return (
+    <StepPanel
+      stepLabel={node.kind}
+      title={node.title}
+      subtitle={node.summary ?? undefined}
+      editor={editor}
+      summary={<StepSummary phase={builderPhase} campaign={campaign} />}
+      onClose={() => actions.clearSelection()}
+    />
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/outcome-utils.ts =====
+
+import type { Outcome, RuleSet } from "@/lib/campaign-types";
+
+export function outcomesFromRuleSet(ruleSet: RuleSet | null | undefined): Outcome[] {
+  if (!ruleSet?.outcomesJsonElement) {
+    return [];
+  }
+  if (Array.isArray(ruleSet.outcomesJsonElement)) {
+    return ruleSet.outcomesJsonElement as Outcome[];
+  }
+  if (typeof ruleSet.outcomesJsonElement === "object") {
+    return [ruleSet.outcomesJsonElement as Outcome];
+  }
+  return [];
+}
+
+export function labelForOutcomeKind(kind: Outcome["Kind"]): string {
+  switch (kind) {
+    case "DepositPointsOutcome":
+      return "Deposit points";
+    case "SpendPointsOutcome":
+      return "Spend points";
+    case "ExpirePointsOutcome":
+      return "Expire points";
+    case "TagOutcome":
+      return "Tag";
+    default:
+      return kind;
+  }
+}
+
+export function primaryRuleSet(node: { rules?: RuleSet[] | null } | null | undefined): RuleSet | null {
+  return node?.rules?.[0] ?? null;
+}
+
+export function upsertPrimaryRuleSetOutcomes(node: { rules?: RuleSet[] | null }, outcomes: Outcome[]): RuleSet[] {
+  const existing = node.rules?.[0];
+  const nextRuleSet: RuleSet = {
+    id: existing?.id ?? crypto.randomUUID(),
+    name: existing?.name ?? "Actions",
+    schemaId: existing?.schemaId ?? null,
+    ruleJsonElement: existing?.ruleJsonElement ?? {},
+    outcomesJsonElement: outcomes,
+    tenantId: existing?.tenantId ?? null,
+  };
+  const rest = node.rules?.slice(1) ?? [];
+  return [nextRuleSet, ...rest];
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/progressive-map-canvas.tsx =====
+
+"use client";
+
+import { CampaignMapCanvas } from "./campaign-map-canvas";
+import type { CampaignMapViewModel } from "./campaign-to-map-view-model";
+import type { BuilderPhase } from "./infer-builder-phase";
+import { builderPhaseForMapNodeKind, sliceMapViewModel, visibleNodeCountForPhase } from "./progressive-map-utils";
+
+export interface ProgressiveMapCanvasProps {
+  readonly viewModel: CampaignMapViewModel;
+  readonly builderPhase: BuilderPhase;
+  readonly activeStationIndex: number;
+  readonly selectedNodeId: string | null;
+  readonly onSelectNode: (nodeId: string) => void;
+  readonly onJumpToPhase: (phase: BuilderPhase) => void;
+}
+
+export function ProgressiveMapCanvas({
+  viewModel,
+  builderPhase,
+  activeStationIndex,
+  selectedNodeId,
+  onSelectNode,
+  onJumpToPhase,
+}: ProgressiveMapCanvasProps) {
+  const maxNodes = visibleNodeCountForPhase(builderPhase);
+  const sliced = sliceMapViewModel(viewModel, maxNodes);
+
+  return (
+    <div className="rounded-xl border bg-muted/5 p-4">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Campaign path preview</p>
+      <CampaignMapCanvas
+        viewModel={sliced}
+        selectedNodeId={selectedNodeId}
+        panTarget={24}
+        onSelectNode={(nodeId) => {
+          const node = sliced.coreNodes.find((entry) => entry.id === nodeId);
+          const nodeIndex = sliced.coreNodes.findIndex((entry) => entry.id === nodeId);
+          if (node && nodeIndex >= 0 && nodeIndex < activeStationIndex) {
+            const phase = builderPhaseForMapNodeKind(node.kind);
+            if (phase) {
+              onJumpToPhase(phase);
+              return;
+            }
+          }
+          onSelectNode(nodeId);
+        }}
+      />
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/progressive-map-utils.ts =====
+
+import type { BuilderPhase } from "./infer-builder-phase";
+import type { CampaignMapViewModel } from "./campaign-to-map-view-model";
+
+export function visibleNodeCountForPhase(phase: BuilderPhase): number {
+  switch (phase) {
+    case "setup":
+      return 1;
+    case "eligibility":
+      return 2;
+    case "criteria":
+      return 3;
+    case "actions":
+      return 4;
+    case "review":
+    case "idle":
+      return 4;
+    default: {
+      const exhaustive: never = phase;
+      return exhaustive;
+    }
+  }
+}
+
+export function sliceMapViewModel(viewModel: CampaignMapViewModel, maxNodes: number): CampaignMapViewModel {
+  return {
+    coreNodes: viewModel.coreNodes.slice(0, Math.max(1, maxNodes)),
+    branches: maxNodes >= viewModel.coreNodes.length ? viewModel.branches : [],
+  };
+}
+
+export function builderPhaseForMapNodeKind(
+  kind: CampaignMapViewModel["coreNodes"][number]["kind"]
+): BuilderPhase | null {
+  switch (kind) {
+    case "Campaign":
+      return "setup";
+    case "Eligibility":
+      return "eligibility";
+    case "Qualification":
+      return "criteria";
+    case "Outcome":
+      return "actions";
+    default:
+      return null;
+  }
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/station-editor-slot.tsx =====
+
+"use client";
+
+import { JOURNEY_BUILDER_STEPS } from "./journey-builder-steps";
+import { CriteriaStationEditor } from "./wizard-station-editors/criteria-station-editor";
+import { ActionsStationEditor } from "./wizard-station-editors/actions-station-editor";
+import { SetupStationEditor } from "./wizard-station-editors/setup-station-editor";
+
+export function renderJourneyStationEditor(index: number) {
+  const step = JOURNEY_BUILDER_STEPS[index];
+  if (!step) {
+    return null;
+  }
+
+  switch (step.key) {
+    case "setup":
+      return <SetupStationEditor />;
+    case "eligibility":
+      return <CriteriaStationEditor variant="eligibility" />;
+    case "criteria":
+      return <CriteriaStationEditor variant="criteria" />;
+    case "actions":
+      return <ActionsStationEditor />;
+    case "review":
+      return null;
+    default: {
+      const exhaustive: never = step.key;
+      return exhaustive;
+    }
+  }
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/station-footer.tsx =====
+
+"use client";
+
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import type { BuilderPhase } from "./infer-builder-phase";
+import { JOURNEY_BUILDER_STEPS } from "./journey-builder-steps";
+import type { DraftPersistence } from "./journey-builder-store";
+import type { StationValidationResult } from "./validate-station";
+import { validationHint } from "./validate-station";
+
+const CONTINUE_LABELS: Partial<Record<BuilderPhase, string>> = {
+  setup: "Continue to Eligibility",
+  eligibility: "Continue to Criteria",
+  criteria: "Continue to Actions",
+  actions: "Continue to Review",
+};
+
+export interface StationFooterProps {
+  readonly phase: BuilderPhase;
+  readonly validation: StationValidationResult;
+  readonly draftPersistence: DraftPersistence;
+  readonly onBack: () => void;
+  readonly onContinue: () => void;
+  readonly continuing?: boolean;
+}
+
+export function StationFooter({
+  phase,
+  validation,
+  draftPersistence,
+  onBack,
+  onContinue,
+  continuing = false,
+}: StationFooterProps) {
+  if (phase === "idle" || phase === "review") {
+    return null;
+  }
+
+  const stepIndex = JOURNEY_BUILDER_STEPS.findIndex((step) => step.key === phase);
+  const hint = validation.ok
+    ? draftPersistence === "local"
+      ? "Changes stay local until you save as draft."
+      : "Progress saves when you continue."
+    : validationHint(validation.reason);
+
+  return (
+    <div className="flex flex-col gap-3 border-t bg-muted/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        {stepIndex > 0 ? (
+          <Button type="button" variant="ghost" size="sm" onClick={onBack} disabled={continuing}>
+            <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
+            Back
+          </Button>
+        ) : null}
+        <span className="text-sm text-muted-foreground">{hint}</span>
+      </div>
+      <Button type="button" size="lg" className="shrink-0" disabled={!validation.ok || continuing} onClick={onContinue}>
+        {continuing ? "Savingâ€¦" : (CONTINUE_LABELS[phase] ?? "Continue")}
+        {!continuing ? <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden /> : null}
+      </Button>
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/step-panel.tsx =====
+
+"use client";
+
+import { X } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export interface StepPanelProps {
+  readonly stepLabel?: string;
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly editor: ReactNode;
+  readonly summary?: ReactNode;
+  readonly footer?: ReactNode;
+  readonly onClose?: () => void;
+  readonly className?: string;
+}
+
+export function StepPanel({ stepLabel, title, subtitle, editor, summary, footer, onClose, className }: StepPanelProps) {
+  return (
+    <div
+      className={cn(
+        "relative flex h-full min-h-[520px] overflow-hidden rounded-xl border bg-background shadow-lg",
+        className
+      )}
+    >
+      <span className="pointer-events-none absolute -left-3 top-16 z-10 hidden lg:block" aria-hidden>
+        <svg width="24" height="32" viewBox="0 0 46 52" fill="none">
+          <path
+            d="M43 5 L43 47 L7 26 Z"
+            className="fill-background stroke-background"
+            strokeWidth="7"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        </svg>
+      </span>
+
+      <div className="flex min-w-0 flex-1 flex-col border-r">
+        <div className="relative border-b bg-muted/20 px-5 py-4">
+          {onClose ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-3 top-3 h-8 w-8"
+              onClick={onClose}
+              aria-label="Close editor"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          ) : null}
+          {stepLabel ? (
+            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">{stepLabel}</p>
+          ) : null}
+          <h3 className="pr-10 text-lg font-semibold tracking-tight">{title}</h3>
+          {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
+        </div>
+        <div className="flex-1 overflow-auto px-5 py-4">{editor}</div>
+        {footer ? <div className="border-t px-5 py-4">{footer}</div> : null}
+      </div>
+
+      {summary ? (
+        <aside className="hidden w-[240px] shrink-0 overflow-auto bg-muted/10 p-4 xl:block">{summary}</aside>
+      ) : null}
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/step-summary.tsx =====
+
+"use client";
+
+import { useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import type { Campaign } from "@/lib/campaign-types";
+
+import { computeAffectedEstimate } from "./compute-affected-estimate";
+import { getActionsTargetNode, getCriteriaTargetNode, getEligibilityTargetNode } from "./journey-builder-journey-utils";
+import type { BuilderPhase } from "./infer-builder-phase";
+import { labelForOutcomeKind, outcomesFromRuleSet, primaryRuleSet } from "./outcome-utils";
+
+export interface StepSummaryProps {
+  readonly phase: BuilderPhase;
+  readonly campaign: Campaign | null;
+}
+
+export function StepSummary({ phase, campaign }: StepSummaryProps) {
+  const [calculating, setCalculating] = useState(false);
+  const [estimate, setEstimate] = useState<number | null>(null);
+
+  const stats = useMemo(() => {
+    const journey = campaign?.journey;
+    if (!journey) {
+      return { eligibilityRules: 0, criteriaRules: 0, actionCount: 0, hasEventRule: false };
+    }
+    const eligibility = getEligibilityTargetNode(journey);
+    const criteria = getCriteriaTargetNode(journey);
+    const actions = getActionsTargetNode(journey);
+    return {
+      eligibilityRules: eligibility.rules?.length ?? 0,
+      criteriaRules: criteria.rules?.length ?? 0,
+      actionCount: outcomesFromRuleSet(primaryRuleSet(actions)).length,
+      hasEventRule: (criteria.rules?.length ?? 0) > 0,
+    };
+  }, [campaign?.journey]);
+
+  const recalc = () => {
+    setCalculating(true);
+    window.setTimeout(() => {
+      setEstimate(
+        computeAffectedEstimate({
+          eligibilityRuleCount: stats.eligibilityRules,
+          criteriaRuleCount: stats.criteriaRules,
+          hasEventRule: stats.hasEventRule,
+        })
+      );
+      setCalculating(false);
+    }, 800);
+  };
+
+  const actionsNode = campaign?.journey ? getActionsTargetNode(campaign.journey) : null;
+  const outcomes = outcomesFromRuleSet(primaryRuleSet(actionsNode));
+
+  return (
+    <div className="space-y-4 text-sm">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Campaign</p>
+        <p className="font-medium">{campaign?.name?.trim() || "Untitled campaign"}</p>
+      </div>
+
+      {phase !== "setup" && campaign?.journey ? (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Audience</p>
+          <p>{getEligibilityTargetNode(campaign.journey).name || "Not titled yet"}</p>
+          <p className="text-muted-foreground">{stats.eligibilityRules} eligibility rule(s)</p>
+        </div>
+      ) : null}
+
+      {phase === "criteria" || phase === "actions" || phase === "review" ? (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Triggers</p>
+          <p className="text-muted-foreground">{stats.criteriaRules} configured</p>
+        </div>
+      ) : null}
+
+      {phase === "actions" || phase === "review" ? (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Actions</p>
+          {outcomes.length === 0 ? (
+            <p className="text-muted-foreground">None yet</p>
+          ) : (
+            <ul className="mt-1 space-y-1">
+              {outcomes.map((outcome, index) => (
+                <li key={`${outcome.Kind}-${String(index)}`} className="text-muted-foreground">
+                  {labelForOutcomeKind(outcome.Kind)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+
+      <div className="rounded-lg border bg-background p-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Affected customers</p>
+        <p className="mt-1 text-lg font-semibold">
+          {estimate != null ? estimate.toLocaleString() : "â€”"}
+          <span className="ml-1 text-xs font-normal text-muted-foreground">Estimate</span>
+        </p>
+        <Button type="button" variant="outline" size="sm" className="mt-2" disabled={calculating} onClick={recalc}>
+          {calculating ? "Calculatingâ€¦" : "Recalculate"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-advance-station.ts =====
+
+"use client";
+
+import { useCallback, useEffect } from "react";
+import toast from "react-hot-toast";
+
+import { resolveForwardAdvance, type ReviewModalKind } from "./advance-station";
+import { ensureProgressiveJourneyScaffold } from "./journey-builder-journey-utils";
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore,
+} from "./journey-builder-store";
+import { useSaveCampaignDraft } from "./use-save-campaign-draft";
+import { validateStationForContinue, validationHint } from "./validate-station";
+
+export function useAdvanceStation(onOpenReviewModal: (modal: ReviewModalKind) => void): {
+  validation: ReturnType<typeof validateStationForContinue>;
+  continuing: boolean;
+  advanceBack: () => void;
+  advanceForward: () => Promise<void>;
+  completeReviewAdvance: (modal: ReviewModalKind) => Promise<void>;
+} {
+  const phase = useJourneyBuilderStore(selectBuilderPhase);
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+  const { saveDraft, saving } = useSaveCampaignDraft();
+
+  const validation = validateStationForContinue(phase, campaign);
+
+  useEffect(() => {
+    if (useJourneyBuilderStore.getState().canvasPhase !== "traveling") {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      useJourneyBuilderStore.getState().actions.setCanvasPhase("entering");
+      window.setTimeout(() => {
+        useJourneyBuilderStore.getState().actions.setCanvasPhase("idle");
+      }, 300);
+    }, 60);
+    return () => window.clearTimeout(timeout);
+  }, [phase]);
+
+  const persistIfNeeded = useCallback(async (): Promise<boolean> => {
+    const state = useJourneyBuilderStore.getState();
+    if (state.draftPersistence !== "persisted" || !state.campaign?.id) {
+      return true;
+    }
+    await saveDraft();
+    return !useJourneyBuilderStore.getState().isDirty;
+  }, [saveDraft]);
+
+  const applyForwardPhase = useCallback(
+    async (nextPhase: ReturnType<typeof selectBuilderPhase>) => {
+      const state = useJourneyBuilderStore.getState();
+      if (!state.campaign) {
+        return;
+      }
+
+      const scaffolded = ensureProgressiveJourneyScaffold(state.campaign, nextPhase);
+      if (scaffolded !== state.campaign) {
+        actions.hydrateFromCampaign({
+          campaign: scaffolded,
+          builderPhase: state.builderPhase,
+        });
+      }
+
+      const saved = await persistIfNeeded();
+      if (!saved) {
+        toast.error("Could not save before continuing.");
+        return;
+      }
+
+      actions.advanceStation({ direction: "forward", nextPhase });
+    },
+    [actions, persistIfNeeded]
+  );
+
+  const advanceForward = useCallback(async () => {
+    const currentPhase = useJourneyBuilderStore.getState().builderPhase;
+    const currentCampaign = useJourneyBuilderStore.getState().campaign;
+    const currentValidation = validateStationForContinue(currentPhase, currentCampaign);
+    const intent = resolveForwardAdvance(currentPhase, currentValidation);
+
+    if (intent.type === "blocked") {
+      if (!currentValidation.ok) {
+        toast.error(validationHint(currentValidation.reason));
+      }
+      return;
+    }
+    if (intent.type === "review_modal") {
+      onOpenReviewModal(intent.modal);
+      return;
+    }
+    await applyForwardPhase(intent.nextPhase);
+  }, [applyForwardPhase, onOpenReviewModal]);
+
+  const completeReviewAdvance = useCallback(
+    async (modal: ReviewModalKind) => {
+      const currentPhase = useJourneyBuilderStore.getState().builderPhase;
+      const currentCampaign = useJourneyBuilderStore.getState().campaign;
+      const currentValidation = validateStationForContinue(currentPhase, currentCampaign);
+      const intent = resolveForwardAdvance(currentPhase, currentValidation, { skipReviewModal: true });
+      if (intent.type !== "advance") {
+        return;
+      }
+      if (modal === "criteria" && intent.nextPhase !== "actions") {
+        return;
+      }
+      if (modal === "actions" && intent.nextPhase !== "review") {
+        return;
+      }
+      await applyForwardPhase(intent.nextPhase);
+    },
+    [applyForwardPhase]
+  );
+
+  const advanceBack = useCallback(() => {
+    actions.advanceStation({ direction: "back" });
+  }, [actions]);
+
+  return {
+    validation,
+    continuing: saving,
+    advanceBack,
+    advanceForward,
+    completeReviewAdvance,
+  };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-agent-campaign-sync.ts =====
+
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+
+import { hydrateDecision } from "@/lib/campaign-agent/hydrate-policy";
+import type { Campaign } from "@/lib/campaign-types";
+import { getCampaign } from "@/services/loyalty/actions";
+
+import { inferBuilderPhase } from "./infer-builder-phase";
+import { useJourneyBuilderStore } from "./journey-builder-store";
+
+export function decideAgentHydrate(args: {
+  isDirty: boolean;
+  campaignId: string;
+  campaign: Campaign;
+  hydrate: (campaign: Campaign) => void;
+  conflict: (campaignId: string, campaign: Campaign) => void;
+}): "apply" | "conflict" {
+  const decision = hydrateDecision(args.isDirty);
+  if (decision === "conflict") {
+    args.conflict(args.campaignId, args.campaign);
+  } else {
+    args.hydrate(args.campaign);
+  }
+  return decision;
+}
+
+export function applyDiscoveredCampaignToBuilder(campaignId: string, campaign: Campaign): "apply" | "conflict" {
+  const state = useJourneyBuilderStore.getState();
+  return decideAgentHydrate({
+    isDirty: state.isDirty,
+    campaignId,
+    campaign,
+    hydrate: (next) => {
+      state.actions.hydrateFromCampaign({
+        campaign: next,
+        builderPhase: inferBuilderPhase({ previous: state.campaign, next })
+      });
+      state.actions.setLinkedCampaignId(next.id ?? campaignId);
+      state.actions.setDraftPersistence("persisted");
+      state.actions.setDirty(false);
+    },
+    conflict: (id, next) => {
+      state.actions.setAgentConflict({ campaignId: id, campaign: next });
+    }
+  });
+}
+
+export function useAgentCampaignSync() {
+  const [hydrating, setHydrating] = useState(false);
+  const lastHydratedIdRef = useRef<string | null>(null);
+  const agentConflict = useJourneyBuilderStore((state) => state.agentConflict);
+
+  useEffect(() => {
+    return () => {
+      lastHydratedIdRef.current = null;
+    };
+  }, []);
+
+  const hydrateFromCampaignId = useCallback(async (campaignId: string) => {
+    const state = useJourneyBuilderStore.getState();
+    if (
+      lastHydratedIdRef.current === campaignId &&
+      state.campaign?.id === campaignId &&
+      state.builderPhase !== "idle"
+    ) {
+      return;
+    }
+
+    setHydrating(true);
+    try {
+      const result = await getCampaign(campaignId, "draft");
+      if (!result.success || !result.data) {
+        toast.error(result.error ?? "Could not load the Agent draft.");
+        return;
+      }
+
+      const decision = applyDiscoveredCampaignToBuilder(campaignId, result.data as Campaign);
+      if (decision === "apply") {
+        lastHydratedIdRef.current = campaignId;
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not load the Agent draft.");
+    } finally {
+      setHydrating(false);
+    }
+  }, []);
+
+  const keepLocalChanges = useCallback(() => {
+    useJourneyBuilderStore.getState().actions.clearAgentConflict();
+  }, []);
+
+  const applyAgentVersion = useCallback(() => {
+    const conflict = useJourneyBuilderStore.getState().agentConflict;
+    if (!conflict) {
+      return;
+    }
+
+    const current = useJourneyBuilderStore.getState();
+    current.actions.hydrateFromCampaign({
+      campaign: conflict.campaign,
+      builderPhase: inferBuilderPhase({ previous: current.campaign, next: conflict.campaign })
+    });
+    current.actions.setLinkedCampaignId(conflict.campaign.id ?? conflict.campaignId);
+    current.actions.setDraftPersistence("persisted");
+    current.actions.setDirty(false);
+    current.actions.clearAgentConflict();
+    lastHydratedIdRef.current = conflict.campaign.id ?? conflict.campaignId;
+  }, []);
+
+  return {
+    hydrateFromCampaignId,
+    hydrating,
+    agentConflict,
+    keepLocalChanges,
+    applyAgentVersion
+  };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.test.ts =====
+
+import { describe, expect, it, vi } from "vitest";
+
+import { buildEmptyDraftPayload } from "./use-create-empty-draft";
+
+describe("buildEmptyDraftPayload", () => {
+  it("includes startDate so CampaignShellValidator accepts the draft", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-18T17:00:00.000Z"));
+    try {
+      const payload = buildEmptyDraftPayload();
+
+      expect(payload).toEqual({
+        name: "Untitled campaign",
+        status: "draft",
+        startDate: "2026-09-18T17:00:00.000Z"
+      });
+      expect(payload.id).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-create-empty-draft.ts =====
+
+"use client";
+
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
+
+import type { Campaign } from "@/lib/campaign-types";
+import { updateCampaign } from "@/services/loyalty/actions";
+
+import { useJourneyBuilderActions } from "./journey-builder-store";
+
+export function buildEmptyDraftPayload(): Campaign {
+  return {
+    name: "Untitled campaign",
+    status: "draft",
+    startDate: new Date().toISOString()
+  };
+}
+
+export function useCreateEmptyDraft(): {
+  createEmptyDraft: () => Promise<Campaign | null>;
+  creating: boolean;
+} {
+  const actions = useJourneyBuilderActions();
+  const [creating, setCreating] = useState(false);
+
+  const createEmptyDraft = useCallback(async () => {
+    setCreating(true);
+    try {
+      const payload = buildEmptyDraftPayload();
+      const response = await updateCampaign(payload);
+      if (!response.success || !response.data) {
+        throw new Error(response.error ?? "Failed to create draft");
+      }
+
+      actions.hydrateFromCampaign({
+        campaign: response.data as Campaign,
+        builderPhase: "setup"
+      });
+      actions.setDraftPersistence("persisted");
+      actions.setLinkedCampaignId(response.data.id ?? null);
+      actions.setDirty(false);
+      toast.success("Draft created");
+      return response.data as Campaign;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+      return null;
+    } finally {
+      setCreating(false);
+    }
+  }, [actions]);
+
+  return { createEmptyDraft, creating };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/use-save-campaign-draft.ts =====
+
+"use client";
+
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
+
+import type { CampaignListItem } from "@/lib/api-types";
+import type { Campaign } from "@/lib/campaign-types";
+import { updateCampaign, validateCampaign } from "@/services/loyalty/actions";
+
+import {
+  selectBuilderPhase,
+  selectCampaign,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore
+} from "./journey-builder-store";
+
+export function useSaveCampaignDraft(): {
+  saveDraft: () => Promise<void>;
+  saving: boolean;
+  canSave: boolean;
+} {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+  const [saving, setSaving] = useState(false);
+
+  const saveDraft = useCallback(async () => {
+    const current = useJourneyBuilderStore.getState().campaign;
+    if (!current) {
+      toast.error("Nothing to save yet.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const payload: Campaign = {
+        ...current,
+        name: current.name?.trim() || "Untitled campaign",
+        status: current.status ?? "draft"
+      };
+      const validation = await validateCampaign(payload as CampaignListItem);
+      if (!validation.success) {
+        throw new Error(validation.error ?? "Campaign validation failed.");
+      }
+
+      const response = await updateCampaign(payload);
+      if (!response.success || !response.data) {
+        throw new Error(response.error ?? "Failed to save draft");
+      }
+
+      actions.hydrateFromCampaign({
+        campaign: response.data as Campaign,
+        builderPhase: selectBuilderPhase(useJourneyBuilderStore.getState())
+      });
+      actions.setDraftPersistence("persisted");
+      if (response.data.id) {
+        actions.setLinkedCampaignId(response.data.id);
+      }
+      actions.setDirty(false);
+      toast.success("Draft saved");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save draft");
+    } finally {
+      setSaving(false);
+    }
+  }, [actions]);
+
+  return {
+    saveDraft,
+    saving,
+    canSave: Boolean(campaign)
+  };
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/validate-station.ts =====
+
+import type { Campaign, Journey, RuleSet } from "@/lib/campaign-types";
+
+import type { BuilderPhase } from "./infer-builder-phase";
+import { getActionsTargetNode, getCriteriaTargetNode, getEligibilityTargetNode } from "./journey-builder-journey-utils";
+
+export type StationValidationFailureReason =
+  | "missing_name"
+  | "missing_start_date"
+  | "missing_eligibility"
+  | "missing_criteria"
+  | "missing_actions";
+
+export type StationValidationResult = { ok: true } | { ok: false; reason: StationValidationFailureReason };
+
+function hasConfiguredRule(rules: RuleSet[] | null | undefined): boolean {
+  if (!rules || rules.length === 0) {
+    return false;
+  }
+  return rules.some((ruleSet) => {
+    const rule = ruleSet.ruleJsonElement;
+    return Boolean(rule && typeof rule === "object" && Object.keys(rule as object).length > 0);
+  });
+}
+
+function countOutcomes(node: Journey): number {
+  return (
+    node.rules?.reduce((total, ruleSet) => {
+      const outcomes = ruleSet.outcomesJsonElement;
+      if (Array.isArray(outcomes)) {
+        return total + outcomes.length;
+      }
+      if (outcomes && typeof outcomes === "object") {
+        return total + 1;
+      }
+      return total;
+    }, 0) ?? 0
+  );
+}
+
+export function validateStationForContinue(phase: BuilderPhase, campaign: Campaign | null): StationValidationResult {
+  if (!campaign) {
+    return { ok: false, reason: "missing_name" };
+  }
+
+  switch (phase) {
+    case "setup": {
+      if (!campaign.name?.trim()) {
+        return { ok: false, reason: "missing_name" };
+      }
+      if (!campaign.startDate?.trim()) {
+        return { ok: false, reason: "missing_start_date" };
+      }
+      return { ok: true };
+    }
+    case "eligibility": {
+      if (!campaign.journey) {
+        return { ok: false, reason: "missing_eligibility" };
+      }
+      const node = getEligibilityTargetNode(campaign.journey);
+      if (!node.name?.trim()) {
+        return { ok: false, reason: "missing_eligibility" };
+      }
+      if (!hasConfiguredRule(node.rules)) {
+        return { ok: false, reason: "missing_eligibility" };
+      }
+      return { ok: true };
+    }
+    case "criteria": {
+      if (!campaign.journey) {
+        return { ok: false, reason: "missing_criteria" };
+      }
+      const node = getCriteriaTargetNode(campaign.journey);
+      if (!hasConfiguredRule(node.rules)) {
+        return { ok: false, reason: "missing_criteria" };
+      }
+      return { ok: true };
+    }
+    case "actions": {
+      if (!campaign.journey) {
+        return { ok: false, reason: "missing_actions" };
+      }
+      const node = getActionsTargetNode(campaign.journey);
+      if (countOutcomes(node) === 0) {
+        return { ok: false, reason: "missing_actions" };
+      }
+      return { ok: true };
+    }
+    case "idle":
+    case "review":
+      return { ok: true };
+    default: {
+      const exhaustive: never = phase;
+      return exhaustive;
+    }
+  }
+}
+
+export function validationHint(reason: StationValidationFailureReason): string {
+  switch (reason) {
+    case "missing_name":
+      return "Enter a campaign name to continue.";
+    case "missing_start_date":
+      return "Set a start date to continue.";
+    case "missing_eligibility":
+      return "Add an audience title and at least one eligibility rule.";
+    case "missing_criteria":
+      return "Add at least one trigger rule to continue.";
+    case "missing_actions":
+      return "Add at least one action to continue.";
+    default: {
+      const exhaustive: never = reason;
+      return exhaustive;
+    }
+  }
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/welcome-canvas.tsx =====
+
+"use client";
+
+import { Sparkles } from "lucide-react";
+
+import { Card, CardContent } from "@/components/ui/card";
+
+const STEP_LABELS = [
+  "Campaign Setup",
+  "Eligibility",
+  "Audience Criteria",
+  "Resulting Actions",
+  "Review & Launch",
+] as const;
+
+export function WelcomeCanvas() {
+  return (
+    <Card className="flex h-full min-h-[520px] flex-col items-center justify-center border-dashed">
+      <CardContent className="flex max-w-md flex-col items-center gap-5 py-12 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-dashed border-muted-foreground/30">
+          <Sparkles className="h-7 w-7 text-muted-foreground" aria-hidden />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Your campaign will take shape here</h2>
+          <p className="text-sm text-muted-foreground">
+            Describe your campaign with the Agent, start from a template, or build step by step. The canvas updates as your
+            draft takes shape.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-2">
+          {STEP_LABELS.map((label, index) => (
+            <span
+              key={label}
+              className="rounded-full border border-muted bg-muted/40 px-2.5 py-1 text-xs text-muted-foreground"
+            >
+              {index + 1}. {label}
+            </span>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/actions-station-editor.tsx =====
+
+"use client";
+
+import { useMemo } from "react";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+import { getActionsTargetNode } from "../journey-builder-journey-utils";
+import { selectCampaign, useJourneyBuilderActions, useJourneyBuilderStore } from "../journey-builder-store";
+import { OutcomeListEditor } from "./outcome-list-editor";
+
+export function ActionsStationEditor() {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const actions = useJourneyBuilderActions();
+
+  const targetNode = useMemo(
+    () => (campaign?.journey ? getActionsTargetNode(campaign.journey) : null),
+    [campaign?.journey]
+  );
+
+  if (!campaign?.journey || !targetNode?.id) {
+    return (
+      <Alert>
+        <AlertDescription>
+          Continue from Criteria to scaffold the actions step, or let the Agent populate it.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <OutcomeListEditor
+      targetNode={targetNode}
+      onPatchNode={(patch) => actions.patchJourneyNode(targetNode.id!, patch)}
+    />
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/criteria-station-editor.tsx =====
+
+"use client";
+
+import { useMemo } from "react";
+
+import { LoyaltyRuleBuilder } from "@/components/loyalty/promotions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { Journey, LoyaltyRule, Rule, RuleSet } from "@/lib/campaign-types";
+
+import {
+  getCriteriaTargetNode,
+  getEligibilityTargetNode,
+  summarizeJourneyRules
+} from "../journey-builder-journey-utils";
+import {
+  selectCampaign,
+  selectStationRuleDrafts,
+  type StationRuleVariant,
+  useJourneyBuilderActions,
+  useJourneyBuilderStore
+} from "../journey-builder-store";
+
+function getTargetNodeForVariant(journey: Journey | null | undefined, variant: StationRuleVariant): Journey | null {
+  if (!journey) {
+    return null;
+  }
+  return variant === "eligibility" ? getEligibilityTargetNode(journey) : getCriteriaTargetNode(journey);
+}
+
+function upsertDraftRuleSet(existing: RuleSet[] | null | undefined, name: string, rule: Partial<Rule>): RuleSet[] {
+  const nextRuleSet: RuleSet = {
+    id: crypto.randomUUID(),
+    name,
+    schemaId: null,
+    ruleJsonElement: rule,
+    outcomesJsonElement: [],
+    tenantId: null
+  };
+  const rules = existing ?? [];
+  const index = rules.findIndex((entry) => entry.name === name);
+  if (index >= 0) {
+    return rules.map((entry, entryIndex) => (entryIndex === index ? { ...entry, ruleJsonElement: rule } : entry));
+  }
+  return [...rules, nextRuleSet];
+}
+
+export interface CriteriaStationEditorProps {
+  readonly variant: StationRuleVariant;
+}
+
+export function CriteriaStationEditor({ variant }: CriteriaStationEditorProps) {
+  const campaign = useJourneyBuilderStore(selectCampaign);
+  const drafts = useJourneyBuilderStore(selectStationRuleDrafts);
+  const actions = useJourneyBuilderActions();
+
+  const targetNode = useMemo(() => getTargetNodeForVariant(campaign?.journey, variant), [campaign?.journey, variant]);
+
+  const initialRule = drafts[variant];
+  const draftRuleSetName = variant === "eligibility" ? "Eligibility criteria" : "Audience criteria";
+
+  if (!campaign?.journey || !targetNode?.id) {
+    return (
+      <Alert>
+        <AlertDescription>
+          The Agent or a template will populate the journey graph before criteria editing is available.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <Alert>
+        <AlertDescription>
+          Editing <span className="font-medium">{targetNode.name ?? "journey step"}</span>.{" "}
+          {summarizeJourneyRules(targetNode)}
+        </AlertDescription>
+      </Alert>
+
+      {variant === "eligibility" ? (
+        <div className="space-y-2">
+          <Label htmlFor="audience-title">Audience title</Label>
+          <Input
+            id="audience-title"
+            value={targetNode.name ?? ""}
+            placeholder="e.g. Loyalty members in California"
+            onChange={(event) => {
+              actions.patchJourneyNode(targetNode.id!, { name: event.target.value });
+            }}
+          />
+        </div>
+      ) : null}
+
+      <LoyaltyRuleBuilder
+        key={`${variant}-${targetNode.id}-${campaign.id ?? "draft"}`}
+        value={(initialRule as LoyaltyRule | undefined) ?? null}
+        onChange={(rule) => {
+          actions.setStationRuleDraft(variant, rule);
+          if (!rule || !targetNode.id) {
+            return;
+          }
+          actions.patchJourneyNode(targetNode.id, {
+            rules: upsertDraftRuleSet(targetNode.rules, draftRuleSetName, rule)
+          });
+        }}
+      />
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/outcome-list-editor.tsx =====
+
+"use client";
+
+import { useMemo, useState } from "react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  OutcomeEditorModal,
+  outcomeToFormValues,
+} from "@/components/loyalty/campaigns/wizard/modals/outcome-editor-modal";
+import type { Journey, Outcome } from "@/lib/campaign-types";
+
+import {
+  labelForOutcomeKind,
+  outcomesFromRuleSet,
+  primaryRuleSet,
+  upsertPrimaryRuleSetOutcomes,
+} from "../outcome-utils";
+
+export interface OutcomeListEditorProps {
+  readonly targetNode: Journey;
+  readonly onPatchNode: (patch: Partial<Journey>) => void;
+}
+
+export function OutcomeListEditor({ targetNode, onPatchNode }: OutcomeListEditorProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const ruleSet = useMemo(() => primaryRuleSet(targetNode), [targetNode]);
+  const outcomes = useMemo(() => outcomesFromRuleSet(ruleSet), [ruleSet]);
+
+  const persistOutcomes = (nextOutcomes: Outcome[]) => {
+    onPatchNode({
+      rules: upsertPrimaryRuleSetOutcomes(targetNode, nextOutcomes),
+    });
+  };
+
+  const editingOutcome = editingIndex != null ? (outcomes[editingIndex] ?? null) : null;
+
+  return (
+    <div className="space-y-3">
+      {outcomes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No actions yet. Add what happens when criteria are met.</p>
+      ) : (
+        <ul className="space-y-2">
+          {outcomes.map((outcome, index) => (
+            <li
+              key={`${outcome.Kind}-${String(index)}`}
+              className="flex items-center justify-between rounded-lg border px-3 py-2"
+            >
+              <span className="text-sm font-medium">{labelForOutcomeKind(outcome.Kind)}</span>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Edit action"
+                  onClick={() => {
+                    setEditingIndex(index);
+                    setModalOpen(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Remove action"
+                  onClick={() => persistOutcomes(outcomes.filter((_, i) => i !== index))}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => {
+          setEditingIndex(null);
+          setModalOpen(true);
+        }}
+      >
+        <Plus className="mr-1.5 h-4 w-4" aria-hidden />
+        Add action
+      </Button>
+
+      <OutcomeEditorModal
+        open={modalOpen}
+        onOpenChange={(open) => {
+          setModalOpen(open);
+          if (!open) {
+            setEditingIndex(null);
+          }
+        }}
+        initial={editingOutcome ? outcomeToFormValues(editingOutcome) : undefined}
+        initialOutcome={editingOutcome}
+        onSave={(outcome: Outcome) => {
+          if (editingIndex != null) {
+            persistOutcomes(outcomes.map((entry, index) => (index === editingIndex ? outcome : entry)));
+          } else {
+            persistOutcomes([...outcomes, outcome]);
+          }
+          setModalOpen(false);
+          setEditingIndex(null);
+        }}
+      />
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/wizard-station-editors/setup-station-editor.tsx =====
+
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { asLoyaltySchemas, type LoyaltySchema } from "@/lib/campaign-types";
+import { getAllSchemas } from "@/services/loyalty/actions";
+import { loyaltyKeys } from "@/services/loyalty/query-keys";
+
+import type { CampaignWizardValues } from "@/components/loyalty/campaigns/wizard/campaign-wizard";
+
+import { selectSelectedSchema, useJourneyBuilderActions, useJourneyBuilderStore } from "../journey-builder-store";
+
+function isEventableSchema(schema: LoyaltySchema): boolean {
+  return schema.tag === "eventable" || schema.name === "LoyaltyAccountDetails";
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function findSchemaForEvent(schemas: LoyaltySchema[], event: string): LoyaltySchema | null {
+  const lowered = event.toLowerCase();
+  return schemas.find((schema) => schema.id.toLowerCase() === lowered || schema.name.toLowerCase() === lowered) ?? null;
+}
+
+export function SetupStationEditor() {
+  const form = useFormContext<CampaignWizardValues>();
+  const [eventsOpen, setEventsOpen] = useState(false);
+  const actions = useJourneyBuilderActions();
+  const selectedSchema = useJourneyBuilderStore(selectSelectedSchema);
+
+  const schemasQuery = useQuery({
+    queryKey: loyaltyKeys.schemas.all("loyalty"),
+    queryFn: async () => {
+      const result = await getAllSchemas();
+      if (!result.success) {
+        throw new Error(result.error ?? "Failed to load event schemas");
+      }
+      return asLoyaltySchemas(result.data).filter(isEventableSchema);
+    },
+  });
+
+  const events = useWatch({ control: form.control, name: "events", defaultValue: [] }) as string[];
+  const eventLabels = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const schema of schemasQuery.data ?? []) {
+      map.set(schema.id, schema.name);
+      map.set(schema.name, schema.name);
+    }
+    return map;
+  }, [schemasQuery.data]);
+
+  useEffect(() => {
+    const schemas = schemasQuery.data;
+    if (!schemas || selectedSchema || events.length === 0) {
+      return;
+    }
+    for (const event of events) {
+      const schema = findSchemaForEvent(schemas, event);
+      if (schema) {
+        actions.setSelectedSchema(schema);
+        return;
+      }
+    }
+  }, [actions, events, schemasQuery.data, selectedSchema]);
+
+  const toggleEvent = (schemaId: string) => {
+    const next = events.includes(schemaId) ? events.filter((event) => event !== schemaId) : [...events, schemaId];
+    form.setValue("events", next, { shouldDirty: true, shouldValidate: true });
+
+    const schemas = schemasQuery.data ?? [];
+    const wasAlreadySelected = events.includes(schemaId);
+    if (!wasAlreadySelected) {
+      const schema = schemas.find((entry) => entry.id === schemaId);
+      if (schema && !selectedSchema) {
+        actions.setSelectedSchema(schema);
+      }
+    } else if (selectedSchema && (selectedSchema.id === schemaId || selectedSchema.name === schemaId)) {
+      const fallback = next.map((event) => findSchemaForEvent(schemas, event)).find((entry) => entry !== null) ?? null;
+      actions.setSelectedSchema(fallback);
+    }
+  };
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <FormField
+        control={form.control}
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Campaign name</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Summer points promotion"
+                {...field}
+                value={field.value ?? ""}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  field.onChange(next);
+                  const currentExt = form.getValues("extCampaignId") ?? "";
+                  const previousAuto = slugify(field.value ?? "");
+                  if (!currentExt || currentExt === previousAuto) {
+                    form.setValue("extCampaignId", slugify(next), { shouldDirty: true });
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="extCampaignId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>External campaign id</FormLabel>
+            <FormControl>
+              <Input placeholder="summer-points-2025" {...field} value={field.value ?? ""} />
+            </FormControl>
+            <FormDescription>Auto-generated from the name unless you override it.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="status"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Status</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="live">Live</SelectItem>
+                <SelectItem value="pause">Pause</SelectItem>
+                <SelectItem value="archive">Archive</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="startDate"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Start date</FormLabel>
+            <FormControl>
+              <Input
+                type="date"
+                value={field.value ? field.value.slice(0, 10) : ""}
+                onChange={(event) =>
+                  field.onChange(event.target.value ? new Date(event.target.value).toISOString() : "")
+                }
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="endDate"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>End date (optional)</FormLabel>
+            <FormControl>
+              <Input
+                type="date"
+                value={field.value ? field.value.slice(0, 10) : ""}
+                onChange={(event) =>
+                  field.onChange(event.target.value ? new Date(event.target.value).toISOString() : null)
+                }
+              />
+            </FormControl>
+            <FormDescription>Leave blank for ongoing campaigns.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="events"
+        render={() => (
+          <FormItem className="md:col-span-2">
+            <FormLabel>Event types</FormLabel>
+            {schemasQuery.isLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Popover open={eventsOpen} onOpenChange={setEventsOpen}>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="outline" className="w-full justify-between">
+                    <span className="truncate text-left">
+                      {events.length === 0 ? "Pick event typesâ€¦" : `${String(events.length)} selected`}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search eventsâ€¦" />
+                    <CommandList>
+                      <CommandEmpty>No events found.</CommandEmpty>
+                      <CommandGroup>
+                        {(schemasQuery.data ?? []).map((schema) => {
+                          const selected = events.includes(schema.id);
+                          return (
+                            <CommandItem
+                              key={schema.id}
+                              value={`${schema.name} ${schema.id}`}
+                              onSelect={() => toggleEvent(schema.id)}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-100" : "opacity-0")} />
+                              <span className="flex-1">{schema.name}</span>
+                              <span className="text-xs text-muted-foreground">{schema.modelType}</span>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+            <FormDescription>Event schemas drive downstream criteria editors.</FormDescription>
+            {events.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {events.map((eventId) => (
+                  <Badge key={eventId} variant="secondary" className="gap-1">
+                    {eventLabels.get(eventId) ?? eventId}
+                    <button
+                      type="button"
+                      className="rounded-sm hover:bg-muted"
+                      onClick={() => toggleEvent(eventId)}
+                      aria-label="Remove event"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaign-journey-builder/workspace-confirm-dialog.tsx =====
+
+"use client";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+export type WorkspaceConfirmDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+};
+
+export function WorkspaceConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel,
+  onConfirm,
+}: WorkspaceConfirmDialogProps) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm();
+              onOpenChange(false);
+            }}
+          >
+            {confirmLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/lib/campaign-agent/campaign-mode.ts =====
+
+export function isCampaignAgentWritable(status: string | null | undefined): boolean {
+  return (status ?? "").toLowerCase() === "draft";
+}
+
+
+===== BEGIN Journeys/docs/product/graph/waivers/2026-09-18-campaigns-new-builder.md =====
+
+# Waiver: Campaigns IA New Journey Builder
+
+**Reason:** Task 5 replaces the focused `/loyalty/campaigns/new` stub with the EXP progressive Journey Builder plus unlabeled `AgentChat` rail. Hydrate still GET Draft and keep-local/apply-Agent when dirty. Save uses existing `updateCampaign`. No new capability, ontology term, or graph edge.
+
+**Nodes touched by path-map (no meaning change):** `campaigns`, `campaign-agent`.
+

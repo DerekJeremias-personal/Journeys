@@ -1,6 +1,6 @@
 # Campaign Agent Ollama (`Journeys.Infra.Llm`) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This repo’s human rule wins: do not start tasks until the user approves this plan. Prefer a fresh subagent per task.
+> **Execution:** After approval, say execute and the intent name. `.agents/skills/journeys-plan-to-aidlc` starts `/aidlc classic`. Do **not** use superpowers:subagent-driven-development. Linear unit issues land before any `Journeys.*` code. Do not `--review none` or Express.
 
 **Goal:** Add a Journeys-owned OpenAI-compatible LLM leaf and a startup `CampaignAgent:Provider` switch so Development Campaign Agent talks to MSI Ollama (`llama3.1:8b`) without an Anthropic key, with an 8B prompt/tool diet and connect retry.
 

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 3,
+  "sourceFile": "39cadda345a640d3971f70e6b800f8cc",
+  "conversationId": "39cadda345a640d3971f70e6b800f8cc",
+  "generatedAtUtc": "2026-09-17T19:13:04.9716007+00:00",
+  "outcomeSummary": {},
+  "findings": [
+    {
+      "code": "LONG_TURN",
+      "severity": "degrading",
+      "citedSequences": [
+        "5"
+      ],
+      "summary": "User turn at seq 5 followed prior user turn after 212000 ms wall time."
+    },
+    {
+      "code": "LONG_TURN",
+      "severity": "degrading",
+      "citedSequences": [
+        "7"
+      ],
+      "summary": "User turn at seq 7 followed prior user turn after 167000 ms wall time."
+    },
+    {
+      "code": "CREATION_ABORTED",
+      "severity": "blocking",
+      "citedSequences": [
+        "1",
+        "8"
+      ],
+      "summary": "Session ran ~465,000 ms with no journey delivery."
+    }
+  ],
+  "budgetByTurn": [
+    {
+      "userSequence": 1,
+      "phase": "DataAnalysis",
+      "stableChars": 11211,
+      "historyChars": 5,
+      "sessionChars": 237,
+      "totalChars": 11453
+    },
+    {
+      "userSequence": 3,
+      "phase": "DataAnalysis",
+      "stableChars": 11211,
+      "historyChars": 170,
+      "sessionChars": 237,
+      "totalChars": 11618
+    },
+    {
+      "userSequence": 5,
+      "phase": "DataAnalysis",
+      "stableChars": 11211,
+      "historyChars": 1406,
+      "sessionChars": 237,
+      "totalChars": 12854
+    },
+    {
+      "userSequence": 7,
+      "phase": "DataAnalysis",
+      "stableChars": 11211,
+      "historyChars": 3390,
+      "sessionChars": 237,
+      "totalChars": 14838
+    }
+  ],
+  "performanceSummary": {
+    "dataSource": "_ts_inferred",
+    "turnCount": 4,
+    "totalWallMs": 465000,
+    "byCategory": {
+      "llm": 109000,
+      "tools": 0,
+      "persist": 15000,
+      "other": 0
+    },
+    "slowTools": []
+  },
+  "delivery": {
+    "grade": "F",
+    "score": 0.25,
+    "rationale": "CREATION_ABORTED (blocking); wall ~465,000 ms; grade F",
+    "effectiveWallMs": 465000,
+    "milestones": [
+      {
+        "id": "DesignBrief",
+        "label": "Design brief",
+        "reached": false
+      },
+      {
+        "id": "EventModels",
+        "label": "Event models",
+        "reached": false
+      },
+      {
+        "id": "CampaignSetup",
+        "label": "Campaign shell linked",
+        "reached": false
+      },
+      {
+        "id": "PointAccountTypes",
+        "label": "Point account types",
+        "reached": false
+      },
+      {
+        "id": "CampaignJourney",
+        "label": "Journey saved",
+        "reached": false
+      },
+      {
+        "id": "Verification",
+        "label": "Verification",
+        "reached": false
+      },
+      {
+        "id": "Done",
+        "label": "Creation complete",
+        "reached": false
+      }
+    ]
+  },
+  "rubric": [
+    {
+      "dimensionId": 1,
+      "dimension": "Relevance",
+      "lens": "Competency",
+      "grade": "C\u002B",
+      "score": 2.25,
+      "rationale": "CREATION_ABORTED (blocking, seq 1, 8)"
+    },
+    {
+      "dimensionId": 2,
+      "dimension": "Salience \u0026 recency",
+      "lens": "Competency",
+      "grade": "B\u002B",
+      "score": 3,
+      "rationale": "No mapped findings; 4 user turns, no history eviction."
+    },
+    {
+      "dimensionId": 3,
+      "dimension": "Grounding fidelity",
+      "lens": "Competency",
+      "grade": "B\u002B",
+      "score": 3,
+      "rationale": "No mapped findings; 4 user turns, no history eviction."
+    },
+    {
+      "dimensionId": 4,
+      "dimension": "Self-knowledge / working memory",
+      "lens": "Competency",
+      "grade": "A-",
+      "score": 3.35,
+      "rationale": "No re-discovery after creation."
+    },
+    {
+      "dimensionId": 5,
+      "dimension": "Instruction \u0026 persona efficacy",
+      "lens": "Competency",
+      "grade": "C-",
+      "score": 1.5,
+      "rationale": "CREATION_ABORTED (blocking, seq 1, 8)"
+    },
+    {
+      "dimensionId": 6,
+      "dimension": "Tool-result hygiene",
+      "lens": "Efficiency",
+      "grade": "B\u002B",
+      "score": 3,
+      "rationale": "No mapped findings; 4 user turns, no history eviction."
+    },
+    {
+      "dimensionId": 7,
+      "dimension": "Redundancy control",
+      "lens": "Efficiency",
+      "grade": "B\u002B",
+      "score": 3,
+      "rationale": "No mapped findings; 4 user turns, no history eviction."
+    },
+    {
+      "dimensionId": 8,
+      "dimension": "History / budget strategy",
+      "lens": "Efficiency",
+      "grade": "C-",
+      "score": 1.5,
+      "rationale": "LONG_TURN (degrading, seq 5); LONG_TURN (degrading, seq 7)"
+    }
+  ],
+  "overallCompetency": {
+    "grade": "D\u002B",
+    "score": 1,
+    "uncappedGrade": "B-",
+    "uncappedScore": 2.62
+  },
+  "overallEfficiency": {
+    "grade": "B-",
+    "score": 2.5
+  }
+}

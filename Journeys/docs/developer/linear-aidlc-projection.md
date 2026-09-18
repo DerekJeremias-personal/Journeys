@@ -30,6 +30,8 @@ $env:LINEAR_API_KEY = "<key>"
 
 Exit 0 = success. Non-zero = fail closed (construction must not proceed).
 
+`journeys-plan-to-aidlc` and `aidlc-journeys` treat upsert-after-units and pull-back-before-claim as a **hard gate**: no `Journeys.*` edits until every unit has a Linear `issueId` and pull-back has succeeded.
+
 ## Create budget
 
 `upsert` will not `issueCreate` until a human confirms the count.

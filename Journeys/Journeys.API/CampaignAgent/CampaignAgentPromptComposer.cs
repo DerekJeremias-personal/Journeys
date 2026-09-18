@@ -7,6 +7,7 @@ using Journeys.Core.Models;
 using Journeys.Core.Workflow;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Journeys.API.CampaignAgent;
@@ -14,25 +15,29 @@ namespace Journeys.API.CampaignAgent;
 public class CampaignAgentPromptComposer : ICampaignAgentPromptComposer
 {
     private const string PersonaFileName = "SystemPrompt.txt";
+    private const string OllamaPersonaFileName = "SystemPrompt.Ollama.txt";
 
     private readonly IHostEnvironment _hostEnvironment;
     private readonly IMemoryCache _cache;
     private readonly ICampaignAgentTenantContextProvider _tenantContextProvider;
     private readonly IOptions<DataWarehouseProxyOptions> _dataWarehouseOptions;
     private readonly ILogger<CampaignAgentPromptComposer> _logger;
+    private readonly IConfiguration _configuration;
 
     public CampaignAgentPromptComposer(
         IHostEnvironment hostEnvironment,
         IMemoryCache cache,
         ICampaignAgentTenantContextProvider tenantContextProvider,
         IOptions<DataWarehouseProxyOptions> dataWarehouseOptions,
-        ILogger<CampaignAgentPromptComposer> logger)
+        ILogger<CampaignAgentPromptComposer> logger,
+        IConfiguration configuration)
     {
         _hostEnvironment = hostEnvironment;
         _cache = cache;
         _tenantContextProvider = tenantContextProvider;
         _dataWarehouseOptions = dataWarehouseOptions;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task<CampaignAgentLlmPromptContext> BuildAsync(
@@ -48,6 +53,12 @@ public class CampaignAgentPromptComposer : ICampaignAgentPromptComposer
         if (!CampaignWorkflowChecklist.IsBriefCaptured(workflowState))
             phase = CampaignWorkflowPhase.DataAnalysis;
         var persona = await GetCachedFileContentAsync(PersonaFileName, "persona", cancellationToken).ConfigureAwait(false);
+        if (CampaignAgentLlmProvider.Resolve(_configuration) == CampaignAgentLlmProviderKind.OpenAICompatible)
+        {
+            var ollama = await GetCachedFileContentAsync(OllamaPersonaFileName, "personaOllama", cancellationToken)
+                .ConfigureAwait(false);
+            persona += "\n\n" + ollama.Trim();
+        }
         var sharedTooling = await GetCachedFileContentAsync(
             CampaignWorkflowPhaseGovernanceFiles.SharedFileName,
             "sharedTooling",

@@ -1,3 +1,4 @@
+using Journeys.API.CampaignAgent;
 using Journeys.Core.Models;
 using Journeys.Core.Utility;
 using Journeys.Core.Workflow;
@@ -111,7 +112,8 @@ public static class CampaignWorkflowToolFilter
         if (dataWarehouseEnabled && CampaignWorkflowPhaseNames.IsDataWarehouseTool(name)) return true;
         if (!dataWarehouseEnabled && CampaignWorkflowPhaseNames.IsObjectiveProposalTool(name)) return true;
         if (CampaignWorkflowPhaseNames.BackendModelTools.Contains(name)
-            && !CampaignWorkflowPhaseNames.MutatingBackendTools.Contains(name))
+            && (!CampaignWorkflowPhaseNames.MutatingBackendTools.Contains(name)
+                || CampaignAgentBackendMcp.IsSaveModelToolName(name)))
             return true;
         return false;
     }

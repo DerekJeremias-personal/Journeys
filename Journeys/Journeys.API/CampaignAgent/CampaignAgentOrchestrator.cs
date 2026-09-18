@@ -604,6 +604,10 @@ public class CampaignAgentOrchestrator : ICampaignAgentOrchestrator
                     MaxOutputTokens = maxOut,
                     AllowMultipleToolCalls = allowMultiTool
                 };
+                OllamaToolRequire.Apply(
+                    chatTemplate,
+                    CampaignAgentLlmProvider.Resolve(_configuration),
+                    workflowState.Phase);
                 var mappedPrompt = _llmPromptChatMapper.Map(
                     promptContext.PromptPlan,
                     "CampaignAgent",

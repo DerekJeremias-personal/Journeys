@@ -268,6 +268,20 @@ public class CampaignAssistantContextServiceTests
         public Task<CampaignDto> UpsertCampaignAsync(string tenantId, CampaignDto campaign) =>
             throw new NotImplementedException();
 
+        public Task<CampaignDto> CopyCampaignAsync(
+            string tenantId,
+            string campaignId,
+            string status,
+            string? name = null,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task<CampaignDto> RestoreArchivedCampaignAsync(
+            string tenantId,
+            string campaignId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         public Task<CampaignValidationResultDto> ValidateCampaignAsync(
             string tenantId,
             CampaignDto campaign,

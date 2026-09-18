@@ -101,6 +101,20 @@ public class JourneysMcpToolsCampaignJsonTests
         public Task<CampaignDto> UpsertCampaignAsync(string tenantId, CampaignDto campaign) =>
             Task.FromResult(campaign);
 
+        public Task<CampaignDto> CopyCampaignAsync(
+            string tenantId,
+            string campaignId,
+            string status,
+            string? name = null,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task<CampaignDto> RestoreArchivedCampaignAsync(
+            string tenantId,
+            string campaignId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         public Task<CampaignDto> FetchCampaignAsync(string tenantId, string campaignId, string status) =>
             throw new NotImplementedException();
 

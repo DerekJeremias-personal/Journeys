@@ -6,9 +6,7 @@ namespace Journeys.Tests.CampaignAgent;
 
 public class BuildSubStepGovernanceResolverTests
 {
-    private static readonly string GovernanceDir = Path.GetFullPath(Path.Combine(
-        AppContext.BaseDirectory,
-        "..", "..", "..", "..", "Journeys.API", "CampaignAgent"));
+    private static readonly string GovernanceDir = JourneysApiContentPaths.CampaignAgentDir;
 
     [Fact]
     public void Extract_TierLadder_returns_marked_section_only()

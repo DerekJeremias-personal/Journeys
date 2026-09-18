@@ -1,6 +1,8 @@
 ---
 name: aidlc-journeys
-description: Bind AI-DLC construction in this repo to Journeys canon and agent-verify.
+description: >
+  Bind AI-DLC construction in this repo to Journeys canon, Linear-before-code,
+  and agent-verify. Superpowers → Classic takeover is journeys-plan-to-aidlc.
 ---
 
 # AI-DLC on Journeys
@@ -18,7 +20,9 @@ When `/aidlc` (or an AI-DLC construction stage) is running in `C:\Dev\Journeys\J
 Add `-RunTests` when tests or `Journeys.Tests` files changed. Exit 0 required. Non-zero means halt — do not open a PR.
 
 4. AWS/CDK/terraform suggestions are out of this tree (`docs/roadmap/non-goals.md`).
-5. Linear projection (Phase 2). Units are still the work source. Resolve the intent record as the directory under `aidlc/spaces/default/intents/` that contains `aidlc-state.md`. After `units-generation` completes, run:
+5. **Linear before product code (hard gate).** Units are the work source. Linear is the board. Resolve the intent record as the directory under `aidlc/spaces/default/intents/` that contains `aidlc-state.md`.
+
+After `units-generation` is fully complete, and **before** calling `next` toward construction, run:
 
 ```powershell
 .\scripts\linear-aidlc-projection.ps1 -Action upsert -IntentRecordDir "<record>"
@@ -30,14 +34,16 @@ If that exits non-zero with `would create N Linear issues`, halt and show the hu
 .\scripts\linear-aidlc-projection.ps1 -Action upsert -IntentRecordDir "<record>" -ApproveCreate N
 ```
 
-`maxCreate` in `linear-projection.yaml` is a hard ceiling (default 25). Do not raise it without asking.
+`maxCreate` in `linear-projection.yaml` is a hard ceiling (default 25). Do not raise it without asking. Wait until the human says the Linear board is ready (they may edit titles/AC).
 
-Before the first construction unit claim, run:
+Before the first construction unit claim, and before **code-generation** or any `Journeys.*` / `Journeys.UX` edit:
 
 ```powershell
 .\scripts\linear-aidlc-projection.ps1 -Action pull-back -IntentRecordDir "<record>"
 ```
 
-Non-zero exit means halt. Do not claim a unit. After `aidlc-unit claim` (or equivalent), run `-Action claim -Unit <name>`. During construction, throttle `-Action comment`. When the unit passes `aidlc-agent-verify-sensor.ps1` and a commit SHA exists, run `-Action complete`. Read `<record>/inception/units-generation/unit-linear-copy/<unit>.md` when present — that text is post-review canon for AC.
+Non-zero exit means halt. Do not claim a unit. Do not write product code. If any unit lacks an `issueId` in `linear-map.yaml`, fail closed.
+
+After `aidlc-unit claim` (or equivalent), run `-Action claim -Unit <name>`. During construction, throttle `-Action comment`. When the unit passes `aidlc-agent-verify-sensor.ps1` and a commit SHA exists, run `-Action complete`. Read `<record>/inception/units-generation/unit-linear-copy/<unit>.md` when present — that text is post-review canon for AC.
 
 Do not `list_issues` to pick work. Do not start Linear Agent coding sessions.

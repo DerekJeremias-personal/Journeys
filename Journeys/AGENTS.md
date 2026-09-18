@@ -58,8 +58,8 @@ Product meaning lives in `docs/product/graph/*.yaml` (canon). Neo4j is a future 
 
 Planning and execution are split. Do not skip either for non-trivial work.
 
-1. **Plan** with `/brainstorming` (then a spec under `docs/specs/` and a plan under `docs/plans/`). Human approves before code.
-2. **Execute** with `/aidlc classic` in this folder (brownfield). AI-DLC owns stage order, gates, and audit. Product meaning stays in `docs/product/` — not under `aidlc/`.
+1. **Plan** with `/brainstorming` (then a spec under `docs/specs/` and a plan under `docs/plans/`). Human approves before code. Superpowers `writing-plans` SDD header is void here — see `.agents/skills/journeys-plan-to-aidlc/SKILL.md`.
+2. **Execute** when the human says `execute` plus an intent name. `.agents/skills/journeys-plan-to-aidlc` starts `/aidlc classic` in this chat (brownfield; spec + plan ingested). AI-DLC owns stage order, gates, and audit. Product meaning stays in `docs/product/` — not under `aidlc/`. Do not run Superpowers SDD. Linear unit issues land before any `Journeys.*` code.
 3. **Reviewers** are the shipped ensemble: `architecture-reviewer`, `product-lead`, plus `quality` and `devsecops` on the stages that already dispatch them. Required receipts must pass before the stage exits. Do not cap review at `none` for production changes.
 4. **Verify** before a Construction stage is done: `.\scripts\agent-verify.ps1` (or `.\scripts\aidlc-agent-verify-sensor.ps1` when that wrapper exists). Non-zero exit means halt.
 5. **Merge** is human-only.

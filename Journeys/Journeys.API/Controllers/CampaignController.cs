@@ -1,10 +1,12 @@
 using Journeys.Core.Interfaces.Services;
 using Journeys.Core.Models;
+using Journeys.Core.Services;
 using Journeys.DTO.Exceptions;
 using Journeys.DTO.Models;
 using Journeys.DTO.Requests;
 using Journeys.DTO.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 
 namespace Journeys.API.Controllers
@@ -236,6 +238,139 @@ namespace Journeys.API.Controllers
                 _logger.LogError(ex, "Unexpected error saving campaign {CampaignId} (ExtCampaignId: {ExtCampaignId}) for tenant {TenantId}", 
                     req.Id, req.ExtCampaignId, tenantId);
                 return StatusCode(500, new { error = "An unexpected error occurred while saving the campaign." });
+            }
+        }
+
+        [HttpPost("{tenantId}/{campaignId}/copy")]
+        public async Task<ActionResult<CampaignDto>> CopyCampaignAsync(
+            string tenantId,
+            string campaignId,
+            [FromQuery] string status,
+            [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CopyCampaignRequest? request = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(tenantId))
+                return BadRequest(new { error = "Tenant ID is required.", tenantId });
+
+            if (string.IsNullOrWhiteSpace(campaignId))
+                return BadRequest(new { error = "Campaign ID is required.", campaignId });
+
+            if (string.IsNullOrWhiteSpace(status))
+                return BadRequest(new { error = "Campaign status is required.", status });
+
+            try
+            {
+                CampaignShellValidator.ValidateStatus(status);
+
+                _logger.LogInformation(
+                    "Copy campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "copy");
+
+                var copy = await _campaignService.CopyCampaignAsync(
+                    tenantId,
+                    campaignId,
+                    status,
+                    request?.Name,
+                    cancellationToken);
+                if (copy == null)
+                {
+                    return NotFound(new
+                    {
+                        error = $"Campaign with ID '{campaignId}' and status '{status}' not found.",
+                        tenantId,
+                        campaignId,
+                        status
+                    });
+                }
+
+                return Ok(copy);
+            }
+            catch (APIErrorsException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Validation error copying campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "copy");
+                return BadRequest(new { errors = ex.Errors });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error copying campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "copy");
+                return StatusCode(500, new { error = "An unexpected error occurred while copying the campaign." });
+            }
+        }
+
+        [HttpPost("{tenantId}/{campaignId}/restore")]
+        public async Task<ActionResult<CampaignDto>> RestoreArchivedCampaignAsync(
+            string tenantId,
+            string campaignId,
+            [FromQuery] string status,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(tenantId))
+                return BadRequest(new { error = "Tenant ID is required.", tenantId });
+
+            if (string.IsNullOrWhiteSpace(campaignId))
+                return BadRequest(new { error = "Campaign ID is required.", campaignId });
+
+            try
+            {
+                CampaignShellValidator.ValidateStatus(status);
+
+                if (!CampaignStatusStrings.Archive.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { error = "Campaign status must be archive.", status });
+
+                _logger.LogInformation(
+                    "Restore campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "restore");
+
+                var restored = await _campaignService.RestoreArchivedCampaignAsync(
+                    tenantId,
+                    campaignId,
+                    cancellationToken);
+                if (restored == null)
+                {
+                    return NotFound(new
+                    {
+                        error = $"Archived campaign with ID '{campaignId}' not found.",
+                        tenantId,
+                        campaignId,
+                        status
+                    });
+                }
+
+                return Ok(restored);
+            }
+            catch (APIErrorsException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Validation error restoring campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "restore");
+                return BadRequest(new { errors = ex.Errors });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error restoring campaign {CampaignId} for tenant {TenantId}; action {Action}",
+                    campaignId,
+                    tenantId,
+                    "restore");
+                return StatusCode(500, new { error = "An unexpected error occurred while restoring the campaign." });
             }
         }
 

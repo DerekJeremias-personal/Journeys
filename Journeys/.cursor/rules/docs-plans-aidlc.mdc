@@ -1,0 +1,15 @@
+---
+description: Implementation plans hand off to /aidlc classic, not Superpowers SDD
+globs: docs/plans/**/*.md,docs/specs/**/*.md
+---
+
+# Plans execute in AI-DLC
+
+`docs/plans/` (and approved `docs/specs/`) is the construction input for `/aidlc classic`, not a Superpowers SDD queue.
+
+When creating or editing a plan or spec in these folders:
+
+- Do **not** use the Superpowers header that requires `subagent-driven-development` or `executing-plans`.
+- Use the Execution header in `.agents/skills/journeys-plan-to-aidlc/SKILL.md`.
+- After human approval, wait for `execute` plus an intent name, then that skill starts Classic in this chat (preflight first). Do not print a paste block and stop.
+- Do not implement product code from Superpowers SDD. Linear unit issues land before any `Journeys.*` write.

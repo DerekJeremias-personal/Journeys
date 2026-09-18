@@ -1,0 +1,389 @@
+﻿# Review package: Task 7 archive + versions (uncommitted)
+
+## Stat
+
+ Journeys/docs/developer/journeys-ux.md | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+## Untracked
+
+Journeys/Journeys.UX/src/app/loyalty/campaigns/archived/page.tsx
+Journeys/Journeys.UX/src/app/loyalty/campaigns/versions/[extCampaignId]/page.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaigns/archived-campaigns-client.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaigns/campaign-versions-client.tsx
+Journeys/Journeys.UX/src/components/loyalty/campaigns/index.ts
+Journeys/Journeys.UX/src/lib/campaign-restore-action.test.ts
+Journeys/Journeys.UX/src/lib/campaign-restore-action.ts
+Journeys/docs/product/graph/waivers/2026-09-18-campaigns-archived-versions.md
+
+## Diff (tracked)
+
+diff --git a/Journeys/docs/developer/journeys-ux.md b/Journeys/docs/developer/journeys-ux.md
+index 6f2f87c..b90817d 100644
+--- a/Journeys/docs/developer/journeys-ux.md
++++ b/Journeys/docs/developer/journeys-ux.md
+@@ -19,15 +19,40 @@ If swagger on `https://localhost:7001` itself times out, the API process is list
+ 
+ `src/services/loyalty/actions.ts` is a `"use server"` module: export only async functions. Schema name constants live in `src/services/loyalty/schema-names.ts`.
+ 
+ Each Loyalty screen owns its Backend model. Do not send `modelId: "unknown"`.
+ 
+ | Screen | What the UX sends | Where the Backend model id comes from |
+ |--------|-------------------|----------------------------------------|
+ | **Campaigns** | `POST campaigns/{tenant}/getall` with page size only | `CampaignAdapter` constant `CAMPAIGN_MODEL_ID` `eeae67ca-7bf9-4d2b-9131-83717b219a3a` (platform campaign container). Model type is always `loyalty`. |
+ | **Accounts** | `POST events/{tenant}/LoyaltyAccountDetails/admin/query` | Screen name `LoyaltyAccountDetails` (customer event model). `EventService` loads that schema from the tenant catalog, then queries the **wrapper** model GUID from its `Wrapper` metadata. The loyalty-account container GUID `e2cc2404-c60b-4cbc-9f50-6db7ee58e01d` is used by DAL account adapters, not this list. |
+ 
++## Agent
++
++Unlabeled chat at `/loyalty/campaigns/agent` (link from Campaigns). Browser POSTs to Next `/api/loyalty/campaign-agent/messages/stream`; the server forwards to `POST /api/v1/{tenantId}/campaign-agent/messages/stream`. Secrets stay on the Next server. LLM provider is API startup config (`docs/developer/campaign-agent-llm.md`), not a UX control.
++
++Live smoke: API + Ollama tray ΓåÆ sign in ΓåÆ Campaigns ΓåÆ Agent ΓåÆ one turn with streamed assistant text and at least one successful MCP tool. Not required: Draft upsert or Live publish.
++
++The composer is a textarea with **Send** under it. **Enter** sends; **Shift+Enter** inserts a newline. After `started`, the conversation id is labeled **Conversation**, shown in monospace, with a copy icon.
++
++Turns persist as Backend model `AgentMessage` (`12f6e8d4-5b3a-491c-9f2e-8a7d6c5b4a31`, type `loyalty`, partition `owneruserid` + `conversationid`). If that container is missing for the tenant, the API fails at load history with a generic Backend 500 (`An unexpected error occurred`). Create it via Backend `POST /api/{tenantId}/Model/save` (local `TestTenant1` already has it).
++
+ Catalog list (`/model/all`) sends `modelType: loyalty` and **omits** `ModelId`. Entity routes require a real GUID and never coalesce a missing id to `"unknown"`. After C# adapter changes, **restart `Journeys.API`** in Visual Studio.
+ 
+ ## This specΓÇÖs screens
+ 
+-Overview, Accounts table, Campaigns list. Other Loyalty nav items are disabled on purpose.
++Overview, Accounts table, and Campaigns IA (`docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md`). Other Loyalty nav items may still be disabled.
++
++Campaigns routes (HTTP-only to `Journeys.API`):
++
++| Href | Role |
++|------|------|
++| `/loyalty/campaigns` | Cards + kebab + New + Archived + resume agent |
++| `/loyalty/campaigns/new` | Journey Builder + `AgentChat` rail |
++| `/loyalty/campaigns/archived` | Archived list + restore (POST restore, not save-as-draft) |
++| `/loyalty/campaigns/versions/[extCampaignId]` | Version history for a program identity |
++
++`/new` is the EXP progressive Journey Builder (stations, review modals, health sidebar, welcome canvas) with an unlabeled Agent rail. Title is page text plus `CampaignJsonDisclosure` inside `AgentChat` when a campaign id is linked ΓÇö no second JSON inspector. Discovered ids `GET` Draft and hydrate; dirty local work shows keep-local / apply-Agent and never silent-overwrite. Save/create-empty persist through `updateCampaign` (no EXP create composite). The wizard edit page (`/[id]`) is unchanged.
++| `/loyalty/campaigns/[id]?campaignStatus=` | **Wizard edit**. Query is required to fetch the status partition |
++| `/loyalty/campaigns/[id]/agent` | Live-only agent rail |
++
++Wizard Live-edit does not upsert the Live journey in place. If a Draft already exists for that `extCampaignId`, the wizard edits the Draft id. If not, save POSTs a **new** id (omit `id`) with the **same** `extCampaignId` and `status: draft`. Unpublish is Pause, not LiveΓåÆDraft on the same id.
+
+## Untracked contents
+
+
+===== BEGIN Journeys/Journeys.UX/src/app/loyalty/campaigns/archived/page.tsx =====
+
+import Link from "next/link";
+
+import { ArchivedCampaignsClient } from "@/components/loyalty/campaigns/archived-campaigns-client";
+
+export default function ArchivedCampaignsPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Link className="text-sm text-muted-foreground hover:text-foreground" href="/loyalty/campaigns">
+          â† Campaigns
+        </Link>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Archived campaigns</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Restore creates a new draft with the same program identity. Archive rows stay unchanged.
+        </p>
+      </div>
+      <ArchivedCampaignsClient />
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/app/loyalty/campaigns/versions/[extCampaignId]/page.tsx =====
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaigns/archived-campaigns-client.tsx =====
+
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { toast } from "react-hot-toast";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { restoreArchived } from "@/lib/campaign-restore-action";
+import type { Campaign } from "@/lib/campaign-types";
+import { getArchivedCampaigns, restoreCampaign, updateCampaign } from "@/services/loyalty/actions";
+import { loyaltyKeys } from "@/services/loyalty/query-keys";
+
+import { CampaignCard, type CampaignAction } from "./campaign-card";
+
+function archivedSortTime(campaign: Campaign): number {
+  const archivedDate = typeof campaign.archivedDate === "string" ? campaign.archivedDate : undefined;
+  return new Date(archivedDate ?? campaign.endDate ?? campaign.startDate ?? 0).getTime();
+}
+
+export function ArchivedCampaignsClient() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const archivedQuery = useQuery({
+    queryKey: loyaltyKeys.campaigns.archived(),
+    queryFn: async () => {
+      const result = await getArchivedCampaigns();
+      if (!result.success) throw new Error(result.error ?? "Failed to load archived campaigns");
+      return (result.data ?? []) as Campaign[];
+    }
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (campaign: Campaign) => {
+      if (!campaign.id) throw new Error("Campaign id missing");
+      const result = await restoreArchived({
+        id: campaign.id,
+        restoreCampaign,
+        updateCampaign: (campaignToSave) =>
+          updateCampaign(campaignToSave as Campaign)
+      });
+      if (!result.success) throw new Error(result.error ?? "Failed to restore campaign");
+      return result;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: loyaltyKeys.campaigns.all });
+      void queryClient.invalidateQueries({ queryKey: loyaltyKeys.campaigns.archived() });
+      toast.success("Campaign restored to draft");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    }
+  });
+
+  const campaigns = useMemo(() => {
+    return [...(archivedQuery.data ?? [])].sort(
+      (left, right) => archivedSortTime(right) - archivedSortTime(left)
+    );
+  }, [archivedQuery.data]);
+
+  const handleAction = (action: CampaignAction, campaign: Campaign) => {
+    if (action === "restore") {
+      restoreMutation.mutate(campaign);
+      return;
+    }
+    if (action === "versions") {
+      if (!campaign.extCampaignId) {
+        toast.error("Campaign has no external id for version history.");
+        return;
+      }
+      router.push(`/loyalty/campaigns/versions/${encodeURIComponent(campaign.extCampaignId)}`);
+    }
+  };
+
+  if (archivedQuery.isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Card key={index}>
+            <CardContent className="h-40 p-6">
+              <Skeleton className="h-full w-full" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (archivedQuery.error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{(archivedQuery.error as Error).message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Archived campaigns can be restored to draft or inspected via version history.
+        </p>
+        <Button asChild variant="outline">
+          <Link href="/loyalty/campaigns">Back to campaigns</Link>
+        </Button>
+      </div>
+      {campaigns.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            No archived campaigns found.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {campaigns.map((campaign, index) => (
+            <CampaignCard
+              key={campaign.id ?? campaign.extCampaignId ?? campaign.name ?? index}
+              campaign={campaign}
+              onAction={handleAction}
+              detailHref={
+                campaign.id
+                  ? `/loyalty/campaigns/${campaign.id}?campaignStatus=${encodeURIComponent(campaign.status ?? "archive")}`
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaigns/campaign-versions-client.tsx =====
+
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useMemo } from "react";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Campaign } from "@/lib/campaign-types";
+import { getCampaignVersions } from "@/services/loyalty/actions";
+import { loyaltyKeys } from "@/services/loyalty/query-keys";
+
+export interface CampaignVersionsClientProps {
+  extCampaignId: string;
+}
+
+export function CampaignVersionsClient({ extCampaignId }: CampaignVersionsClientProps) {
+  const versionsQuery = useQuery({
+    queryKey: loyaltyKeys.campaigns.versions(extCampaignId),
+    queryFn: async () => {
+      const result = await getCampaignVersions(extCampaignId);
+      if (!result.success) throw new Error(result.error ?? "Failed to load campaign versions");
+      return (result.data ?? []) as Campaign[];
+    }
+  });
+
+  const versions = useMemo(() => {
+    return [...(versionsQuery.data ?? [])].sort((left, right) => {
+      const leftTime = new Date(left.startDate ?? 0).getTime();
+      const rightTime = new Date(right.startDate ?? 0).getTime();
+      return rightTime - leftTime;
+    });
+  }, [versionsQuery.data]);
+
+  if (versionsQuery.isLoading) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Skeleton key={index} className="h-16 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (versionsQuery.error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{(versionsQuery.error as Error).message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Version history for external campaign id: {extCampaignId}
+        </p>
+        <Button asChild variant="outline">
+          <Link href="/loyalty/campaigns">Back to campaigns</Link>
+        </Button>
+      </div>
+
+      {versions.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            No versions found.
+          </CardContent>
+        </Card>
+      ) : (
+        <ul className="space-y-2">
+          {versions.map((campaign, index) => (
+            <li key={campaign.id ?? `${campaign.extCampaignId}-${index}`} className="rounded-md border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{campaign.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Status: {campaign.status} Â· Start:{" "}
+                    {campaign.startDate ? new Date(campaign.startDate).toLocaleDateString() : "â€”"}
+                  </p>
+                </div>
+                {campaign.id ? (
+                  <Button asChild size="sm" variant="ghost">
+                    <Link
+                      href={`/loyalty/campaigns/${campaign.id}?campaignStatus=${encodeURIComponent(campaign.status ?? "")}`}
+                    >
+                      Open
+                    </Link>
+                  </Button>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+
+===== BEGIN Journeys/Journeys.UX/src/components/loyalty/campaigns/index.ts =====
+
+export { CampaignsClient } from "./campaigns-client";
+export { ArchivedCampaignsClient } from "./archived-campaigns-client";
+export { CampaignVersionsClient } from "./campaign-versions-client";
+export { CampaignCard, type CampaignAction, type CampaignCardProps } from "./campaign-card";
+export {
+  CampaignFilters,
+  EMPTY_CAMPAIGN_FILTERS,
+  type CampaignFiltersProps,
+  type CampaignFiltersValue
+} from "./campaign-filters";
+
+
+===== BEGIN Journeys/Journeys.UX/src/lib/campaign-restore-action.test.ts =====
+
+import { describe, expect, it, vi } from "vitest";
+import { restoreArchived } from "./campaign-restore-action";
+
+describe("restoreArchived", () => {
+  it("calls restore endpoint not save-as-draft", async () => {
+    const restoreCampaign = vi.fn(async () => ({ success: true, timestamp: "" }));
+    const updateCampaign = vi.fn();
+    await restoreArchived({ id: "a1", restoreCampaign, updateCampaign });
+    expect(restoreCampaign).toHaveBeenCalledWith("a1");
+    expect(updateCampaign).not.toHaveBeenCalled();
+  });
+});
+
+
+===== BEGIN Journeys/Journeys.UX/src/lib/campaign-restore-action.ts =====
+
+export async function restoreArchived(args: {
+  id: string;
+  restoreCampaign: (id: string) => Promise<{ success: boolean; error?: string }>;
+  updateCampaign: (c: unknown) => Promise<unknown>;
+}) {
+  return args.restoreCampaign(args.id);
+}
+
+
+===== BEGIN Journeys/docs/product/graph/waivers/2026-09-18-campaigns-archived-versions.md =====
+
+# Waiver: Campaigns IA archived + versions
+
+**Reason:** Task 7 lifts EXP archived list and version history onto `/loyalty/campaigns/archived` and `/loyalty/campaigns/versions/[extCampaignId]`. Restore uses the existing Campaign restore HTTP endpoint (new Draft, same `ExtCampaignId`; archive row unchanged). No new capability, ontology term, or graph edge.
+
+**Nodes touched by path-map (no meaning change):** `campaigns`.
+

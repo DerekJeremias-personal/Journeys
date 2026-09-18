@@ -18,6 +18,16 @@ namespace Journeys.Core.Interfaces.Services
         Task<PagedResultSetResponse<CampaignDto>> GetAllCampaignsAsync(string tenantId, int pageSize, string continutationToken = null);
 
         Task<CampaignDto> UpsertCampaignAsync(string tenantId, CampaignDto campaign);
+        Task<CampaignDto> CopyCampaignAsync(
+            string tenantId,
+            string campaignId,
+            string status,
+            string? name = null,
+            CancellationToken cancellationToken = default);
+        Task<CampaignDto> RestoreArchivedCampaignAsync(
+            string tenantId,
+            string campaignId,
+            CancellationToken cancellationToken = default);
         Task<CampaignValidationResultDto> ValidateCampaignAsync(
             string tenantId,
             CampaignDto campaign,

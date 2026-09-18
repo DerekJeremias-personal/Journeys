@@ -12,4 +12,6 @@ dotnet test .\Journeys.Tests\Journeys.Tests.csproj
 
 `Infra/BackendModelIdTests.cs` asserts entity/catalog JSON never emits `modelId` `"unknown"` and that catalog list bodies send `modelType: loyalty` without a model id.
 
+`Infra.Llm/OpenAICompatibleConnectRetryChatClientTests.cs` covers connect-error retry (including streaming before the first update) and no retry for HTTP 4xx or InvalidResponse/5xx. `OpenAICompatibleLlmChatClientFactoryTests.cs` stays offline.
+
 Wrapper persist tests in `Utility/WrappedEventPayloadPersistTests.cs` assert canonical lowercase JSON symbols, nested engine-state names (`nodememberships`), and that empty list properties are omitted.

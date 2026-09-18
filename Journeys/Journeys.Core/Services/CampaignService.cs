@@ -179,6 +179,52 @@ namespace Journeys.Core.Services
             return campaign;
         }
 
+        public async Task<CampaignDto> CopyCampaignAsync(
+            string tenantId,
+            string campaignId,
+            string status,
+            string? name = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var source = await FetchCampaignAsync(tenantId, campaignId, status).ConfigureAwait(false);
+            if (source == null)
+                return null;
+
+            var copy = CampaignCopyFactory.ForNewProgram(source, name);
+            return await UpsertCampaignAsync(tenantId, copy).ConfigureAwait(false);
+        }
+
+        public async Task<CampaignDto> RestoreArchivedCampaignAsync(
+            string tenantId,
+            string campaignId,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var archive = await FetchCampaignAsync(
+                    tenantId,
+                    campaignId,
+                    CampaignStatusStrings.Archive.ToLowerInvariant())
+                .ConfigureAwait(false);
+            if (archive == null)
+                return null;
+
+            var draft = await GetDraftCampaignByExtIdAsync(tenantId, archive.ExtCampaignId)
+                .ConfigureAwait(false);
+            if (draft != null)
+            {
+                throw new APIErrorsException(new Dictionary<string, string>
+                {
+                    ["extCampaignId"] = "A draft already exists for this program."
+                });
+            }
+
+            var restored = CampaignCopyFactory.ForRestoreFromArchive(archive);
+            return await UpsertCampaignAsync(tenantId, restored).ConfigureAwait(false);
+        }
+
         public async Task DeleteCampaignAsync(string tenantId, string campaignId, string status)
         {
             CampaignDto campaign = null;

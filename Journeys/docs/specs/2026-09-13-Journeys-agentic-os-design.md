@@ -228,8 +228,11 @@ If the installer would overwrite a Journeys-owned rule, stop and fix the install
 ### 5.3 Data flow
 
 ```
-Human: /aidlc classic <intent>
-  → AI-DLC engine (stage route, gates, audit under aidlc/spaces/…/intents/)
+Human: /brainstorming → spec (`docs/specs/`) + plan (`docs/plans/`) — Superpowers writing-plans; Journeys plan header (not SDD)
+Human: execute + intent name (same chat; journeys-plan-to-aidlc starts classic)
+  → AI-DLC engine (init + inception; ingest spec/plan; units-generation)
+  → Linear upsert / ApproveCreate / pull-back (before any Journeys.* code)
+  → AI-DLC construction (stage route, gates, audit under aidlc/spaces/…/intents/)
   → Conductor + personas read project.md + docs/product/
   → Code edits in Journeys.* 
   → Sensor: agent-verify (docs-impact, graph-impact, build, tests if required)

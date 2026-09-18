@@ -4,8 +4,6 @@ using Journeys.API.Configuration;
 using Journeys.API.Examples;
 using Journeys.API.Mcp;
 using Journeys.Core.Interfaces.Services;
-using Backend.Core.Llm;
-using Backend.Llm.Anthropic;
 using Journeys.API.Middleware;
 using Journeys.Core.Configuration;
 using System.Text.Json.Serialization;
@@ -220,14 +218,7 @@ builder.Services.AddHealthChecks()
         tags: new[] { "ready", "campaign_agent" });
 builder.Services.AddHostedService<CampaignAgentMcpStartupValidationHostedService>();
 
-builder.Services.AddSingleton(sp =>
-    new AnthropicLlmChatClientFactory(
-        sp.GetRequiredService<IConfiguration>(),
-        "CampaignAgent",
-        sp.GetService<ILogger<AnthropicLlmChatClientFactory>>()));
-builder.Services.AddSingleton<ILlmChatClientFactory>(sp =>
-    sp.GetRequiredService<AnthropicLlmChatClientFactory>());
-builder.Services.AddSingleton<ILlmPromptChatMapper, AnthropicLlmPromptChatMapper>();
+builder.Services.AddCampaignAgentLlm(builder.Configuration);
 builder.Services.AddScoped<ICampaignAgentOrchestrator, CampaignAgentOrchestrator>();
 builder.Services.AddScoped<ICampaignAgentDataClearService, CampaignAgentDataClearService>();
 

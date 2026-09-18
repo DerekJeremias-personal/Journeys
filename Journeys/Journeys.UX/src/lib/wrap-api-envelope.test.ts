@@ -20,6 +20,12 @@ describe("wrapApiEnvelope", () => {
     expect(r.error).toBe("nope");
   });
 
+  it("maps HTTP error JSON errors object", () => {
+    const r = wrapApiEnvelope(400, JSON.stringify({ errors: { status: "Cannot update Live" } }));
+    expect(r.success).toBe(false);
+    expect(r.error).toBe("Cannot update Live");
+  });
+
   it("maps non-JSON error body to a short error", () => {
     const r = wrapApiEnvelope(500, "<html>fail</html>");
     expect(r.success).toBe(false);

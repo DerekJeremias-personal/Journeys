@@ -15,6 +15,8 @@ Allowed values: `CampaignStatusStrings` (`Live`, `Draft`, `Archive`, `Pause`). P
 | **Archive** | Retired version. Immutable. Live is not deleted; it is moved here. |
 | **Pause** | Live document moved to the Pause partition (also implemented; do not invent another paused state). |
 
+**Copy** (`CampaignService.CopyCampaignAsync`) is a **new program**: new Draft, new `Id`, **new** `ExtCampaignId`, name `{source.Name} Copy` unless overridden. **Restore** from Archive (`RestoreArchivedCampaignAsync`) is a new Draft, new `Id`, **same** `ExtCampaignId`; the Archive row is unchanged. Restore fails if a Draft already exists for that ext id. UX **Unpublish** is Pause on the same Live id — not Live → Draft.
+
 **Promote Draft → Live** is an explicit, gated operation — not a side effect of a chat turn (`LivePromotionGuard`: user must approve; verify Draft with `process_event(campaignId)` first). On promote, if another Live already exists for that `ExtCampaignId`, that Live is **archived** (partition move), then the Draft **moves** into the Live partition (`DeployedDate` set). First-time create-as-Live is allowed.
 
 ## Governance for agents

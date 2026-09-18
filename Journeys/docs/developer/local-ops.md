@@ -39,3 +39,7 @@ The AI-DLC Linear board adapter reads `LINEAR_API_KEY` from the environment (not
 ## Journeys.UX
 
 See [journeys-ux.md](journeys-ux.md) for how to run the Loyalty admin Next app.
+
+## Campaign Agent LLM
+
+See [campaign-agent-llm.md](campaign-agent-llm.md).

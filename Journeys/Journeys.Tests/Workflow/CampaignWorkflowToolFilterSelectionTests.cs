@@ -16,7 +16,7 @@ public class CampaignWorkflowToolFilterSelectionTests
     };
 
     [Fact]
-    public void EventModelSelection_gate_exposes_readonly_backend_tools_and_hides_SaveModel()
+    public void EventModelSelection_pre_brief_allows_SaveModel_hides_UpsertCampaign()
     {
         var state = CampaignWorkflowState.CreateDefault("t", "u", "c");
         state.Phase = CampaignWorkflowPhase.EventModels;
@@ -27,7 +27,7 @@ public class CampaignWorkflowToolFilterSelectionTests
         Assert.Contains("GetModel", filtered);
         Assert.Contains("GetAllModels", filtered);
         Assert.Contains("ListModels", filtered);
-        Assert.DoesNotContain("SaveModel", filtered);
+        Assert.Contains("SaveModel", filtered);
         Assert.DoesNotContain("UpsertCampaign", filtered);
     }
 

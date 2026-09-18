@@ -1,9 +1,15 @@
 entries:
+  - prefix: Journeys.Infra.Llm
+    docs:
+      - docs/developer/campaign-agent-llm.md
+      - docs/platform/architecture.md
+      - docs/platform/overlays.md
   - prefix: Journeys.UX
     docs:
       - docs/developer/journeys-ux.md
       - docs/platform/architecture.md
       - docs/platform/overlays.md
+      - docs/product/ontology/loyalty-account.md
   - prefix: Journeys.Core/RulesEngine/Outcomes
     docs: [docs/platform/architecture.md, docs/product/ontology/outcome.md]
   - prefix: Journeys.Core/RulesEngine/Journey
@@ -17,7 +23,7 @@ entries:
   - prefix: Journeys.Core/Services/EventService
     docs: [docs/platform/architecture.md, docs/product/ontology/event-model.md, docs/product/ontology/campaign.md]
   - prefix: Journeys.API/CampaignAgent
-    docs: [docs/platform/architecture.md, docs/developer/tools.md, docs/product/ontology/draft-live.md]
+    docs: [docs/platform/architecture.md, docs/developer/tools.md, docs/developer/campaign-agent-llm.md, docs/product/ontology/draft-live.md]
   - prefix: Journeys.API/Mcp
     docs: [docs/platform/architecture.md, docs/developer/index.md]
   - prefix: Journeys.API

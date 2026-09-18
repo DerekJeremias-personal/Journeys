@@ -18,13 +18,19 @@ public class CampaignWorkflowToolFilterTests
             Tool("GetProgramPerformanceSummary"),
             Tool("ListCampaigns"),
             Tool("UpsertCampaign"),
-            Tool("SaveModel")
+            Tool("UpsertPointAccountType"),
+            Tool("SaveModel"),
+            Tool("save_model"),
+            Tool("DeleteModel")
         };
         var filtered = CampaignWorkflowToolFilter.Apply(tools, state, dataWarehouseEnabled: true);
         Assert.Contains(filtered, t => t.Name == "GetProgramPerformanceSummary");
         Assert.Contains(filtered, t => t.Name == "ListCampaigns");
+        Assert.Contains(filtered, t => t.Name == "SaveModel");
+        Assert.Contains(filtered, t => t.Name == "save_model");
         Assert.DoesNotContain(filtered, t => t.Name == "UpsertCampaign");
-        Assert.DoesNotContain(filtered, t => t.Name == "SaveModel");
+        Assert.DoesNotContain(filtered, t => t.Name == "UpsertPointAccountType");
+        Assert.DoesNotContain(filtered, t => t.Name == "DeleteModel");
     }
 
     [Fact]

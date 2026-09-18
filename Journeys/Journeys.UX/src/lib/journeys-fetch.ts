@@ -11,9 +11,18 @@ export type JourneysSession = {
   apiKey?: string;
 };
 
+export type AdminAuditHeader = {
+  loyaltyMemberId: string;
+  actionType: string;
+  action: string;
+  comment?: string;
+};
+
 export type JourneysFetchOptions = {
   method?: string;
   body?: unknown;
+  searchParams?: Record<string, string | undefined>;
+  audit?: AdminAuditHeader;
 };
 
 export type JourneysFetchDeps = {
@@ -29,7 +38,7 @@ export async function journeysFetch<T>(
 ): Promise<ApiResponse<T>> {
   const timestamp = new Date().toISOString();
   const resolved: JourneysFetchDeps = deps ?? {
-    getSession: defaultGetSession,
+    getSession: getJourneysSession,
     fetch,
     apiBaseUrl: process.env.JOURNEYS_API_BASE_URL ?? ""
   };
@@ -53,6 +62,12 @@ export async function journeysFetch<T>(
     const message = e instanceof Error ? e.message : String(e);
     return { success: false, error: message, timestamp };
   }
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(options.searchParams ?? {})) {
+    if (value) searchParams.set(key, value);
+  }
+  const query = searchParams.toString();
+  if (query) apiPath += `?${query}`;
 
   const headers: Record<string, string> = { Accept: "application/json", "Content-Type": "application/json" };
   if (session.accessToken) {
@@ -61,6 +76,16 @@ export async function journeysFetch<T>(
     headers["Journeys-API-KEY"] = session.apiKey;
   } else {
     return { success: false, error: "No credentials in session", timestamp };
+  }
+
+  if (options.audit) {
+    headers["X-Journeys-Audit"] = JSON.stringify({
+      loyaltyMemberId: options.audit.loyaltyMemberId,
+      adminUserId: session.userId,
+      actionType: options.audit.actionType,
+      action: options.audit.action,
+      comment: options.audit.comment ?? ""
+    });
   }
 
   const method = options.method ?? "GET";
@@ -79,7 +104,7 @@ export async function journeysFetch<T>(
   }
 }
 
-async function defaultGetSession(): Promise<JourneysSession | null> {
+export async function getJourneysSession(): Promise<JourneysSession | null> {
   const { auth } = await import("@/auth");
   const s = await auth();
   if (!s?.user?.id) return null;

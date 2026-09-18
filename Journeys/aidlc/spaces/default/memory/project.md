@@ -14,8 +14,8 @@
 - Session reading order is `AGENTS.md`, then `docs/product/`, then platform, then path rules, then specs/plans.
 - Product meaning lives in `docs/product/`. `aidlc/` is execution state only. Do not create a second graph.
 - Do not invent capability ids.
-- Plan non-trivial work with `/brainstorming` (spec + plan). Execute with `/aidlc classic`. Humans approve non-trivial design, merge, and release. Agents never merge to `main`.
-- Start `/aidlc classic` in a **new** Cursor chat. First message: approved spec path + plan path + intent name. Do not paste prior chat transcripts. Do not also run Superpowers subagent-driven-development / executing-plans in that construction — AI-DLC owns stages, reviewers, and audit.
+- Plan non-trivial work with `/brainstorming` (spec + plan). Superpowers `writing-plans` SDD header is void; use `.agents/skills/journeys-plan-to-aidlc/SKILL.md`. Execute with `/aidlc classic`. Humans approve non-trivial design, merge, and release. Agents never merge to `main`.
+- After spec/plan approval, the human says `execute` plus an intent name. `.agents/skills/journeys-plan-to-aidlc` starts `/aidlc classic` in this chat (preflight; ingest spec/plan; do not re-brainstorm). Do not run Superpowers subagent-driven-development / executing-plans. Linear unit issues land before any `Journeys.*` code. If another intent is already active, ask; `--new-intent` may require a fresh chat.
 - One intent per workflow. Load `AGENTS.md` plus the product/platform **slice** for the change, not the whole tree. Prefer `/aidlc compose` to drop AWS/CDK stages. Do not use Express or `--review none` to save tokens on production work. Linear `upsert` waits on human `-ApproveCreate`.
 - Reviewers: shipped `architecture-reviewer`, `product-lead`, plus `quality` and `devsecops` on stages that dispatch them. Required receipts must pass. Do not use `--review none` on production features. Do not use Express to dodge Inception or reviewers on production work.
 - Linear is a projection of AI-DLC units (see `docs/specs/2026-09-14-Journeys-linear-aidlc-projection-design.md` and `docs/developer/linear-aidlc-projection.md`). Do not poll Linear for work.

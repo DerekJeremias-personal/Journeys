@@ -1,6 +1,6 @@
 # Journeys.UX Loyalty Shell Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This repo’s human rule wins: do not start tasks until the user approves this plan. Prefer a fresh subagent per task.
+> **Execution:** After approval, say execute and the intent name. `.agents/skills/journeys-plan-to-aidlc` starts `/aidlc classic`. Do **not** use superpowers:subagent-driven-development. Linear unit issues land before any `Journeys.*` code. Do not `--review none` or Express.
 
 **Goal:** Add a standalone Next.js app `Journeys.UX` with Auth0 plus Development API-key login, Loyalty-only nav, and read-only Accounts + Campaigns lists over HTTP to `Journeys.API`.
 

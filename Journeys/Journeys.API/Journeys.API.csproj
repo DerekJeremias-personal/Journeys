@@ -42,6 +42,7 @@
         <ProjectReference Include="..\Journeys.DTO\Journeys.DTO.csproj" />
         <ProjectReference Include="..\Journeys.Infra.Auth\Journeys.Infra.Auth.csproj" />
         <ProjectReference Include="..\Journeys.Infra.Backend\Journeys.Infra.Backend.csproj" />
+        <ProjectReference Include="..\Journeys.Infra.Llm\Journeys.Infra.Llm.csproj" />
         <ProjectReference Include="..\Journeys.Infra\Journeys.Infra.BlobStorage\Journeys.Infra.BlobStorage.csproj" />
         <ProjectReference Include="..\Journeys.Infra\Journeys.Infra.DataLake\Journeys.Infra.DataLake.csproj" />
         <ProjectReference Include="..\Journeys.Notification\Journeys.Notification.csproj" />
@@ -61,6 +62,10 @@
 
     <ItemGroup>
         <Content Include="CampaignAgent\SystemPrompt.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Include="CampaignAgent\SystemPrompt.Ollama.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>

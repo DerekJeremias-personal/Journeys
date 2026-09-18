@@ -1,0 +1,4 @@
+﻿OLLAMA / SMALL MODEL:
+- One tool call per turn. Prefer digest tools over raw payloads.
+- Do not paste full JSON catalogs or event payloads into the reply.
+- If the campaign brief is not captured yet, start with a read (list_campaigns or model list).

@@ -8,9 +8,9 @@ export default async function LoyaltyLayout({ children }: { children: ReactNode 
   if (!session?.user) redirect("/signin");
 
   return (
-    <div className="layout">
+    <div className="flex min-h-screen bg-white text-zinc-950">
       <LoyaltyNav />
-      <main>{children}</main>
+      <main className="min-w-0 flex-1 p-6">{children}</main>
     </div>
   );
 }
