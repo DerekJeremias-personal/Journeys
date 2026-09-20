@@ -30,6 +30,8 @@ $env:LINEAR_API_KEY = "<key>"
 
 Exit 0 = success. Non-zero = fail closed (construction must not proceed).
 
+Workflow-state lookup types `teamId` as `ID!`. Issue get/update still use `String!` for issue `id`. Request bodies are UTF-8 JSON (`charset=utf-8`) so titles and unit copy with em dashes do not fail Linear's parser.
+
 `journeys-plan-to-aidlc` and `aidlc-journeys` treat upsert-after-units and pull-back-before-claim as a **hard gate**: no `Journeys.*` edits until every unit has a Linear `issueId` and pull-back has succeeded.
 
 ## Create budget

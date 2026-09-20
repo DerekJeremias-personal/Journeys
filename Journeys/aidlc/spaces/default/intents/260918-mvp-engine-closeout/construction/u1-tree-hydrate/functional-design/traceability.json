@@ -1,0 +1,13 @@
+{
+  "stage": "functional-design",
+  "unit": "u1-tree-hydrate",
+  "upstream_ids": ["AC1.1.1", "AC1.1.2", "AC1.1.3"],
+  "coverage": [
+    { "id": "AC1.1.1", "status": "OK", "target": "BR1.1, BR1.4" },
+    { "id": "AC1.1.2", "status": "OK", "target": "BR1.2, BR1.3" },
+    { "id": "AC1.1.3", "status": "OK", "target": "BR1.1, BR1.2, BR1.4" }
+  ],
+  "reverse": [
+    { "id": "BR1.5", "status": "N/A", "target": "unit boundary; no AC of its own" }
+  ]
+}

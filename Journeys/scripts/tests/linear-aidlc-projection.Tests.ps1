@@ -163,6 +163,24 @@ Other work.
         $section | Should -Match "Do the thing"
         $section | Should -Not -Match "Other work"
     }
+
+    It "returns the section when the heading wraps the unit name" {
+        $md = @'
+# Units of work — closeout
+
+## U1 — `u1-demo`
+
+Do the thing.
+
+## U2 — `u2-other`
+
+Other work.
+'@
+        $section = Get-UnitDescriptionFromUnitOfWork -Markdown $md -Unit "u1-demo"
+        $section | Should -Match "Do the thing"
+        $section | Should -Not -Match "Other work"
+        $section | Should -Not -Match "Units of work"
+    }
 }
 
 Describe "Linear GraphQL invoker" {

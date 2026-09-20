@@ -1,0 +1,260 @@
+﻿# Task 1 review package
+# Uncommitted (user forbids commits). Base: working tree before Task 1. Head: working tree after Task 1.
+
+## Stat
+ Journeys/Journeys.UX/src/lib/api-types.ts                |  1 +
+ .../Journeys.UX/src/services/loyalty/parse-list.test.ts  | 16 ++++++++++++++++
+ Journeys/Journeys.UX/src/services/loyalty/parse-list.ts  | 11 +++++++++++
+ 3 files changed, 28 insertions(+)
+
+## Untracked
+ Journeys/Journeys.UX/src/lib/model-builder-brief.ts (new)
+ Journeys/Journeys.UX/src/lib/model-builder-brief.test.ts (new)
+
+
+## Diff (tracked)
+
+diff --git a/Journeys/Journeys.UX/src/lib/api-types.ts b/Journeys/Journeys.UX/src/lib/api-types.ts
+index e2e699b..e1eab8d 100644
+--- a/Journeys/Journeys.UX/src/lib/api-types.ts
++++ b/Journeys/Journeys.UX/src/lib/api-types.ts
+@@ -23,20 +23,21 @@ export type AgentConversationListItem = {
+ };
+ 
+ export type PointAccountTypeListItem = Record<string, unknown>;
+ 
+ export type SchemaListItem = {
+   id?: string;
+   name?: string;
+   status?: string;
+   modelType?: string;
+   tag?: string;
++  modelMetaData?: Record<string, string>;
+   attributes?: { name?: string; displayName?: string }[];
+ };
+ 
+ export type AccountPointBalance = {
+   accountId?: string;
+   pointAccountTypeId?: string;
+   currentBalance?: number;
+   lifetimeTotal?: number;
+ };
+ 
+diff --git a/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts b/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
+index 4e89af1..9683fef 100644
+--- a/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
++++ b/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
+@@ -61,23 +61,39 @@ describe("normalizeSchema", () => {
+       ID: "guid-1",
+       Name: "LoyaltyAccountDetails",
+       Status: "Live",
+       ModelType: "loyalty"
+     });
+     expect(s).toEqual({
+       id: "guid-1",
+       name: "LoyaltyAccountDetails",
+       status: "Live",
+       modelType: "loyalty",
++      tag: undefined,
++      modelMetaData: undefined,
+       attributes: undefined
+     });
+   });
++
++  it("reads tag and ModelMetaData keys", () => {
++    const s = normalizeSchema({
++      Id: "guid-1",
++      Name: "OrderPlaced",
++      Tag: "eventable",
++      ModelMetaData: { Wrapper: "w1", NaturalKeySymbols: "[\"orderid\"]" }
++    });
++    expect(s?.tag).toBe("eventable");
++    expect(s?.modelMetaData).toEqual({
++      Wrapper: "w1",
++      NaturalKeySymbols: "[\"orderid\"]"
++    });
++  });
+ });
+ 
+ describe("pickLiveSchema", () => {
+   it("matches live name case-insensitively", () => {
+     const s = pickLiveSchema(
+       [
+         { name: "LoyaltyAccountDetails", status: "Live" },
+         { name: "LoyaltyAccountDetails", status: "Draft" }
+       ],
+       "loyaltyaccountdetails"
+diff --git a/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts b/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
+index c3039a3..99a091c 100644
+--- a/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
++++ b/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
+@@ -47,29 +47,40 @@ export function extractEntities(data: unknown): unknown[] {
+   if (data && typeof data === "object") {
+     const obj = data as Record<string, unknown>;
+     for (const key of ["entities", "Entities", "items", "Items"]) {
+       const value = obj[key];
+       if (Array.isArray(value)) return value;
+     }
+   }
+   return [];
+ }
+ 
++export function readModelMetaData(row: Record<string, unknown>): Record<string, string> | undefined {
++  const raw = row.modelMetaData ?? row.ModelMetaData;
++  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
++  const out: Record<string, string> = {};
++  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
++    if (typeof value === "string" && value.trim()) out[key] = value.trim();
++  }
++  return Object.keys(out).length > 0 ? out : undefined;
++}
++
+ export function normalizeSchema(row: unknown): SchemaListItem | null {
+   if (!row || typeof row !== "object") return null;
+   const rec = row as Record<string, unknown>;
+   return {
+     id: readString(rec, "id", "ID", "Id"),
+     name: readString(rec, "name", "Name"),
+     status: readString(rec, "status", "Status"),
+     modelType: readString(rec, "modelType", "ModelType"),
+     tag: readString(rec, "tag", "Tag"),
++    modelMetaData: readModelMetaData(rec),
+     attributes: Array.isArray(rec.attributes)
+       ? (rec.attributes as SchemaListItem["attributes"])
+       : Array.isArray(rec.Attributes)
+         ? (rec.Attributes as SchemaListItem["attributes"])
+         : undefined
+   };
+ }
+ 
+ export function extractContinuationToken(data: unknown): string | null {
+   if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+
+## New file: Journeys/Journeys.UX/src/lib/model-builder-brief.ts
+
+import type { SchemaListItem } from "@/lib/api-types";
+import { LOYALTY_ACCOUNT_DETAILS_SCHEMA_NAME } from "@/services/loyalty/schema-names";
+
+export const REQUIRED_EVENT_MODEL_METADATA_KEYS = [
+  "Wrapper",
+  "NaturalKeySymbols",
+  "AccountXIdSymbol",
+  "TimeOfOccurrence"
+] as const;
+
+export function includeInModelBuilderCatalog(schema: SchemaListItem): boolean {
+  const type = schema.modelType?.toLowerCase();
+  if (type && type !== "loyalty") return false;
+  if (schema.tag?.toLowerCase() === "eventable") return true;
+  return schema.name === LOYALTY_ACCOUNT_DETAILS_SCHEMA_NAME;
+}
+
+export function missingEventModelMetadata(schema: SchemaListItem): string[] {
+  const meta = schema.modelMetaData ?? {};
+  return REQUIRED_EVENT_MODEL_METADATA_KEYS.filter((key) => !meta[key]?.trim());
+}
+
+export function buildModelBuilderBrief(args: {
+  tenantId: string;
+  schemas: SchemaListItem[];
+  catalogUnavailable?: boolean;
+}): string {
+  const lines: string[] = [
+    `Opened from Journeys.UX for tenant ${args.tenantId}. Author event-signal (processable) models for this tenant.`,
+    "",
+    "## Contract",
+    "- Payload vs wrapper: customer JSON is WrappedEventPayload.event; the wrapper is the engine envelope.",
+    "- Processable models need metadata: Wrapper (wrapper model id), NaturalKeySymbols, AccountXIdSymbol (payload-root path unless loyalty-account-shaped), TimeOfOccurrence.",
+    "- Persist wrapper symbols lowercase: naturalkey, timeofoccurrence, lastprocessed, accountid, appliedcampaigns, appliedrulesetids, providerstates, journeystates, outcomestates.",
+    "- Campaign.Events lists payload model GUIDs, not display names.",
+    "- modelType loyalty. Processable payload models use tag eventable.",
+    "- Never use modelId \"unknown\".",
+    "",
+    "## Catalog snapshot"
+  ];
+  if (args.catalogUnavailable) {
+    lines.push("Catalog snapshot unavailable");
+  } else {
+    const rows = args.schemas.filter(includeInModelBuilderCatalog);
+    if (rows.length === 0) {
+      lines.push("(no loyalty eventable models in GetMany)");
+    }
+    for (const schema of rows) {
+      const missing = missingEventModelMetadata(schema);
+      const gap = missing.length > 0 ? `missing: ${missing.join(", ")}` : "ok";
+      lines.push(
+        `- ${schema.name ?? "(unnamed)"} id=${schema.id ?? ""} status=${schema.status ?? ""} tag=${schema.tag ?? ""} ${gap}`
+      );
+    }
+  }
+  return lines.join("\n");
+}
+
+## New file: Journeys/Journeys.UX/src/lib/model-builder-brief.test.ts
+
+import { describe, expect, it } from "vitest";
+import {
+  REQUIRED_EVENT_MODEL_METADATA_KEYS,
+  buildModelBuilderBrief,
+  includeInModelBuilderCatalog,
+  missingEventModelMetadata
+} from "./model-builder-brief";
+import type { SchemaListItem } from "./api-types";
+
+const order: SchemaListItem = {
+  id: "guid-1",
+  name: "OrderPlaced",
+  status: "Live",
+  modelType: "loyalty",
+  tag: "eventable",
+  modelMetaData: { NaturalKeySymbols: "[\"orderid\"]" }
+};
+
+describe("model-builder-brief", () => {
+  it("lists the four required metadata names in the contract", () => {
+    const brief = buildModelBuilderBrief({ tenantId: "acme", schemas: [] });
+    for (const key of REQUIRED_EVENT_MODEL_METADATA_KEYS) {
+      expect(brief).toContain(key);
+    }
+    expect(brief).toContain('Never use modelId "unknown".');
+  });
+
+  it("includes eventable and LoyaltyAccountDetails; omits other tags", () => {
+    expect(includeInModelBuilderCatalog(order)).toBe(true);
+    expect(
+      includeInModelBuilderCatalog({
+        name: "LoyaltyAccountDetails",
+        modelType: "loyalty"
+      })
+    ).toBe(true);
+    expect(
+      includeInModelBuilderCatalog({
+        name: "Other",
+        modelType: "loyalty",
+        tag: "reference"
+      })
+    ).toBe(false);
+  });
+
+  it("flags missing Wrapper and does not embed journey JSON", () => {
+    expect(missingEventModelMetadata(order)).toEqual([
+      "Wrapper",
+      "AccountXIdSymbol",
+      "TimeOfOccurrence"
+    ]);
+    const brief = buildModelBuilderBrief({
+      tenantId: "acme",
+      schemas: [order, { name: "Other", journey: { id: "nope" } } as SchemaListItem]
+    });
+    expect(brief).toContain("OrderPlaced");
+    expect(brief).toContain("missing: Wrapper");
+    expect(brief).not.toContain("\"journey\"");
+    expect(brief).not.toContain('id=unknown');
+  });
+
+  it("adds catalog warning when GetMany failed", () => {
+    expect(
+      buildModelBuilderBrief({ tenantId: "acme", schemas: [], catalogUnavailable: true })
+    ).toContain("Catalog snapshot unavailable");
+  });
+});

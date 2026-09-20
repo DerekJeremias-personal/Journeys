@@ -1,0 +1,229 @@
+﻿# Task 2 review package
+# Uncommitted. Task 2 files only.
+
+## Stat
+ Journeys/Journeys.UX/.env.example                                | 1 +
+ Journeys/Journeys.UX/src/components/loyalty-nav.tsx              | 9 ++++++++-
+ Journeys/docs/developer/journeys-ux.md                           | 8 ++++++--
+ .../docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md    | 2 +-
+ 4 files changed, 16 insertions(+), 4 deletions(-)
+
+## Untracked
+ Journeys/Journeys.UX/src/lib/model-builder-handoff.ts (new)
+ Journeys/Journeys.UX/src/lib/model-builder-handoff.test.ts (new)
+ Journeys/Journeys.UX/src/app/loyalty/models/handoff/page.tsx (new)
+ Journeys/docs/product/graph/waivers/2026-09-18-model-builder-handoff.md (new)
+
+## Diff (tracked)
+
+diff --git a/Journeys/Journeys.UX/.env.example b/Journeys/Journeys.UX/.env.example
+index dc233b8..e640eec 100644
+--- a/Journeys/Journeys.UX/.env.example
++++ b/Journeys/Journeys.UX/.env.example
+@@ -1,10 +1,11 @@
+ AUTH_SECRET=
+ AUTH_TRUST_HOST=true
+ # All three required to show Auth0. Leave empty to use API-key login only.
+ AUTH0_CLIENT_ID=
+ AUTH0_CLIENT_SECRET=
+ AUTH0_ISSUER=
+ JOURNEYS_API_BASE_URL=https://localhost:7001
+ JOURNEYS_TENANT_ID=
+ JOURNEYS_UX_ALLOW_API_KEY_LOGIN=false
+ JOURNEYS_UX_TLS_REJECT_UNAUTHORIZED=true
++BACKEND_MODEL_UX_BASE_URL=
+diff --git a/Journeys/Journeys.UX/src/components/loyalty-nav.tsx b/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
+index 2922fb2..254dfef 100644
+--- a/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
++++ b/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
+@@ -1,23 +1,30 @@
+ import Link from "next/link";
++import { modelBuilderUxBaseUrl } from "@/lib/model-builder-handoff";
+ 
+ export function LoyaltyNav() {
+   const linkClass = "block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-200 hover:text-zinc-950";
+   const disabledClass = "block px-3 py-2 text-sm text-zinc-400";
+ 
+   return (
+     <nav className="w-60 shrink-0 border-r border-zinc-200 bg-zinc-100 p-4">
+       <h1 className="mb-4 px-3 text-base font-semibold text-zinc-950">Loyalty</h1>
+       <Link className={linkClass} href="/loyalty">Overview</Link>
+       <Link className={linkClass} href="/loyalty/accounts">Accounts</Link>
+       <Link className={linkClass} href="/loyalty/campaigns">Campaigns</Link>
+       <span className={disabledClass}>Promotions</span>
+       <span className={disabledClass}>Analytics</span>
+       <span className={disabledClass}>Action Log</span>
+       <span className={disabledClass}>Notifications</span>
+       <span className={disabledClass}>File Ingestion</span>
+       <span className={disabledClass}>Settings</span>
+       <span className={disabledClass}>Data Explorer</span>
+-      <span className={disabledClass}>Model Builder</span>
++      {modelBuilderUxBaseUrl() ? (
++        <Link className={linkClass} href="/loyalty/models/handoff">
++          Model Builder
++        </Link>
++      ) : (
++        <span className={disabledClass}>Model Builder</span>
++      )}
+     </nav>
+   );
+ }
+diff --git a/Journeys/docs/developer/journeys-ux.md b/Journeys/docs/developer/journeys-ux.md
+index 48e0fe5..356503b 100644
+--- a/Journeys/docs/developer/journeys-ux.md
++++ b/Journeys/docs/developer/journeys-ux.md
+@@ -1,15 +1,15 @@
+ # Journeys.UX
+ 
+ Standalone Next.js admin (React) for Loyalty lists and Campaigns IA. Open `Journeys.UX/` in its own Cursor window. It talks **HTTP only** to `Journeys.API`. It is not a C# project and must not reference Core, DAL, or Infra. Campaigns are **mutable over HTTP** (save, copy, restore, delete Draft, lifecycle). UX is not write authority ΓÇö `Journeys.Core` owns those writes. Tailwind + shadcn on the shell is **Journeys-neutral** (no EXP brand/sidebar/Coach tokens).
+ 
+-**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail).
++**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail), `docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md` (Model Builder handoff).
+ 
+ ## Run
+ 
+ 1. `Journeys.API` listening (typical `https://localhost:7001`).
+ 2. Copy `Journeys.UX/.env.example` to `Journeys.UX/.env.local` and fill values. Never commit `.env.local`.
+ 3. `JOURNEYS_TENANT_ID` is the product tenant id (not Auth0 `"hayward"`). The sign-in form prefills that value. API calls always use this env value when it is set, so a stale browser session cannot override it. The value is lowercased on the way to `Journeys.API` so it matches persistence partition keys. Local UX currently uses `TestTenant1`.
+ 4. `JOURNEYS_UX_ALLOW_API_KEY_LOGIN=true` only on a trusted machine. Then sign-in can use `Journeys-API-KEY`. Leave `AUTH0_*` empty for that path ΓÇö Auth0 is registered only when client id, secret, and issuer are all set. Empty Auth0 env used to fail every sign-in with NextAuth `InvalidEndpoints`.
+ 5. From `Journeys.UX`: `npm install` then `npm run dev` (port 3000).
+ 6. Open `/signin`, then `/loyalty`.
+ 
+@@ -67,13 +67,17 @@ Unlabeled in-product name: **agent** (strings: ΓÇ£AgentΓÇ¥, ΓÇ£Open in AgentΓÇ¥,
+ Stream body sends `conversationId`, `linkedCampaignId` (once known), and `clientMessageId`. The client parses `progress`, `mcp`, `workflow`, `delta`, `done`, and `error`. Discovered campaign ids hydrate the builder. Collapsed-by-default **Campaign JSON** (`<details>`) shows GET campaign JSON only ΓÇö never stream frames or LLM text.
+ 
+ Live smoke: API + Ollama tray ΓåÆ sign in ΓåÆ Campaigns ΓåÆ Agent ΓåÆ one turn with streamed assistant text and at least one successful MCP tool. Not required: Draft upsert or Live publish.
+ 
+ The composer is a textarea with **Send** under it. **Enter** sends; **Shift+Enter** inserts a newline. After `started`, the conversation id is labeled **Conversation**, shown in monospace, with a copy icon.
+ 
+ Turns persist as Backend model `AgentMessage` (`12f6e8d4-5b3a-491c-9f2e-8a7d6c5b4a31`, type `loyalty`, partition `owneruserid` + `conversationid`). If that container is missing for the tenant, the API fails at load history with a generic Backend 500 (`An unexpected error occurred`). Create it via Backend `POST /api/{tenantId}/Model/save` (local `TestTenant1` already has it).
+ 
+ Catalog list (`/model/all`) sends `modelType: loyalty` and **omits** `ModelId`. Entity routes require a real GUID and never coalesce a missing id to `"unknown"`. After C# adapter changes, **restart `Journeys.API`** in Visual Studio.
+ 
++## Model Builder
++
++Set `BACKEND_MODEL_UX_BASE_URL` (no trailing slash required) to enable the Loyalty **Model Builder** nav item. The link opens `/loyalty/models/handoff`, which POSTs `tenantId`, `source=journeys`, and a one-time brief to Backend Modeler in a new tab. The brief is the event-model contract plus catalog gaps from existing GetMany ΓÇö not a query string. After a Backend model save, `ModelCache` may need an API restart before Journeys lists the new schema.
++
+ ## This specΓÇÖs screens
+ 
+-Overview, Accounts detail, Campaigns IA. Other Loyalty nav items may still be disabled.
++Overview, Accounts detail, Campaigns IA, Model Builder handoff. Other Loyalty nav items may still be disabled.
+diff --git a/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md b/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
+index 2ad0c9a..7926aa9 100644
+--- a/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
++++ b/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
+@@ -24,21 +24,21 @@ This spec is the smallest path that works: a standalone React/Next folder you ca
+ | G2 | **Bare-bones login** | Auth0 (same issuer the API already validates) **and** a Development API-key session behind an explicit env flag |
+ | G3 | **Loyalty is the product nav** | Left nav has only the Loyalty group (Loyalty first and only). Overview, Accounts, Campaigns are live; other Loyalty children are visible and disabled |
+ | G4 | **Campaigns list** | Signed-in user sees a read-only list from `POST api/Campaign/{tenantId}/getall` |
+ | G5 | **Accounts table** | Signed-in user sees a read-only table of `LoyaltyAccountDetails` via schema + `queryData` (no Account `getall` exists) |
+ | G6 | **No EXP platform** | No Aerospike, no EXP BFF process, no identity/admin Postgres, no Experiences/CDP copy |
+ 
+ ### Non-goals (this spec)
+ 
+ - Campaign Agent UI, Journey Builder, SSE `/api/loyalty/campaign-agent/...`
+ - Ollama or any change to `AnthropicLlmChatClientFactory`
+-- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder, account detail, account builder)
++- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder (nav now: docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md), account detail, account builder)
+ - Mutating campaigns or accounts from the lists (publish, delete, copy, deposit)
+ - Playwright e2e, EXP permission catalog, Prisma, `@exp/prisma-*`
+ - Copying the EXP monorepo or adding UX as a C# project in `Journeys.sln`
+ - Per-tenant Auth0 (still human-gated). Pay-per-use billing
+ - Treating Auth0 key `"hayward"` as product `TenantId`
+ 
+ ---
+ 
+ ## 2. Decisions
+ 
+
+## New file: Journeys/Journeys.UX/src/lib/model-builder-handoff.ts
+
+export function modelBuilderUxBaseUrl(): string {
+  return (process.env.BACKEND_MODEL_UX_BASE_URL ?? "").trim().replace(/\/+$/, "");
+}
+
+export function modelBuilderSeedActionUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/api/model-builder/seed`;
+}
+
+## New file: Journeys/Journeys.UX/src/lib/model-builder-handoff.test.ts
+
+import { describe, expect, it, vi } from "vitest";
+import { modelBuilderSeedActionUrl, modelBuilderUxBaseUrl } from "./model-builder-handoff";
+
+describe("model-builder-handoff", () => {
+  it("returns empty base when unset", () => {
+    vi.stubEnv("BACKEND_MODEL_UX_BASE_URL", "");
+    expect(modelBuilderUxBaseUrl()).toBe("");
+  });
+
+  it("joins seed path without a trailing slash on the base", () => {
+    expect(modelBuilderSeedActionUrl("http://localhost:3145/")).toBe(
+      "http://localhost:3145/api/model-builder/seed"
+    );
+  });
+});
+
+## New file: Journeys/Journeys.UX/src/app/loyalty/models/handoff/page.tsx
+
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { buildModelBuilderBrief } from "@/lib/model-builder-brief";
+import { modelBuilderSeedActionUrl, modelBuilderUxBaseUrl } from "@/lib/model-builder-handoff";
+import { resolveTenantId } from "@/lib/resolve-tenant-id";
+import { getAllSchemas } from "@/services/loyalty/actions";
+
+export default async function ModelBuilderHandoffPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/signin");
+
+  const base = modelBuilderUxBaseUrl();
+  if (!base) {
+    return (
+      <p className="text-sm text-zinc-600">
+        Model Builder is not configured. Set BACKEND_MODEL_UX_BASE_URL.
+      </p>
+    );
+  }
+
+  const tenantId = resolveTenantId((session as { tenantId?: string }).tenantId);
+  const catalog = await getAllSchemas();
+  const brief = buildModelBuilderBrief({
+    tenantId,
+    schemas: catalog.success ? catalog.data ?? [] : [],
+    catalogUnavailable: !catalog.success
+  });
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold tracking-tight">Model Builder</h1>
+      <p className="text-sm text-zinc-600">
+        Opens Backend Modeler in a new tab for this tenant, with a one-time Journeys event-signal brief.
+      </p>
+      <form
+        action={modelBuilderSeedActionUrl(base)}
+        method="post"
+        target="_blank"
+        rel="noopener"
+      >
+        <input type="hidden" name="tenantId" value={tenantId} />
+        <input type="hidden" name="source" value="journeys" />
+        <input type="hidden" name="brief" value={brief} />
+        <button
+          type="submit"
+          className="rounded-md bg-zinc-900 px-3 py-2 text-sm text-white"
+        >
+          Open Model Builder
+        </button>
+      </form>
+    </div>
+  );
+}
+
+## New file: Journeys/docs/product/graph/waivers/2026-09-18-model-builder-handoff.md
+
+# Waiver: Model Builder handoff
+
+**Reason:** Nav opens Backend.Model.UX. No new capability. event-models stays IMPLEMENTED_AS Core/Backend, not proj-ux.
+
+**Nodes:** `event-models`.

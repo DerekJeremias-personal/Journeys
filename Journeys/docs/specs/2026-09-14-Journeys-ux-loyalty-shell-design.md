@@ -31,7 +31,7 @@ This spec is the smallest path that works: a standalone React/Next folder you ca
 
 - Campaign Agent UI, Journey Builder, SSE `/api/loyalty/campaign-agent/...`
 - Ollama or any change to `AnthropicLlmChatClientFactory`
-- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder, account detail, account builder)
+- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder (nav now: docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md), account detail, account builder)
 - Mutating campaigns or accounts from the lists (publish, delete, copy, deposit)
 - Playwright e2e, EXP permission catalog, Prisma, `@exp/prisma-*`
 - Copying the EXP monorepo or adding UX as a C# project in `Journeys.sln`

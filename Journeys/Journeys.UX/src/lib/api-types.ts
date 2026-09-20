@@ -30,6 +30,7 @@ export type SchemaListItem = {
   status?: string;
   modelType?: string;
   tag?: string;
+  modelMetaData?: Record<string, string>;
   attributes?: { name?: string; displayName?: string }[];
 };
 

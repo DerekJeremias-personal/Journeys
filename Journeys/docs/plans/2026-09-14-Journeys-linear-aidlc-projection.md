@@ -266,7 +266,7 @@ function New-LinearGraphqlBody {
         }
         "workflowStates" {
             return (@{
-                query = 'query States($teamId: String!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } } }'
+                query = 'query States($teamId: ID!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } } }'
                 variables = @{ teamId = $TeamId }
             } | ConvertTo-Json -Depth 8 -Compress)
         }

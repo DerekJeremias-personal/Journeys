@@ -73,7 +73,7 @@ function New-LinearGraphqlBody {
         }
         "workflowStates" {
             return (@{
-                query     = 'query States($teamId: String!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } } }'
+                query     = 'query States($teamId: ID!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } } }'
                 variables = @{ teamId = $TeamId }
             } | ConvertTo-Json -Depth 8 -Compress)
         }
@@ -188,7 +188,7 @@ function ConvertFrom-YamlOrHashtable {
 function Read-LinearMap {
     param([string]$Path)
     if (-not (Test-Path $Path)) { return @{ units = @{} } }
-    return ConvertFrom-YamlOrHashtable (Get-Content -Raw $Path)
+    return ConvertFrom-YamlOrHashtable (Get-Utf8RawContent -Path $Path)
 }
 
 function Write-LinearMap {
@@ -236,6 +236,12 @@ function Write-LinearMap {
     [System.IO.File]::WriteAllText($Path, $text, $utf8NoBom)
 }
 
+function Get-Utf8RawContent {
+    param([string]$Path)
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    return [System.IO.File]::ReadAllText($Path, $utf8)
+}
+
 function Get-JourneysRoot {
     if ($script:JourneysRootOverride) { return $script:JourneysRootOverride }
     if ($PSScriptRoot) { return Split-Path -Parent $PSScriptRoot }
@@ -257,10 +263,11 @@ function Invoke-LinearGraphql {
     if ($script:LinearGraphqlInvoker -is [scriptblock]) {
         return & $script:LinearGraphqlInvoker $Body $ApiKey
     }
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    $bytes = $utf8.GetBytes($Body)
     $resp = Invoke-RestMethod -Method Post -Uri "https://api.linear.app/graphql" -Headers @{
-        Authorization  = $ApiKey
-        "Content-Type" = "application/json"
-    } -Body $Body
+        Authorization = $ApiKey
+    } -ContentType "application/json; charset=utf-8" -Body $bytes
     if ($null -ne $resp.errors) {
         $msg = ($resp.errors | ForEach-Object { $_.message }) -join "; "
         throw "Linear GraphQL error: $msg"
@@ -355,7 +362,7 @@ function Get-UnitDescriptionFromUnitOfWork {
     param([string]$Markdown, [string]$Unit)
     if (-not $Markdown) { return "# $Unit" }
     $escaped = [regex]::Escape($Unit)
-    $m = [regex]::Match($Markdown, "(?ms)^#{1,6}\s+$escaped\b[^\r\n]*\r?\n.*?(?=^#{1,6}\s|\z)")
+    $m = [regex]::Match($Markdown, "(?ms)^#{1,6}\s+[^\r\n]*\b$escaped\b[^\r\n]*\r?\n.*?(?=^#{1,6}\s|\z)")
     if ($m.Success) { return $m.Value.TrimEnd() }
     return "# $Unit`n`n$Markdown".TrimEnd()
 }
@@ -386,7 +393,7 @@ function Get-AidlcUnitNamesFromRecord {
     if (-not (Test-Path -LiteralPath $dep)) {
         throw "missing unit-of-work-dependency.md at $dep"
     }
-    $names = Get-AidlcUnitNamesFromDependencyMarkdown -Markdown (Get-Content -LiteralPath $dep -Raw)
+    $names = Get-AidlcUnitNamesFromDependencyMarkdown -Markdown (Get-Utf8RawContent -Path $dep)
     if ($names.Count -eq 0) {
         throw "no units found in $dep"
     }
@@ -469,7 +476,7 @@ function Invoke-LinearUpsert {
     $names = Get-AidlcUnitNamesFromRecord -IntentRecordDir $IntentRecordDir
     $uowPath = Get-UnitOfWorkPath -IntentRecordDir $IntentRecordDir
     $uow = ""
-    if (Test-Path -LiteralPath $uowPath) { $uow = Get-Content -LiteralPath $uowPath -Raw }
+    if (Test-Path -LiteralPath $uowPath) { $uow = Get-Utf8RawContent -Path $uowPath }
 
     $mapPath = Get-LinearMapPath -IntentRecordDir $IntentRecordDir
     $map = Read-LinearMap -Path $mapPath

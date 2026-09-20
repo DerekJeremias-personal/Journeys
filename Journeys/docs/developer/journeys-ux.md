@@ -2,7 +2,7 @@
 
 Standalone Next.js admin (React) for Loyalty lists and Campaigns IA. Open `Journeys.UX/` in its own Cursor window. It talks **HTTP only** to `Journeys.API`. It is not a C# project and must not reference Core, DAL, or Infra. Campaigns are **mutable over HTTP** (save, copy, restore, delete Draft, lifecycle). UX is not write authority — `Journeys.Core` owns those writes. Tailwind + shadcn on the shell is **Journeys-neutral** (no EXP brand/sidebar/Coach tokens).
 
-**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail).
+**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail), `docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md` (Model Builder handoff).
 
 ## Run
 
@@ -74,6 +74,10 @@ Turns persist as Backend model `AgentMessage` (`12f6e8d4-5b3a-491c-9f2e-8a7d6c5b
 
 Catalog list (`/model/all`) sends `modelType: loyalty` and **omits** `ModelId`. Entity routes require a real GUID and never coalesce a missing id to `"unknown"`. After C# adapter changes, **restart `Journeys.API`** in Visual Studio.
 
+## Model Builder
+
+Set `BACKEND_MODEL_UX_BASE_URL` (no trailing slash required) to enable the Loyalty **Model Builder** nav item. The link opens `/loyalty/models/handoff`, which POSTs `tenantId`, `source=journeys`, and a one-time brief to Backend Modeler in a new tab. The brief is the event-model contract plus catalog gaps from existing GetMany — not a query string. After a Backend model save, `ModelCache` may need an API restart before Journeys lists the new schema.
+
 ## This spec’s screens
 
-Overview, Accounts detail, Campaigns IA. Other Loyalty nav items may still be disabled.
+Overview, Accounts detail, Campaigns IA, Model Builder handoff. Other Loyalty nav items may still be disabled.

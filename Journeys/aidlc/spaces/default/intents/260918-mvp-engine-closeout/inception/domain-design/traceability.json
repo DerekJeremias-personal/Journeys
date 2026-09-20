@@ -1,0 +1,17 @@
+{
+  "stage": "domain-design",
+  "upstream_ids": [
+    "US1.1",
+    "US2.1",
+    "US3.1",
+    "US4.1",
+    "US5.1"
+  ],
+  "coverage": [
+    { "id": "US1.1", "status": "OK", "target": "RulesService" },
+    { "id": "US2.1", "status": "OK", "target": "LoyaltyAccountService" },
+    { "id": "US3.1", "status": "OK", "target": "EventService, LoyaltyAccountService" },
+    { "id": "US4.1", "status": "OK", "target": "NotificationOutcome" },
+    { "id": "US5.1", "status": "N/A", "target": "Meaning docs and path-map; no runtime component this increment" }
+  ]
+}

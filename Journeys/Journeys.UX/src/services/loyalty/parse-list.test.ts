@@ -68,7 +68,23 @@ describe("normalizeSchema", () => {
       name: "LoyaltyAccountDetails",
       status: "Live",
       modelType: "loyalty",
+      tag: undefined,
+      modelMetaData: undefined,
       attributes: undefined
+    });
+  });
+
+  it("reads tag and ModelMetaData keys", () => {
+    const s = normalizeSchema({
+      Id: "guid-1",
+      Name: "OrderPlaced",
+      Tag: "eventable",
+      ModelMetaData: { Wrapper: "w1", NaturalKeySymbols: "[\"orderid\"]" }
+    });
+    expect(s?.tag).toBe("eventable");
+    expect(s?.modelMetaData).toEqual({
+      Wrapper: "w1",
+      NaturalKeySymbols: "[\"orderid\"]"
     });
   });
 });

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { modelBuilderNavHref, modelBuilderUxBaseUrl } from "@/lib/model-builder-handoff";
 
 export function LoyaltyNav() {
   const linkClass = "block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-200 hover:text-zinc-950";
   const disabledClass = "block px-3 py-2 text-sm text-zinc-400";
+  const modelBuilderHref = modelBuilderNavHref(modelBuilderUxBaseUrl());
 
   return (
     <nav className="w-60 shrink-0 border-r border-zinc-200 bg-zinc-100 p-4">
@@ -17,7 +19,13 @@ export function LoyaltyNav() {
       <span className={disabledClass}>File Ingestion</span>
       <span className={disabledClass}>Settings</span>
       <span className={disabledClass}>Data Explorer</span>
-      <span className={disabledClass}>Model Builder</span>
+      {modelBuilderHref ? (
+        <Link className={linkClass} href={modelBuilderHref}>
+          Model Builder
+        </Link>
+      ) : (
+        <span className={disabledClass}>Model Builder</span>
+      )}
     </nav>
   );
 }

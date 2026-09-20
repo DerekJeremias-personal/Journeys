@@ -1,0 +1,10 @@
+{
+  "stage": "functional-design",
+  "unit": "u3-expire-on-process",
+  "upstream_ids": ["AC3.1.1", "AC3.1.2", "AC3.1.3"],
+  "coverage": [
+    { "id": "AC3.1.1", "status": "OK", "target": "BR3.1, BR3.2, BR3.3" },
+    { "id": "AC3.1.2", "status": "OK", "target": "BR3.6, BR3.8" },
+    { "id": "AC3.1.3", "status": "OK", "target": "BR3.4, BR3.5, BR3.7" }
+  ]
+}

@@ -1,0 +1,980 @@
+﻿# Final whole-plan review package (after origin/trim/tests fix)
+# Uncommitted. Plan file map + auth.config.ts + route tests.
+
+## Journeys stat
+
+ Journeys/Journeys.UX/.env.example                        |  2 ++
+ Journeys/Journeys.UX/src/components/loyalty-nav.tsx      | 10 +++++++++-
+ Journeys/Journeys.UX/src/lib/api-types.ts                |  1 +
+ .../Journeys.UX/src/services/loyalty/parse-list.test.ts  | 16 ++++++++++++++++
+ Journeys/Journeys.UX/src/services/loyalty/parse-list.ts  | 11 +++++++++++
+ Journeys/docs/developer/journeys-ux.md                   |  8 ++++++--
+ .../specs/2026-09-14-Journeys-ux-loyalty-shell-design.md |  2 +-
+ 7 files changed, 46 insertions(+), 4 deletions(-)
+
+## Journeys tracked diff
+
+diff --git a/Journeys/Journeys.UX/.env.example b/Journeys/Journeys.UX/.env.example
+index dc233b8..67ae8cf 100644
+--- a/Journeys/Journeys.UX/.env.example
++++ b/Journeys/Journeys.UX/.env.example
+@@ -3,8 +3,10 @@ AUTH_TRUST_HOST=true
+ # All three required to show Auth0. Leave empty to use API-key login only.
+ AUTH0_CLIENT_ID=
+ AUTH0_CLIENT_SECRET=
+ AUTH0_ISSUER=
+ JOURNEYS_API_BASE_URL=https://localhost:7001
+ JOURNEYS_TENANT_ID=
+ JOURNEYS_UX_ALLOW_API_KEY_LOGIN=false
+ JOURNEYS_UX_TLS_REJECT_UNAUTHORIZED=true
++BACKEND_MODEL_UX_BASE_URL=
++# Model.UX MODEL_BUILDER_SEED_ORIGINS must include this UX origin.
+diff --git a/Journeys/Journeys.UX/src/components/loyalty-nav.tsx b/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
+index 2922fb2..1f2b88d 100644
+--- a/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
++++ b/Journeys/Journeys.UX/src/components/loyalty-nav.tsx
+@@ -1,23 +1,31 @@
+ import Link from "next/link";
++import { modelBuilderNavHref, modelBuilderUxBaseUrl } from "@/lib/model-builder-handoff";
+ 
+ export function LoyaltyNav() {
+   const linkClass = "block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-200 hover:text-zinc-950";
+   const disabledClass = "block px-3 py-2 text-sm text-zinc-400";
++  const modelBuilderHref = modelBuilderNavHref(modelBuilderUxBaseUrl());
+ 
+   return (
+     <nav className="w-60 shrink-0 border-r border-zinc-200 bg-zinc-100 p-4">
+       <h1 className="mb-4 px-3 text-base font-semibold text-zinc-950">Loyalty</h1>
+       <Link className={linkClass} href="/loyalty">Overview</Link>
+       <Link className={linkClass} href="/loyalty/accounts">Accounts</Link>
+       <Link className={linkClass} href="/loyalty/campaigns">Campaigns</Link>
+       <span className={disabledClass}>Promotions</span>
+       <span className={disabledClass}>Analytics</span>
+       <span className={disabledClass}>Action Log</span>
+       <span className={disabledClass}>Notifications</span>
+       <span className={disabledClass}>File Ingestion</span>
+       <span className={disabledClass}>Settings</span>
+       <span className={disabledClass}>Data Explorer</span>
+-      <span className={disabledClass}>Model Builder</span>
++      {modelBuilderHref ? (
++        <Link className={linkClass} href={modelBuilderHref}>
++          Model Builder
++        </Link>
++      ) : (
++        <span className={disabledClass}>Model Builder</span>
++      )}
+     </nav>
+   );
+ }
+diff --git a/Journeys/Journeys.UX/src/lib/api-types.ts b/Journeys/Journeys.UX/src/lib/api-types.ts
+index e2e699b..e1eab8d 100644
+--- a/Journeys/Journeys.UX/src/lib/api-types.ts
++++ b/Journeys/Journeys.UX/src/lib/api-types.ts
+@@ -25,16 +25,17 @@ export type AgentConversationListItem = {
+ export type PointAccountTypeListItem = Record<string, unknown>;
+ 
+ export type SchemaListItem = {
+   id?: string;
+   name?: string;
+   status?: string;
+   modelType?: string;
+   tag?: string;
++  modelMetaData?: Record<string, string>;
+   attributes?: { name?: string; displayName?: string }[];
+ };
+ 
+ export type AccountPointBalance = {
+   accountId?: string;
+   pointAccountTypeId?: string;
+   currentBalance?: number;
+   lifetimeTotal?: number;
+diff --git a/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts b/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
+index 4e89af1..9683fef 100644
+--- a/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
++++ b/Journeys/Journeys.UX/src/services/loyalty/parse-list.test.ts
+@@ -63,19 +63,35 @@ describe("normalizeSchema", () => {
+       Status: "Live",
+       ModelType: "loyalty"
+     });
+     expect(s).toEqual({
+       id: "guid-1",
+       name: "LoyaltyAccountDetails",
+       status: "Live",
+       modelType: "loyalty",
++      tag: undefined,
++      modelMetaData: undefined,
+       attributes: undefined
+     });
+   });
++
++  it("reads tag and ModelMetaData keys", () => {
++    const s = normalizeSchema({
++      Id: "guid-1",
++      Name: "OrderPlaced",
++      Tag: "eventable",
++      ModelMetaData: { Wrapper: "w1", NaturalKeySymbols: "[\"orderid\"]" }
++    });
++    expect(s?.tag).toBe("eventable");
++    expect(s?.modelMetaData).toEqual({
++      Wrapper: "w1",
++      NaturalKeySymbols: "[\"orderid\"]"
++    });
++  });
+ });
+ 
+ describe("pickLiveSchema", () => {
+   it("matches live name case-insensitively", () => {
+     const s = pickLiveSchema(
+       [
+         { name: "LoyaltyAccountDetails", status: "Live" },
+         { name: "LoyaltyAccountDetails", status: "Draft" }
+diff --git a/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts b/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
+index c3039a3..99a091c 100644
+--- a/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
++++ b/Journeys/Journeys.UX/src/services/loyalty/parse-list.ts
+@@ -49,25 +49,36 @@ export function extractEntities(data: unknown): unknown[] {
+     for (const key of ["entities", "Entities", "items", "Items"]) {
+       const value = obj[key];
+       if (Array.isArray(value)) return value;
+     }
+   }
+   return [];
+ }
+ 
++export function readModelMetaData(row: Record<string, unknown>): Record<string, string> | undefined {
++  const raw = row.modelMetaData ?? row.ModelMetaData;
++  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
++  const out: Record<string, string> = {};
++  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
++    if (typeof value === "string" && value.trim()) out[key] = value.trim();
++  }
++  return Object.keys(out).length > 0 ? out : undefined;
++}
++
+ export function normalizeSchema(row: unknown): SchemaListItem | null {
+   if (!row || typeof row !== "object") return null;
+   const rec = row as Record<string, unknown>;
+   return {
+     id: readString(rec, "id", "ID", "Id"),
+     name: readString(rec, "name", "Name"),
+     status: readString(rec, "status", "Status"),
+     modelType: readString(rec, "modelType", "ModelType"),
+     tag: readString(rec, "tag", "Tag"),
++    modelMetaData: readModelMetaData(rec),
+     attributes: Array.isArray(rec.attributes)
+       ? (rec.attributes as SchemaListItem["attributes"])
+       : Array.isArray(rec.Attributes)
+         ? (rec.Attributes as SchemaListItem["attributes"])
+         : undefined
+   };
+ }
+ 
+diff --git a/Journeys/docs/developer/journeys-ux.md b/Journeys/docs/developer/journeys-ux.md
+index 48e0fe5..356503b 100644
+--- a/Journeys/docs/developer/journeys-ux.md
++++ b/Journeys/docs/developer/journeys-ux.md
+@@ -1,13 +1,13 @@
+ # Journeys.UX
+ 
+ Standalone Next.js admin (React) for Loyalty lists and Campaigns IA. Open `Journeys.UX/` in its own Cursor window. It talks **HTTP only** to `Journeys.API`. It is not a C# project and must not reference Core, DAL, or Infra. Campaigns are **mutable over HTTP** (save, copy, restore, delete Draft, lifecycle). UX is not write authority ΓÇö `Journeys.Core` owns those writes. Tailwind + shadcn on the shell is **Journeys-neutral** (no EXP brand/sidebar/Coach tokens).
+ 
+-**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail).
++**Specs:** `docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md` (shell), `docs/specs/2026-09-18-Journeys-ux-campaigns-ia-design.md` (Campaigns IA), `docs/specs/2026-09-17-Journeys-ux-campaign-agent-chat-design.md` (agent chat), `docs/specs/2026-09-18-Journeys-ux-accounts-detail-design.md` (Accounts detail), `docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md` (Model Builder handoff).
+ 
+ ## Run
+ 
+ 1. `Journeys.API` listening (typical `https://localhost:7001`).
+ 2. Copy `Journeys.UX/.env.example` to `Journeys.UX/.env.local` and fill values. Never commit `.env.local`.
+ 3. `JOURNEYS_TENANT_ID` is the product tenant id (not Auth0 `"hayward"`). The sign-in form prefills that value. API calls always use this env value when it is set, so a stale browser session cannot override it. The value is lowercased on the way to `Journeys.API` so it matches persistence partition keys. Local UX currently uses `TestTenant1`.
+ 4. `JOURNEYS_UX_ALLOW_API_KEY_LOGIN=true` only on a trusted machine. Then sign-in can use `Journeys-API-KEY`. Leave `AUTH0_*` empty for that path ΓÇö Auth0 is registered only when client id, secret, and issuer are all set. Empty Auth0 env used to fail every sign-in with NextAuth `InvalidEndpoints`.
+ 5. From `Journeys.UX`: `npm install` then `npm run dev` (port 3000).
+@@ -69,11 +69,15 @@ Stream body sends `conversationId`, `linkedCampaignId` (once known), and `client
+ Live smoke: API + Ollama tray ΓåÆ sign in ΓåÆ Campaigns ΓåÆ Agent ΓåÆ one turn with streamed assistant text and at least one successful MCP tool. Not required: Draft upsert or Live publish.
+ 
+ The composer is a textarea with **Send** under it. **Enter** sends; **Shift+Enter** inserts a newline. After `started`, the conversation id is labeled **Conversation**, shown in monospace, with a copy icon.
+ 
+ Turns persist as Backend model `AgentMessage` (`12f6e8d4-5b3a-491c-9f2e-8a7d6c5b4a31`, type `loyalty`, partition `owneruserid` + `conversationid`). If that container is missing for the tenant, the API fails at load history with a generic Backend 500 (`An unexpected error occurred`). Create it via Backend `POST /api/{tenantId}/Model/save` (local `TestTenant1` already has it).
+ 
+ Catalog list (`/model/all`) sends `modelType: loyalty` and **omits** `ModelId`. Entity routes require a real GUID and never coalesce a missing id to `"unknown"`. After C# adapter changes, **restart `Journeys.API`** in Visual Studio.
+ 
++## Model Builder
++
++Set `BACKEND_MODEL_UX_BASE_URL` (no trailing slash required) to enable the Loyalty **Model Builder** nav item. The link opens `/loyalty/models/handoff`, which POSTs `tenantId`, `source=journeys`, and a one-time brief to Backend Modeler in a new tab. The brief is the event-model contract plus catalog gaps from existing GetMany ΓÇö not a query string. After a Backend model save, `ModelCache` may need an API restart before Journeys lists the new schema.
++
+ ## This specΓÇÖs screens
+ 
+-Overview, Accounts detail, Campaigns IA. Other Loyalty nav items may still be disabled.
++Overview, Accounts detail, Campaigns IA, Model Builder handoff. Other Loyalty nav items may still be disabled.
+diff --git a/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md b/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
+index 2ad0c9a..7926aa9 100644
+--- a/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
++++ b/Journeys/docs/specs/2026-09-14-Journeys-ux-loyalty-shell-design.md
+@@ -26,17 +26,17 @@ This spec is the smallest path that works: a standalone React/Next folder you ca
+ | G4 | **Campaigns list** | Signed-in user sees a read-only list from `POST api/Campaign/{tenantId}/getall` |
+ | G5 | **Accounts table** | Signed-in user sees a read-only table of `LoyaltyAccountDetails` via schema + `queryData` (no Account `getall` exists) |
+ | G6 | **No EXP platform** | No Aerospike, no EXP BFF process, no identity/admin Postgres, no Experiences/CDP copy |
+ 
+ ### Non-goals (this spec)
+ 
+ - Campaign Agent UI, Journey Builder, SSE `/api/loyalty/campaign-agent/...`
+ - Ollama or any change to `AnthropicLlmChatClientFactory`
+-- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder, account detail, account builder)
++- Remaining Loyalty screens (promotions, analytics, action log, notifications, file ingestion, settings, data explorer, model builder (nav now: docs/specs/2026-09-18-Journeys-ux-backend-model-builder-handoff-design.md), account detail, account builder)
+ - Mutating campaigns or accounts from the lists (publish, delete, copy, deposit)
+ - Playwright e2e, EXP permission catalog, Prisma, `@exp/prisma-*`
+ - Copying the EXP monorepo or adding UX as a C# project in `Journeys.sln`
+ - Per-tenant Auth0 (still human-gated). Pay-per-use billing
+ - Treating Auth0 key `"hayward"` as product `TenantId`
+ 
+ ---
+ 
+
+## New: Journeys/Journeys.UX/src/lib/model-builder-brief.ts
+
+import type { SchemaListItem } from "@/lib/api-types";
+import { LOYALTY_ACCOUNT_DETAILS_SCHEMA_NAME } from "@/services/loyalty/schema-names";
+
+export const REQUIRED_EVENT_MODEL_METADATA_KEYS = [
+  "Wrapper",
+  "NaturalKeySymbols",
+  "AccountXIdSymbol",
+  "TimeOfOccurrence"
+] as const;
+
+export function includeInModelBuilderCatalog(schema: SchemaListItem): boolean {
+  const type = schema.modelType?.toLowerCase();
+  if (type && type !== "loyalty") return false;
+  if (schema.tag?.toLowerCase() === "eventable") return true;
+  return schema.name === LOYALTY_ACCOUNT_DETAILS_SCHEMA_NAME;
+}
+
+export function missingEventModelMetadata(schema: SchemaListItem): string[] {
+  const meta = schema.modelMetaData ?? {};
+  return REQUIRED_EVENT_MODEL_METADATA_KEYS.filter((key) => !meta[key]?.trim());
+}
+
+export function buildModelBuilderBrief(args: {
+  tenantId: string;
+  schemas: SchemaListItem[];
+  catalogUnavailable?: boolean;
+}): string {
+  const lines: string[] = [
+    `Opened from Journeys.UX for tenant ${args.tenantId}. Author event-signal (processable) models for this tenant.`,
+    "",
+    "## Contract",
+    "- Payload vs wrapper: customer JSON is WrappedEventPayload.event; the wrapper is the engine envelope.",
+    "- Processable models need metadata: Wrapper (wrapper model id), NaturalKeySymbols, AccountXIdSymbol (payload-root path unless loyalty-account-shaped), TimeOfOccurrence.",
+    "- Persist wrapper symbols lowercase: naturalkey, timeofoccurrence, lastprocessed, accountid, appliedcampaigns, appliedrulesetids, providerstates, journeystates, outcomestates.",
+    "- Campaign.Events lists payload model GUIDs, not display names.",
+    "- modelType loyalty. Processable payload models use tag eventable.",
+    "- Never use modelId \"unknown\".",
+    "",
+    "## Catalog snapshot"
+  ];
+  if (args.catalogUnavailable) {
+    lines.push("Catalog snapshot unavailable");
+  } else {
+    const rows = args.schemas.filter(includeInModelBuilderCatalog);
+    if (rows.length === 0) {
+      lines.push("(no loyalty eventable models in GetMany)");
+    }
+    for (const schema of rows) {
+      const missing = missingEventModelMetadata(schema);
+      const gap = missing.length > 0 ? `missing: ${missing.join(", ")}` : "ok";
+      lines.push(
+        `- ${schema.name ?? "(unnamed)"} id=${schema.id ?? ""} status=${schema.status ?? ""} tag=${schema.tag ?? ""} ${gap}`
+      );
+    }
+  }
+  return lines.join("\n");
+}
+
+## New: Journeys/Journeys.UX/src/lib/model-builder-brief.test.ts
+
+import { describe, expect, it } from "vitest";
+import {
+  REQUIRED_EVENT_MODEL_METADATA_KEYS,
+  buildModelBuilderBrief,
+  includeInModelBuilderCatalog,
+  missingEventModelMetadata
+} from "./model-builder-brief";
+import type { SchemaListItem } from "./api-types";
+
+const order: SchemaListItem = {
+  id: "guid-1",
+  name: "OrderPlaced",
+  status: "Live",
+  modelType: "loyalty",
+  tag: "eventable",
+  modelMetaData: { NaturalKeySymbols: "[\"orderid\"]" }
+};
+
+describe("model-builder-brief", () => {
+  it("lists the four required metadata names in the contract", () => {
+    const brief = buildModelBuilderBrief({ tenantId: "acme", schemas: [] });
+    for (const key of REQUIRED_EVENT_MODEL_METADATA_KEYS) {
+      expect(brief).toContain(key);
+    }
+    expect(brief).toContain('Never use modelId "unknown".');
+  });
+
+  it("includes eventable and LoyaltyAccountDetails; omits other tags", () => {
+    expect(includeInModelBuilderCatalog(order)).toBe(true);
+    expect(
+      includeInModelBuilderCatalog({
+        name: "LoyaltyAccountDetails",
+        modelType: "loyalty"
+      })
+    ).toBe(true);
+    expect(
+      includeInModelBuilderCatalog({
+        name: "Other",
+        modelType: "loyalty",
+        tag: "reference"
+      })
+    ).toBe(false);
+  });
+
+  it("flags missing Wrapper and does not embed journey JSON", () => {
+    expect(missingEventModelMetadata(order)).toEqual([
+      "Wrapper",
+      "AccountXIdSymbol",
+      "TimeOfOccurrence"
+    ]);
+    const brief = buildModelBuilderBrief({
+      tenantId: "acme",
+      schemas: [order, { name: "Other", journey: { id: "nope" } } as SchemaListItem]
+    });
+    expect(brief).toContain("OrderPlaced");
+    expect(brief).toContain("missing: Wrapper");
+    expect(brief).not.toContain("\"journey\"");
+    expect(brief).not.toContain('id=unknown');
+  });
+
+  it("adds catalog warning when GetMany failed", () => {
+    expect(
+      buildModelBuilderBrief({ tenantId: "acme", schemas: [], catalogUnavailable: true })
+    ).toContain("Catalog snapshot unavailable");
+  });
+});
+
+## New: Journeys/Journeys.UX/src/lib/model-builder-handoff.ts
+
+export function modelBuilderUxBaseUrl(): string {
+  return (process.env.BACKEND_MODEL_UX_BASE_URL ?? "").trim().replace(/\/+$/, "");
+}
+
+export function modelBuilderNavHref(baseUrl: string): string | null {
+  const trimmed = baseUrl.trim().replace(/\/+$/, "");
+  return trimmed ? "/loyalty/models/handoff" : null;
+}
+
+export function modelBuilderSeedActionUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/api/model-builder/seed`;
+}
+
+## New: Journeys/Journeys.UX/src/lib/model-builder-handoff.test.ts
+
+import { describe, expect, it, vi } from "vitest";
+import {
+  modelBuilderNavHref,
+  modelBuilderSeedActionUrl,
+  modelBuilderUxBaseUrl,
+} from "./model-builder-handoff";
+
+describe("model-builder-handoff", () => {
+  it("returns empty base when unset", () => {
+    vi.stubEnv("BACKEND_MODEL_UX_BASE_URL", "");
+    expect(modelBuilderUxBaseUrl()).toBe("");
+  });
+
+  it("joins seed path without a trailing slash on the base", () => {
+    expect(modelBuilderSeedActionUrl("http://localhost:3145/")).toBe(
+      "http://localhost:3145/api/model-builder/seed"
+    );
+  });
+
+  it("returns the handoff href when the Model Builder URL is set", () => {
+    expect(modelBuilderNavHref("http://localhost:3145")).toBe("/loyalty/models/handoff");
+  });
+
+  it("returns null when the Model Builder URL is unset so nav stays a disabled span", () => {
+    expect(modelBuilderNavHref("")).toBeNull();
+    expect(modelBuilderNavHref("   ")).toBeNull();
+  });
+});
+
+## New: Journeys/Journeys.UX/src/app/loyalty/models/handoff/page.tsx
+
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { buildModelBuilderBrief } from "@/lib/model-builder-brief";
+import { modelBuilderSeedActionUrl, modelBuilderUxBaseUrl } from "@/lib/model-builder-handoff";
+import { resolveTenantId } from "@/lib/resolve-tenant-id";
+import { getAllSchemas } from "@/services/loyalty/actions";
+
+export default async function ModelBuilderHandoffPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/signin");
+
+  const base = modelBuilderUxBaseUrl();
+  if (!base) {
+    return (
+      <p className="text-sm text-zinc-600">
+        Model Builder is not configured. Set BACKEND_MODEL_UX_BASE_URL.
+      </p>
+    );
+  }
+
+  const tenantId = resolveTenantId((session as { tenantId?: string }).tenantId);
+  const catalog = await getAllSchemas();
+  const brief = buildModelBuilderBrief({
+    tenantId,
+    schemas: catalog.success ? catalog.data ?? [] : [],
+    catalogUnavailable: !catalog.success
+  });
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold tracking-tight">Model Builder</h1>
+      <p className="text-sm text-zinc-600">
+        Opens Backend Modeler in a new tab for this tenant, with a one-time Journeys event-signal brief.
+      </p>
+      <form
+        action={modelBuilderSeedActionUrl(base)}
+        method="post"
+        target="_blank"
+        rel="noopener"
+      >
+        <input type="hidden" name="tenantId" value={tenantId} />
+        <input type="hidden" name="source" value="journeys" />
+        <input type="hidden" name="brief" value={brief} />
+        <button
+          type="submit"
+          className="rounded-md bg-zinc-900 px-3 py-2 text-sm text-white"
+        >
+          Open Model Builder
+        </button>
+      </form>
+    </div>
+  );
+}
+
+## New: Journeys/docs/product/graph/waivers/2026-09-18-model-builder-handoff.md
+
+# Waiver: Model Builder handoff
+
+**Reason:** Nav opens Backend.Model.UX. No new capability. event-models stays IMPLEMENTED_AS Core/Backend, not proj-ux.
+
+**Nodes:** `event-models`.
+
+## Backend.Model.UX stat
+
+ Backend.Model.UX/.env.example                      |  3 +++
+ .../components/layout/tenant-context.tsx           | 11 ++++++++++
+ .../components/model-coach/model-coach-client.tsx  | 25 +++++++++++++++++++---
+ Backend.Model.UX/lib/auth.config.ts                |  2 +-
+ 4 files changed, 37 insertions(+), 4 deletions(-)
+
+## Backend.Model.UX tracked diff
+
+diff --git a/Backend.Model.UX/.env.example b/Backend.Model.UX/.env.example
+index 617af9f..77705fb 100644
+--- a/Backend.Model.UX/.env.example
++++ b/Backend.Model.UX/.env.example
+@@ -26,8 +26,11 @@ BACKEND_WEB_SKIP_TLS_VERIFY=true
+ # AUTH0_M2M_AUDIENCE=
+ # AUTH0_AUDIENCE=
+ 
+ # Last-resort: BackEnd.Web allows anonymous dev access (no upstream auth header sent)
+ # BACKEND_AGENT_SKIP_AUTH=false
+ 
+ # Default tenant for Model Coach
+ NEXT_PUBLIC_DEFAULT_TENANT_ID=
++
++# Comma-separated Origins allowed to POST /api/model-builder/seed (e.g. Journeys.UX). Empty = all seed POSTs forbidden.
++MODEL_BUILDER_SEED_ORIGINS=http://localhost:3000
+diff --git a/Backend.Model.UX/components/layout/tenant-context.tsx b/Backend.Model.UX/components/layout/tenant-context.tsx
+index 6094c32..3d410fd 100644
+--- a/Backend.Model.UX/components/layout/tenant-context.tsx
++++ b/Backend.Model.UX/components/layout/tenant-context.tsx
+@@ -1,26 +1,29 @@
+ "use client";
+ 
+ import * as React from "react";
++import { readTenantIdFromSearch } from "@/lib/journeys-seed";
+ 
+ const TENANT_STORAGE_KEY = "backend-model-ux-tenant-id";
+ const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID?.trim() || "mericantires";
+ 
+ type TenantContextValue = {
+   tenantId: string;
+   setTenantId: (tenantId: string) => void;
+ };
+ 
+ const TenantContext = React.createContext<TenantContextValue | null>(null);
+ 
+ export function TenantProvider({ children }: { children: React.ReactNode }) {
+   const [tenantId, setTenantIdState] = React.useState(() => {
+     if (typeof window === "undefined") return DEFAULT_TENANT_ID;
+     try {
++      const fromQuery = readTenantIdFromSearch(window.location.search);
++      if (fromQuery) return fromQuery;
+       const saved = localStorage.getItem(TENANT_STORAGE_KEY);
+       if (saved?.trim()) return saved.trim();
+     } catch {
+       /* ignore */
+     }
+     return DEFAULT_TENANT_ID;
+   });
+ 
+@@ -30,16 +33,24 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
+       if (next.trim()) {
+         localStorage.setItem(TENANT_STORAGE_KEY, next.trim());
+       }
+     } catch {
+       /* ignore */
+     }
+   }, []);
+ 
++  React.useEffect(() => {
++    if (typeof window === "undefined") return;
++    const fromQuery = readTenantIdFromSearch(window.location.search);
++    if (fromQuery) {
++      setTenantId(fromQuery);
++    }
++  }, [setTenantId]);
++
+   const value = React.useMemo(() => ({ tenantId, setTenantId }), [tenantId, setTenantId]);
+ 
+   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
+ }
+ 
+ export function useTenant(): TenantContextValue {
+   const context = React.useContext(TenantContext);
+   if (!context) {
+diff --git a/Backend.Model.UX/components/model-coach/model-coach-client.tsx b/Backend.Model.UX/components/model-coach/model-coach-client.tsx
+index f580ad1..17da168 100644
+--- a/Backend.Model.UX/components/model-coach/model-coach-client.tsx
++++ b/Backend.Model.UX/components/model-coach/model-coach-client.tsx
+@@ -1,14 +1,15 @@
+ "use client";
+ 
+ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+ import { flushSync } from "react-dom";
+ import { Check, Copy, Plus, Send, Square } from "lucide-react";
+ 
++import { shouldSendJourneysSeed, takeJourneysSeedBrief } from "@/lib/journeys-seed";
+ import { pushSseBytes, type SseEvent } from "@/lib/sse";
+ import { useTenant } from "@/components/layout/tenant-context";
+ import { Button } from "@/components/ui/button";
+ import { Textarea } from "@/components/ui/textarea";
+ import { cn } from "@/lib/utils";
+ 
+ type ChatTurn = {
+   id: string;
+@@ -145,27 +146,27 @@ export function ModelCoachClient() {
+     }
+     inFlightUserRef.current = null;
+     setInFlightUser(null);
+     setInFlightAssistant("");
+     assistantBufRef.current = "";
+     setStreaming(false);
+   }, []);
+ 
+-  const send = useCallback(async () => {
++  const sendMessage = useCallback(async (userMsg: string) => {
+     setError(null);
+     if (!tenantId.trim()) {
+       setError("Select a tenant to start chatting.");
+       return;
+     }
+-    if (!draft.trim()) {
++    if (!userMsg.trim()) {
+       return;
+     }
+ 
+-    const userMsg = draft.trim();
++    userMsg = userMsg.trim();
+     setDraft("");
+     inFlightUserRef.current = userMsg;
+     setInFlightUser(userMsg);
+     assistantBufRef.current = "";
+     setInFlightAssistant("");
+     sseStreamErrorRef.current = false;
+ 
+     abortRef.current?.abort();
+@@ -263,16 +264,34 @@ export function ModelCoachClient() {
+       setInFlightUser(null);
+       setInFlightAssistant("");
+       assistantBufRef.current = "";
+       setStreaming(false);
+       abortRef.current = null;
+     }
+   }, [tenantId, conversationId, draft, appendActivity, handleSseEvent]);
+ 
++  const send = useCallback(async () => {
++    await sendMessage(draft);
++  }, [draft, sendMessage]);
++
++  const seededRef = useRef(false);
++  useEffect(() => {
++    if (seededRef.current) return;
++    if (typeof window === "undefined") return;
++    const params = new URLSearchParams(window.location.search);
++    const source = params.get("source");
++    const queryTenantId = params.get("tenantId");
++    if (!shouldSendJourneysSeed({ source, queryTenantId, tenantId })) return;
++    const brief = takeJourneysSeedBrief();
++    if (!brief) return;
++    seededRef.current = true;
++    void sendMessage(brief);
++  }, [sendMessage, tenantId]);
++
+   const newConversation = useCallback(() => {
+     abortRef.current?.abort();
+     abortRef.current = null;
+     setConversationId(null);
+     setTurns([]);
+     setDraft("");
+     inFlightUserRef.current = null;
+     setInFlightUser(null);
+diff --git a/Backend.Model.UX/lib/auth.config.ts b/Backend.Model.UX/lib/auth.config.ts
+index 5bd96e7..770f7df 100644
+--- a/Backend.Model.UX/lib/auth.config.ts
++++ b/Backend.Model.UX/lib/auth.config.ts
+@@ -6,13 +6,13 @@ export const authConfig = {
+   callbacks: {
+     authorized({ auth, request: { nextUrl } }) {
+       const bypass =
+         process.env.AUTH_DEV_BYPASS?.trim().toLowerCase() === "true" ||
+         process.env.AUTH_DEV_BYPASS?.trim() === "1";
+       if (bypass) return true;
+       const isLoggedIn = !!auth?.user;
+       const path = nextUrl.pathname;
+-      if (path === "/signin" || path.startsWith("/api/auth/")) return true;
++      if (path === "/signin" || path.startsWith("/api/auth/") || path === "/api/model-builder/seed") return true;
+       return isLoggedIn;
+     },
+   },
+ } satisfies NextAuthConfig;
+
+## New: Backend.Model.UX/lib/journeys-seed.ts
+
+export const JOURNEYS_SEED_STORAGE_KEY = "backend-model-ux-journeys-brief";
+export const SEED_BRIEF_MAX_LENGTH = 32000;
+
+function stripTrailingSlash(value: string): string {
+  return value.trim().replace(/\/+$/, "");
+}
+
+export function parseAllowedSeedOrigins(raw: string | undefined): string[] {
+  return (raw ?? "")
+    .split(",")
+    .map((o) => stripTrailingSlash(o))
+    .filter(Boolean);
+}
+
+export function isAllowedSeedOrigin(origin: string, allowed: string[]): boolean {
+  if (allowed.length === 0) return false;
+  const normalized = stripTrailingSlash(origin);
+  if (!normalized) return false;
+  return allowed.some((item) => stripTrailingSlash(item) === normalized);
+}
+
+export function isSeedBriefTooLarge(brief: string): boolean {
+  return brief.length > SEED_BRIEF_MAX_LENGTH;
+}
+
+export function readTenantIdFromSearch(search: string): string | null {
+  const trimmed = new URLSearchParams(search).get("tenantId")?.trim() ?? "";
+  return trimmed ? trimmed : null;
+}
+
+export function shouldSendJourneysSeed(args: {
+  source: string | null;
+  queryTenantId: string | null;
+  tenantId: string;
+}): boolean {
+  if (args.source !== "journeys") return false;
+  const queryTenant = args.queryTenantId?.trim();
+  if (queryTenant && args.tenantId !== queryTenant) return false;
+  return true;
+}
+
+export function takeJourneysSeedBrief(): string | null {
+  const storage = globalThis.sessionStorage;
+  if (typeof storage === "undefined") return null;
+  const value = storage.getItem(JOURNEYS_SEED_STORAGE_KEY);
+  storage.removeItem(JOURNEYS_SEED_STORAGE_KEY);
+  return value && value.trim() ? value : null;
+}
+
+export function writeJourneysSeedBriefScript(brief: string, tenantId: string): string {
+  const payload = JSON.stringify({ brief, tenantId });
+  const safe = payload.replace(/</g, "\\u003c");
+  return `<!DOCTYPE html><html><body><script>
+(function(){
+  var p = ${safe};
+  try { sessionStorage.setItem(${JSON.stringify(JOURNEYS_SEED_STORAGE_KEY)}, p.brief); } catch (e) {}
+  location.replace("/models/coach?tenantId=" + encodeURIComponent(p.tenantId) + "&source=journeys");
+})();
+</script></body></html>`;
+}
+
+## New: Backend.Model.UX/lib/journeys-seed.test.ts
+
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  JOURNEYS_SEED_STORAGE_KEY,
+  SEED_BRIEF_MAX_LENGTH,
+  isAllowedSeedOrigin,
+  isSeedBriefTooLarge,
+  readTenantIdFromSearch,
+  shouldSendJourneysSeed,
+  takeJourneysSeedBrief,
+  writeJourneysSeedBriefScript,
+} from "./journeys-seed";
+
+describe("shouldSendJourneysSeed", () => {
+  it("returns false when source is not journeys", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "other",
+        queryTenantId: "acme",
+        tenantId: "acme",
+      })
+    ).toBe(false);
+  });
+
+  it("returns false when query tenant is present and context tenant differs", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: "acme",
+        tenantId: "mericantires",
+      })
+    ).toBe(false);
+  });
+
+  it("returns true when query tenant is present and context tenant matches", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: "acme",
+        tenantId: "acme",
+      })
+    ).toBe(true);
+  });
+
+  it("returns true when source is journeys and there is no query tenant", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: null,
+        tenantId: "mericantires",
+      })
+    ).toBe(true);
+  });
+
+  it("returns true when a padded query tenant matches a trimmed context tenant", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: "  acme  ",
+        tenantId: "acme",
+      })
+    ).toBe(true);
+  });
+});
+
+describe("isAllowedSeedOrigin", () => {
+  it("returns false when the allowlist is empty", () => {
+    expect(isAllowedSeedOrigin("http://localhost:3000", [])).toBe(false);
+  });
+
+  it("returns false when the origin does not match", () => {
+    expect(isAllowedSeedOrigin("https://evil.example", ["http://localhost:3000"])).toBe(false);
+  });
+
+  it("returns true when the origin matches after a trailing-slash strip", () => {
+    expect(isAllowedSeedOrigin("http://localhost:3000/", ["http://localhost:3000"])).toBe(true);
+  });
+});
+
+describe("isSeedBriefTooLarge", () => {
+  it("returns false at the 32000 boundary and true above it", () => {
+    expect(isSeedBriefTooLarge("x".repeat(SEED_BRIEF_MAX_LENGTH))).toBe(false);
+    expect(isSeedBriefTooLarge("x".repeat(SEED_BRIEF_MAX_LENGTH + 1))).toBe(true);
+  });
+});
+
+describe("readTenantIdFromSearch", () => {
+  it("returns the trimmed tenant when ?tenantId= is present", () => {
+    expect(readTenantIdFromSearch("?tenantId=acme")).toBe("acme");
+    expect(readTenantIdFromSearch("?tenantId=  acme  ")).toBe("acme");
+  });
+
+  it("returns null when tenantId is empty or missing", () => {
+    expect(readTenantIdFromSearch("?tenantId=")).toBeNull();
+    expect(readTenantIdFromSearch("?tenantId=   ")).toBeNull();
+    expect(readTenantIdFromSearch("")).toBeNull();
+    expect(readTenantIdFromSearch("?foo=bar")).toBeNull();
+  });
+});
+
+describe("writeJourneysSeedBriefScript", () => {
+  it("does not put the brief in the redirect query", () => {
+    const html = writeJourneysSeedBriefScript("Never use modelId \"unknown\".", "acme");
+    expect(html).toContain("sessionStorage");
+    expect(html).toContain("source=journeys");
+    expect(html).toContain("tenantId=");
+    expect(html).toContain("encodeURIComponent(p.tenantId)");
+    expect(html).not.toMatch(/location\.replace\([^)]*unknown/);
+  });
+
+  it("escapes a brief that contains </script>", () => {
+    const html = writeJourneysSeedBriefScript("</script>alert(1)", "acme");
+    expect(html).not.toContain("</script>alert");
+  });
+});
+
+describe("takeJourneysSeedBrief", () => {
+  afterEach(() => {
+    Reflect.deleteProperty(globalThis, "sessionStorage");
+  });
+
+  it("returns null when sessionStorage is missing", () => {
+    expect(takeJourneysSeedBrief()).toBeNull();
+  });
+
+  it("reads and removes the stored brief once", () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(globalThis, "sessionStorage", {
+      configurable: true,
+      value: {
+        getItem(key: string) {
+          return store.get(key) ?? null;
+        },
+        setItem(key: string, value: string) {
+          store.set(key, value);
+        },
+        removeItem(key: string) {
+          store.delete(key);
+        },
+      },
+    });
+    globalThis.sessionStorage.setItem(JOURNEYS_SEED_STORAGE_KEY, "  hello brief  ");
+    expect(takeJourneysSeedBrief()).toBe("  hello brief  ");
+    expect(store.has(JOURNEYS_SEED_STORAGE_KEY)).toBe(false);
+    expect(takeJourneysSeedBrief()).toBeNull();
+  });
+
+  it("returns null for a blank stored brief", () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(globalThis, "sessionStorage", {
+      configurable: true,
+      value: {
+        getItem(key: string) {
+          return store.get(key) ?? null;
+        },
+        removeItem(key: string) {
+          store.delete(key);
+        },
+      },
+    });
+    store.set(JOURNEYS_SEED_STORAGE_KEY, "   ");
+    expect(takeJourneysSeedBrief()).toBeNull();
+    expect(store.has(JOURNEYS_SEED_STORAGE_KEY)).toBe(false);
+  });
+});
+
+## New: Backend.Model.UX/app/api/model-builder/seed/route.ts
+
+import { NextResponse } from "next/server";
+import {
+  isAllowedSeedOrigin,
+  isSeedBriefTooLarge,
+  parseAllowedSeedOrigins,
+  writeJourneysSeedBriefScript,
+} from "@/lib/journeys-seed";
+
+export async function POST(request: Request) {
+  const origin = request.headers.get("origin")?.replace(/\/+$/, "") ?? "";
+  const allowedOrigins = parseAllowedSeedOrigins(process.env.MODEL_BUILDER_SEED_ORIGINS);
+  if (!isAllowedSeedOrigin(origin, allowedOrigins)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const form = await request.formData();
+  const tenantId = String(form.get("tenantId") ?? "").trim();
+  const brief = String(form.get("brief") ?? "").trim();
+  const source = String(form.get("source") ?? "").trim();
+  if (source !== "journeys" || !tenantId || !brief) {
+    return NextResponse.json({ error: "tenantId, brief, and source=journeys are required" }, { status: 400 });
+  }
+  if (isSeedBriefTooLarge(brief)) {
+    return NextResponse.json({ error: "brief too large" }, { status: 400 });
+  }
+  return new NextResponse(writeJourneysSeedBriefScript(brief, tenantId), {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }
+  });
+}
+
+## New: Backend.Model.UX/app/api/model-builder/seed/route.test.ts
+
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { SEED_BRIEF_MAX_LENGTH } from "@/lib/journeys-seed";
+import { POST } from "./route";
+
+function seedRequest(opts: {
+  origin?: string | null;
+  tenantId?: string;
+  brief?: string;
+  source?: string;
+}) {
+  const form = new FormData();
+  form.set("tenantId", opts.tenantId ?? "acme");
+  form.set("brief", opts.brief ?? "hello brief");
+  form.set("source", opts.source ?? "journeys");
+  const headers = new Headers();
+  if (opts.origin !== null) {
+    headers.set("origin", opts.origin ?? "http://localhost:3000");
+  }
+  return new Request("http://localhost:3145/api/model-builder/seed", {
+    method: "POST",
+    headers,
+    body: form,
+  });
+}
+
+describe("POST /api/model-builder/seed", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("returns 403 when Origin is missing", async () => {
+    vi.stubEnv("MODEL_BUILDER_SEED_ORIGINS", "http://localhost:3000");
+    const response = await POST(seedRequest({ origin: null }));
+    expect(response.status).toBe(403);
+  });
+
+  it("returns 400 when source is not journeys", async () => {
+    vi.stubEnv("MODEL_BUILDER_SEED_ORIGINS", "http://localhost:3000");
+    const response = await POST(seedRequest({ source: "other" }));
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when brief is empty", async () => {
+    vi.stubEnv("MODEL_BUILDER_SEED_ORIGINS", "http://localhost:3000");
+    const response = await POST(seedRequest({ brief: "   " }));
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when brief is oversize", async () => {
+    vi.stubEnv("MODEL_BUILDER_SEED_ORIGINS", "http://localhost:3000");
+    const response = await POST(seedRequest({ brief: "x".repeat(SEED_BRIEF_MAX_LENGTH + 1) }));
+    expect(response.status).toBe(400);
+  });
+});

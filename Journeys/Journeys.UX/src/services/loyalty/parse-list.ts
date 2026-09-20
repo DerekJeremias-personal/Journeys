@@ -54,6 +54,16 @@ export function extractEntities(data: unknown): unknown[] {
   return [];
 }
 
+export function readModelMetaData(row: Record<string, unknown>): Record<string, string> | undefined {
+  const raw = row.modelMetaData ?? row.ModelMetaData;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === "string" && value.trim()) out[key] = value.trim();
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export function normalizeSchema(row: unknown): SchemaListItem | null {
   if (!row || typeof row !== "object") return null;
   const rec = row as Record<string, unknown>;
@@ -63,6 +73,7 @@ export function normalizeSchema(row: unknown): SchemaListItem | null {
     status: readString(rec, "status", "Status"),
     modelType: readString(rec, "modelType", "ModelType"),
     tag: readString(rec, "tag", "Tag"),
+    modelMetaData: readModelMetaData(rec),
     attributes: Array.isArray(rec.attributes)
       ? (rec.attributes as SchemaListItem["attributes"])
       : Array.isArray(rec.Attributes)

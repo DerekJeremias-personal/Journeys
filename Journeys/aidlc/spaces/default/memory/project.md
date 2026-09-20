@@ -58,11 +58,39 @@ NEVER invent capability ids (affirmed 2026-09-14)
 NEVER treat aidlc/ artifacts as product canon (affirmed 2026-09-14)
 NEVER cap production reviews at none (affirmed 2026-09-14)
 
+NEVER invent capability ids (already affirmed 2026-09-14) (affirmed 2026-09-19)
+
+NEVER treat aidlc/ artifacts as product canon (already affirmed 2026-09-14) (affirmed 2026-09-19)
+
+NEVER cap production reviews at none (already affirmed 2026-09-14) (affirmed 2026-09-19)
+
+NEVER use Express to dodge Inception or reviewers on production work (human-stated) (affirmed 2026-09-19)
+
+NEVER merge to main or release as an agent (human-stated) (affirmed 2026-09-19)
+
+NEVER add terraform or Databricks folders in this tree (human-stated) (affirmed 2026-09-19)
+
+NEVER run AWS/CDK platform stages unless the human names infrastructure work that belongs outside this sln (human-stated) (affirmed 2026-09-19)
+
+NEVER edit Auth0 tenant "hayward" (human-stated DECIDED) (affirmed 2026-09-19)
+
+NEVER log secrets, full event payloads, webhook auth headers, or raw audit JSON (human-stated in the approved plan) (affirmed 2026-09-19)
+
 ## Mandated
 
 ALWAYS run scripts/aidlc-agent-verify-sensor.ps1 before completing Construction (affirmed 2026-09-14)
 ALWAYS keep TenantId on business operations (affirmed 2026-09-14)
 
+
+ALWAYS run scripts/aidlc-agent-verify-sensor.ps1 before completing Construction (already affirmed 2026-09-14) (affirmed 2026-09-19)
+
+ALWAYS keep TenantId on every business operation (already affirmed 2026-09-14) (affirmed 2026-09-19)
+
+ALWAYS land Linear unit issues — one issue per unit after units-generation — and wait for human -ApproveCreate before any Journeys.* product code (human-stated) (affirmed 2026-09-19)
+
+ALWAYS keep walking-skeleton and engine writes on the Core + DTO path, not a parallel MCP or Campaign Agent write path (human-stated) (affirmed 2026-09-19)
+
+ALWAYS treat auth, ledger/money-like outcomes, and tenant isolation as human-gated (human-stated) (affirmed 2026-09-19)
 
 ## Scope Overrides
 

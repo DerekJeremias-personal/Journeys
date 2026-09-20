@@ -1,0 +1,358 @@
+﻿# Task 3 review package (after tenant-race fix)
+# Uncommitted in C:\Dev\Backend\Backend.Model.UX
+
+## Stat
+ .../components/layout/tenant-context.tsx           | 10 +++++++++
+ .../components/model-coach/model-coach-client.tsx  | 25 +++++++++++++++++++---
+ Backend.Model.UX/lib/auth.config.ts                |  2 +-
+ 3 files changed, 33 insertions(+), 4 deletions(-)
+
+## Untracked
+ lib/journeys-seed.ts (new)
+ lib/journeys-seed.test.ts (new)
+ app/api/model-builder/seed/route.ts (new)
+
+## Diff (tracked)
+
+diff --git a/Backend.Model.UX/components/layout/tenant-context.tsx b/Backend.Model.UX/components/layout/tenant-context.tsx
+index 6094c32..e3ee491 100644
+--- a/Backend.Model.UX/components/layout/tenant-context.tsx
++++ b/Backend.Model.UX/components/layout/tenant-context.tsx
+@@ -9,39 +9,49 @@ type TenantContextValue = {
+   tenantId: string;
+   setTenantId: (tenantId: string) => void;
+ };
+ 
+ const TenantContext = React.createContext<TenantContextValue | null>(null);
+ 
+ export function TenantProvider({ children }: { children: React.ReactNode }) {
+   const [tenantId, setTenantIdState] = React.useState(() => {
+     if (typeof window === "undefined") return DEFAULT_TENANT_ID;
+     try {
++      const fromQuery = new URLSearchParams(window.location.search).get("tenantId");
++      if (fromQuery?.trim()) return fromQuery.trim();
+       const saved = localStorage.getItem(TENANT_STORAGE_KEY);
+       if (saved?.trim()) return saved.trim();
+     } catch {
+       /* ignore */
+     }
+     return DEFAULT_TENANT_ID;
+   });
+ 
+   const setTenantId = React.useCallback((next: string) => {
+     setTenantIdState(next);
+     try {
+       if (next.trim()) {
+         localStorage.setItem(TENANT_STORAGE_KEY, next.trim());
+       }
+     } catch {
+       /* ignore */
+     }
+   }, []);
+ 
++  React.useEffect(() => {
++    if (typeof window === "undefined") return;
++    const fromQuery = new URLSearchParams(window.location.search).get("tenantId");
++    if (fromQuery?.trim()) {
++      setTenantId(fromQuery.trim());
++    }
++  }, [setTenantId]);
++
+   const value = React.useMemo(() => ({ tenantId, setTenantId }), [tenantId, setTenantId]);
+ 
+   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
+ }
+ 
+ export function useTenant(): TenantContextValue {
+   const context = React.useContext(TenantContext);
+   if (!context) {
+     throw new Error("useTenant must be used within a TenantProvider.");
+   }
+diff --git a/Backend.Model.UX/components/model-coach/model-coach-client.tsx b/Backend.Model.UX/components/model-coach/model-coach-client.tsx
+index f580ad1..17da168 100644
+--- a/Backend.Model.UX/components/model-coach/model-coach-client.tsx
++++ b/Backend.Model.UX/components/model-coach/model-coach-client.tsx
+@@ -1,16 +1,17 @@
+ "use client";
+ 
+ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+ import { flushSync } from "react-dom";
+ import { Check, Copy, Plus, Send, Square } from "lucide-react";
+ 
++import { shouldSendJourneysSeed, takeJourneysSeedBrief } from "@/lib/journeys-seed";
+ import { pushSseBytes, type SseEvent } from "@/lib/sse";
+ import { useTenant } from "@/components/layout/tenant-context";
+ import { Button } from "@/components/ui/button";
+ import { Textarea } from "@/components/ui/textarea";
+ import { cn } from "@/lib/utils";
+ 
+ type ChatTurn = {
+   id: string;
+   userMessage: string;
+   assistantMessage: string;
+@@ -143,31 +144,31 @@ export function ModelCoachClient() {
+     if (savedUser) {
+       setDraft((d) => (d ? `${savedUser}\n${d}` : savedUser));
+     }
+     inFlightUserRef.current = null;
+     setInFlightUser(null);
+     setInFlightAssistant("");
+     assistantBufRef.current = "";
+     setStreaming(false);
+   }, []);
+ 
+-  const send = useCallback(async () => {
++  const sendMessage = useCallback(async (userMsg: string) => {
+     setError(null);
+     if (!tenantId.trim()) {
+       setError("Select a tenant to start chatting.");
+       return;
+     }
+-    if (!draft.trim()) {
++    if (!userMsg.trim()) {
+       return;
+     }
+ 
+-    const userMsg = draft.trim();
++    userMsg = userMsg.trim();
+     setDraft("");
+     inFlightUserRef.current = userMsg;
+     setInFlightUser(userMsg);
+     assistantBufRef.current = "";
+     setInFlightAssistant("");
+     sseStreamErrorRef.current = false;
+ 
+     abortRef.current?.abort();
+     abortRef.current = null;
+ 
+@@ -261,20 +262,38 @@ export function ModelCoachClient() {
+     } finally {
+       inFlightUserRef.current = null;
+       setInFlightUser(null);
+       setInFlightAssistant("");
+       assistantBufRef.current = "";
+       setStreaming(false);
+       abortRef.current = null;
+     }
+   }, [tenantId, conversationId, draft, appendActivity, handleSseEvent]);
+ 
++  const send = useCallback(async () => {
++    await sendMessage(draft);
++  }, [draft, sendMessage]);
++
++  const seededRef = useRef(false);
++  useEffect(() => {
++    if (seededRef.current) return;
++    if (typeof window === "undefined") return;
++    const params = new URLSearchParams(window.location.search);
++    const source = params.get("source");
++    const queryTenantId = params.get("tenantId");
++    if (!shouldSendJourneysSeed({ source, queryTenantId, tenantId })) return;
++    const brief = takeJourneysSeedBrief();
++    if (!brief) return;
++    seededRef.current = true;
++    void sendMessage(brief);
++  }, [sendMessage, tenantId]);
++
+   const newConversation = useCallback(() => {
+     abortRef.current?.abort();
+     abortRef.current = null;
+     setConversationId(null);
+     setTurns([]);
+     setDraft("");
+     inFlightUserRef.current = null;
+     setInFlightUser(null);
+     setInFlightAssistant("");
+     assistantBufRef.current = "";
+diff --git a/Backend.Model.UX/lib/auth.config.ts b/Backend.Model.UX/lib/auth.config.ts
+index 5bd96e7..770f7df 100644
+--- a/Backend.Model.UX/lib/auth.config.ts
++++ b/Backend.Model.UX/lib/auth.config.ts
+@@ -4,15 +4,15 @@ export const authConfig = {
+   pages: { signIn: "/signin" },
+   providers: [],
+   callbacks: {
+     authorized({ auth, request: { nextUrl } }) {
+       const bypass =
+         process.env.AUTH_DEV_BYPASS?.trim().toLowerCase() === "true" ||
+         process.env.AUTH_DEV_BYPASS?.trim() === "1";
+       if (bypass) return true;
+       const isLoggedIn = !!auth?.user;
+       const path = nextUrl.pathname;
+-      if (path === "/signin" || path.startsWith("/api/auth/")) return true;
++      if (path === "/signin" || path.startsWith("/api/auth/") || path === "/api/model-builder/seed") return true;
+       return isLoggedIn;
+     },
+   },
+ } satisfies NextAuthConfig;
+
+## New file: lib/journeys-seed.ts
+
+export const JOURNEYS_SEED_STORAGE_KEY = "backend-model-ux-journeys-brief";
+
+export function shouldSendJourneysSeed(args: {
+  source: string | null;
+  queryTenantId: string | null;
+  tenantId: string;
+}): boolean {
+  if (args.source !== "journeys") return false;
+  if (args.queryTenantId && args.tenantId !== args.queryTenantId) return false;
+  return true;
+}
+
+export function takeJourneysSeedBrief(): string | null {
+  const storage = globalThis.sessionStorage;
+  if (typeof storage === "undefined") return null;
+  const value = storage.getItem(JOURNEYS_SEED_STORAGE_KEY);
+  storage.removeItem(JOURNEYS_SEED_STORAGE_KEY);
+  return value && value.trim() ? value : null;
+}
+
+export function writeJourneysSeedBriefScript(brief: string, tenantId: string): string {
+  const payload = JSON.stringify({ brief, tenantId });
+  const safe = payload.replace(/</g, "\\u003c");
+  return `<!DOCTYPE html><html><body><script>
+(function(){
+  var p = ${safe};
+  try { sessionStorage.setItem(${JSON.stringify(JOURNEYS_SEED_STORAGE_KEY)}, p.brief); } catch (e) {}
+  location.replace("/models/coach?tenantId=" + encodeURIComponent(p.tenantId) + "&source=journeys");
+})();
+</script></body></html>`;
+}
+
+## New file: lib/journeys-seed.test.ts
+
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  JOURNEYS_SEED_STORAGE_KEY,
+  shouldSendJourneysSeed,
+  takeJourneysSeedBrief,
+  writeJourneysSeedBriefScript,
+} from "./journeys-seed";
+
+describe("shouldSendJourneysSeed", () => {
+  it("returns false when source is not journeys", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "other",
+        queryTenantId: "acme",
+        tenantId: "acme",
+      })
+    ).toBe(false);
+  });
+
+  it("returns false when query tenant is present and context tenant differs", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: "acme",
+        tenantId: "mericantires",
+      })
+    ).toBe(false);
+  });
+
+  it("returns true when query tenant is present and context tenant matches", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: "acme",
+        tenantId: "acme",
+      })
+    ).toBe(true);
+  });
+
+  it("returns true when source is journeys and there is no query tenant", () => {
+    expect(
+      shouldSendJourneysSeed({
+        source: "journeys",
+        queryTenantId: null,
+        tenantId: "mericantires",
+      })
+    ).toBe(true);
+  });
+});
+
+describe("writeJourneysSeedBriefScript", () => {
+  it("does not put the brief in the redirect query", () => {
+    const html = writeJourneysSeedBriefScript("Never use modelId \"unknown\".", "acme");
+    expect(html).toContain("sessionStorage");
+    expect(html).toContain("source=journeys");
+    expect(html).toContain("tenantId=");
+    expect(html).toContain("encodeURIComponent(p.tenantId)");
+    expect(html).not.toMatch(/location\.replace\([^)]*unknown/);
+  });
+
+  it("escapes a brief that contains </script>", () => {
+    const html = writeJourneysSeedBriefScript("</script>alert(1)", "acme");
+    expect(html).not.toContain("</script>alert");
+  });
+});
+
+describe("takeJourneysSeedBrief", () => {
+  afterEach(() => {
+    Reflect.deleteProperty(globalThis, "sessionStorage");
+  });
+
+  it("returns null when sessionStorage is missing", () => {
+    expect(takeJourneysSeedBrief()).toBeNull();
+  });
+
+  it("reads and removes the stored brief once", () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(globalThis, "sessionStorage", {
+      configurable: true,
+      value: {
+        getItem(key: string) {
+          return store.get(key) ?? null;
+        },
+        setItem(key: string, value: string) {
+          store.set(key, value);
+        },
+        removeItem(key: string) {
+          store.delete(key);
+        },
+      },
+    });
+    globalThis.sessionStorage.setItem(JOURNEYS_SEED_STORAGE_KEY, "  hello brief  ");
+    expect(takeJourneysSeedBrief()).toBe("  hello brief  ");
+    expect(store.has(JOURNEYS_SEED_STORAGE_KEY)).toBe(false);
+    expect(takeJourneysSeedBrief()).toBeNull();
+  });
+
+  it("returns null for a blank stored brief", () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(globalThis, "sessionStorage", {
+      configurable: true,
+      value: {
+        getItem(key: string) {
+          return store.get(key) ?? null;
+        },
+        removeItem(key: string) {
+          store.delete(key);
+        },
+      },
+    });
+    store.set(JOURNEYS_SEED_STORAGE_KEY, "   ");
+    expect(takeJourneysSeedBrief()).toBeNull();
+    expect(store.has(JOURNEYS_SEED_STORAGE_KEY)).toBe(false);
+  });
+});
+
+## New file: app/api/model-builder/seed/route.ts
+
+import { NextResponse } from "next/server";
+import { writeJourneysSeedBriefScript } from "@/lib/journeys-seed";
+
+export async function POST(request: Request) {
+  const form = await request.formData();
+  const tenantId = String(form.get("tenantId") ?? "").trim();
+  const brief = String(form.get("brief") ?? "").trim();
+  const source = String(form.get("source") ?? "").trim();
+  if (source !== "journeys" || !tenantId || !brief) {
+    return NextResponse.json({ error: "tenantId, brief, and source=journeys are required" }, { status: 400 });
+  }
+  return new NextResponse(writeJourneysSeedBriefScript(brief, tenantId), {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }
+  });
+}
