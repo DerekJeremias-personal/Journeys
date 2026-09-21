@@ -9,6 +9,7 @@ A **point account type** (PAT) is a named ledger **bucket** on that account, not
 | Field | Meaning |
 |-------|---------|
 | `Journeys` | Membership: `RootJourneyNodeId` + `JourneyNodeIds` (`journey.md`). |
+| `ExtAccountId` | External member id. Webhook payload includes it when present (`outcome.md`). |
 | `RuleState` | Historical-rule aggregates. Key = `CampaignId\|RuleId` (`rule.md`). Count/Value/FirstOccurrence; TTL decay hydrates before eval. |
 | `LockLeaseKey` / `LockLeaseExpiration` | Taken for the process turn; cleared on save in `RulesService` finally. |
 | `Tags` | Applied via `TagOutcome`. |
@@ -27,6 +28,20 @@ Spendable PAT **balance** and tier-qual PAT **balance** are different buckets. N
 | `Archive` | Archive sink |
 
 Also used: `PointsLifespanDays`, `PointsLifespanEndDate`, rounding (`RoundingOptionString`, `RoundingDecimalPlaces`).
+
+## Expire-to dest clock
+
+When a due ledger row hops via `ExpiresToPointAccountTypeId`, `LoyaltyAccountService.SaveLedgerExpirations` keeps `EarnDate` and sets dest `ExpirationDate` from the **destination** PAT:
+
+1. Dest `PointsLifespanEndDate` if set.
+2. Else `EarnDate` + dest `PointsLifespanDays` when dest has days.
+3. Else unset (no 100-day default, no `UtcNow` as the lifespan base).
+
+If dest days exist and `EarnDate` is missing, the existing source `ExpirationDate` is last resort. A missing or not-found dest PAT leaves the row in source. An unexpected dest-PAT load/persist throw fails the event. Rows already written with the old move-time (`UtcNow`) dest clock stay until they hop again. EventService does not compute a second dest clock.
+
+## Expire on ProcessEvent
+
+A valid ProcessEvent turn acquires today's `TryLockAccount`, then brings due ledgers current (`ExpirationDate <= UtcNow`) via existing `BringLoyaltyAccountPointsCurrentInternalAsync`, assigns `PointLedgers`, then navigates and evaluates rules so this event can spend a released hold. Dest hop math stays the dest clock above. A bring-current throw after the lock fails the event. Invalid, missing, or pre-save wrapper accounts skip bring-current. GET and reconcile keep their existing bring-current callers. No new lock, queue, hosted sweep, or `/points/expire`.
 
 ## Tier qualification
 

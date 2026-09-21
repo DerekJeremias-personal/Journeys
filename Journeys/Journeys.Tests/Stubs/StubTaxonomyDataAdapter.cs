@@ -27,7 +27,7 @@ namespace Journeys.Tests.Stubs
             RegisteredKeys.Add(sku);
         }
 
-        public Task<List<TaxonomyDto>> GetManyTaxonomiesByXidAsync(string tenantId, List<string> lookupKeys, CancellationToken token = default)
+        public virtual Task<List<TaxonomyDto>> GetManyTaxonomiesByXidAsync(string tenantId, List<string> lookupKeys, CancellationToken token = default)
         {
             var result = new List<TaxonomyDto>();
             if (lookupKeys == null) return Task.FromResult(result);

@@ -15,7 +15,7 @@ public class RulesEngineMcpContractSummaryTests
     {
         var dto = RulesEngineMcpContractSummary.Build();
 
-        Assert.Equal("2026-06-20", dto.MatrixVersion);
+        Assert.Equal("2026-09-18", dto.MatrixVersion);
         Assert.NotEmpty(dto.EnumCatalog);
 
         var numEval = dto.EnumCatalog.Single(e => e.Id == "NumEvalType");
@@ -168,6 +168,20 @@ public class RulesEngineMcpContractSummaryTests
         var dto = RulesEngineMcpContractSummary.Build();
         var row = dto.CriticalRows.Single(r => r.Id == "simple_rule_three_part");
         Assert.Equal(["LeftProvider", "RightProvider", "Evaluator"], row.RequiredJsonProperties);
+    }
+
+    [Fact]
+    public void Build_includes_notification_config_id_critical_row()
+    {
+        var dto = RulesEngineMcpContractSummary.Build();
+        var row = dto.CriticalRows.Single(r => r.Id == "notification_config_id");
+
+        Assert.Equal("outcome", row.Facet);
+        Assert.Equal([OutcomeKindDiscriminators.NotificationOutcome], row.KindMatchers);
+        Assert.Equal(["NotificationConfigId"], row.RequiredJsonProperties);
+        Assert.Contains("GUID", row.Notes);
+        Assert.Contains(dto.CriticalRows, r => r.Id == "deposit_dollar_provider");
+        Assert.Contains(dto.CriticalRows, r => r.Id == "spend_withdrawal_provider");
     }
 
     [Fact]

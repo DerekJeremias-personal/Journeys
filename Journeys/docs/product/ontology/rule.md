@@ -63,12 +63,12 @@ Semantics, required properties, and anti-patterns for authoring live in `RulesEn
 Entry point: `IRulesService.ProcessRulesAsync` in `Journeys.Core/Services/RulesService.cs`. Always `TenantId`-scoped.
 
 1. Build `RulesEngineState` from the inbound event, account, and live campaigns.
-2. **Hydrate** in parallel before any `Evaluate`: expired historical TTLs + decay, stored `LoyaltyAccount.RuleState`, taxonomy keys, current journey membership.
+2. **Hydrate** in parallel before any `Evaluate`: collect historical and taxonomic rules from every `JourneyNode` earn RuleSet, every NavConstraint tree (including nested composites), and children — not only root `Journey.Rules` — then expired historical TTLs + decay, stored `LoyaltyAccount.RuleState`, taxonomy keys, current journey membership. Empty Rules collections skip that node or constraint without failing the event; an empty collect still runs this pipeline.
 3. Skip a campaign whose `StartDate` is in the future or `EndDate` is in the past.
 4. For each remaining campaign, `JourneyNode.ProcessAsync`: navigate first, then RuleSets on the node the account occupies.
 5. Persist the loyalty account; upsert historical event TTLs for modified state keys. Wrapper persist symbols stay lowercase (`appliedrulesetids`, `outcomestates`, … — see event-model).
 
-`CalculateOnly` still evaluates and calculates; it does not award.
+`CalculateOnly` still evaluates and calculates; it does not award (including `NotificationOutcome` webhook POST).
 
 **Historical state key:** `CampaignId|RuleId` (`RuleBase.GetHistoricalStateKey`). Changing campaign id or rule `Id` starts a **new** rolling bucket. TTL decay is applied at hydrate, then the current event may contribute.
 

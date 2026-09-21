@@ -17,6 +17,8 @@ Journeys are **criteria-based progression by account**. Membership can change ti
 
 `JourneyBase` is only the id-bearing base. Do not invent another journey aggregate.
 
+**Hydrate collect** (`JourneyNode.FlattenToRulesOfType`) walks this node’s earn RuleSets, each `SimpleNavigationCriteria.NavConstraint` tree (composites included), and `Children`. `RulesService.HydrateState` uses that set — not only the root node’s `Rules`.
+
 ## Process order (`JourneyNode.ProcessAsync`)
 
 1. Evaluate navigation (including sibling transitions if already in this node).

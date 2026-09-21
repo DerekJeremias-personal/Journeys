@@ -54,4 +54,12 @@ Drift control: a later shared-rule change is made in Backend, Journeys, and GoEd
 
 **Secrets:** committed `appsettings*.json` hold empty keys only. Live Azure, Anthropic, Databricks, and similar credentials stay in user secrets, environment variables, or a gitignored `appsettings.Local.json`. Do not hardcode connection strings in Infra adapters. Serilog Azure Analytics is registered only when workspace id and authentication id are both set; otherwise the host logs to console. When `DataLake:ConnectionString` is set, blob clients, Data Lake, and chunk/archive hosted services register. When it is unset, the host still starts: scoped unconfigured adapters satisfy DI (`IDataLakeAdapter`, `IFileStorageAdapter`, `IFileIngestionAdapter`), chunk/archive jobs are not registered, and blob/Data Lake calls fail at the call site (account-report existence checks and campaign-agent tool-audit appends no-op).
 
+**Rules hydrate:** `RulesService.HydrateState` collects historical and taxonomic rules from every `JourneyNode` earn RuleSet, every NavConstraint tree (including nested composites), and children — not only root `Journey.Rules` — then the existing TTL / decay / `LoyaltyAccount.RuleState` / upsert pipeline. Empty Rules skip without throw.
+
+**NotificationOutcome:** Live RuleSet Award POSTs `NotificationOutcomePayload` through `INotificationService` on `RulesEngineState` (copied from host/`EventService` onto the request, not a `RulesService` constructor argument). `AddNotificationsServices` always registers `INotificationService` (not gated on `DisableDataLake`). The award loop honors returned `IsAwarded`.
+
+**Earn-date dest clock:** `LoyaltyAccountService.SaveLedgerExpirations` keeps `EarnDate` on an expire-to hop and sets dest `ExpirationDate` from dest `PointsLifespanEndDate`, else `EarnDate` + dest `PointsLifespanDays`, else unset. Missing dest PAT stays in source; dest-PAT infra throw fails the event. Already-cascaded `UtcNow` dest dates stay until they hop again. Formula: `docs/product/ontology/loyalty-account.md`.
+
+**ProcessEvent order:** After a valid account is populated, `EventService.ProcessCampaignsAsync` acquires `TryLockAccount`, then `BringLoyaltyAccountPointsCurrentInternalAsync` (assign `PointLedgers`), then `AttachNotificationPort`, then `ProcessRulesAsync`. Invalid / missing / pre-save accounts skip bring-current. GET/reconcile callers stay on their existing bring-current sites. No hosted sweep or `/points/expire`.
+
 **Not in this solution:** terraform, Databricks.

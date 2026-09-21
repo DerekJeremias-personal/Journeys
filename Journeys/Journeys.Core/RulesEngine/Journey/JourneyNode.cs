@@ -14,6 +14,7 @@ using Journeys.Core.RulesEngine.Engine;
 using Journeys.Core.RulesEngine.Journey.Enums;
 using Journeys.Core.RulesEngine.Outcomes;
 using Journeys.Core.RulesEngine.Rules;
+using Journeys.Core.RulesEngine.Rules.Composite;
 using Journeys.Core.Utility;
 using Journeys.DTO.Models.RulesEngine;
 using Microsoft.Azure.Amqp.Encoding;
@@ -234,26 +235,53 @@ namespace Journeys.Core.RulesEngine.Journey
         public List<T> FlattenToRulesOfType<T>() where T : RuleBase
         {
             var result = new List<T>();
-            var filteredRules = NavigationCriteria?.Values
-                //.SelectMany(x => x)
-                .Select(x => x)
-                .OfType<SimpleNavigationCriteria>()
-                .Select(x => x.NavConstraint)
-                .OfType<T>();
 
-            if (filteredRules != null && filteredRules.Any())
-                result.AddRange(filteredRules);
-
-            if (Children != null && Children.Any())
-                foreach (var c in Children)
+            if (Rules != null)
+            {
+                foreach (var ruleSet in Rules)
                 {
-                    var childFilter = c.FlattenToRulesOfType<T>();
-                    if (childFilter != null && childFilter.Any())
-                    {
-                        result.AddRange(childFilter);
-                    }
+                    if (ruleSet == null)
+                        continue;
+                    var fromEarn = ruleSet.FlattenToRulesOfType<T>();
+                    if (fromEarn != null && fromEarn.Count > 0)
+                        result.AddRange(fromEarn);
                 }
+            }
 
+            if (NavigationCriteria != null)
+            {
+                foreach (var criteria in NavigationCriteria.Values)
+                {
+                    if (criteria is not SimpleNavigationCriteria simple || simple.NavConstraint == null)
+                        continue;
+                    var fromNav = FlattenConstraintTreeToType<T>(simple.NavConstraint);
+                    if (fromNav.Count > 0)
+                        result.AddRange(fromNav);
+                }
+            }
+
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    if (child == null)
+                        continue;
+                    var fromChild = child.FlattenToRulesOfType<T>();
+                    if (fromChild != null && fromChild.Count > 0)
+                        result.AddRange(fromChild);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<T> FlattenConstraintTreeToType<T>(RuleBase constraint) where T : RuleBase
+        {
+            var result = new List<T>();
+            if (constraint is T match)
+                result.Add(match);
+            if (constraint is CompositeRuleBase composite)
+                result.AddRange(composite.FlattenChildrenToRulesOfType<T>());
             return result;
         }
 

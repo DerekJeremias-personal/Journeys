@@ -1,0 +1,17 @@
+{
+  "stage": "code-generation",
+  "unit": "u2-earn-date-cascade",
+  "version": 1,
+  "writes": [
+    { "path": "Journeys.Core/Services/LoyaltyAccountService.cs" },
+    { "path": "Journeys.Tests/Services/LoyaltyAccountExpirationCascadeTests.cs" },
+    { "path": "Journeys.Tests/RulesEngine/Outcomes/ExpirePointsOutcomeTests.cs" },
+    { "path": "Journeys.Tests/Stubs/StubPointAccountTypeCache.cs" },
+    { "path": "docs/product/ontology/loyalty-account.md" },
+    { "path": "docs/product/ontology/outcome.md" },
+    { "path": "docs/product/ontology/campaign.md" },
+    { "path": "docs/product/ontology/draft-live.md" },
+    { "path": "docs/platform/architecture.md" },
+    { "path": "docs/developer/testing.md" }
+  ]
+}

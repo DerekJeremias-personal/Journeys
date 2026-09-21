@@ -322,6 +322,10 @@ namespace Journeys.Tests.RulesEngine.Outcomes
             };
 
             var acct = TestDataFactory.GenerateRichard();
+            var accountDto = acct.ToDto();
+            accountDto.Id = loyaltyAccountId;
+            accountDto.ExtAccountId = loyaltyAccountId;
+            await loyaltyAccountService.UpsertLoyaltyAccountAsync(tenantId, accountDto);
             return await loyaltyAccountService.UpsertLoyaltyAccountPointsAsync(tenantId, ledger, acct);
         }
 

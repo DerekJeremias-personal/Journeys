@@ -16,12 +16,8 @@ namespace Journeys.Core.Configuration
     {
         public static IServiceCollection AddNotificationsServices(this IServiceCollection services, IConfiguration config)
         {
-            if (!config.GetValue<bool?>("DisableDataLake") ?? true)
-            {
-                services.AddScoped<INotificationService, NotificationService>();
-
-            }
-
+            ArgumentNullException.ThrowIfNull(config);
+            services.AddScoped<INotificationService, NotificationService>();
             return services;
         }
     }

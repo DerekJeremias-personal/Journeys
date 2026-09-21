@@ -658,17 +658,15 @@ namespace Journeys.Core.Services
                 .ToList();
 
             var historicalRules = engineState.Campaigns
-                .Where(x => x.Journey != null && x.Journey.Rules != null && x.Journey.Rules.Any())
-                .SelectMany(campaign => campaign.Journey!.Rules!
-                    .SelectMany(ruleSet => ruleSet.FlattenToRulesOfType<HistoricalRule>())
+                .Where(x => x.Journey != null)
+                .SelectMany(campaign => campaign.Journey!.FlattenToRulesOfType<HistoricalRule>()
                     .Select(rule => (CampaignId: campaign.Id, Rule: rule)))
                 .GroupBy(x => x.CampaignId)
                 .ToDictionary(g => g.Key, g => g.Select(x => x.Rule).ToList());
 
             var taxonomyRules = engineState.Campaigns
-                .Where(x => x.Journey != null && x.Journey.Rules != null && x.Journey.Rules.Any())
-                .SelectMany(x => x.Journey!.Rules!)
-                .SelectMany(x => x.FlattenToRulesOfType<TaxonomicRule>())
+                .Where(x => x.Journey != null)
+                .SelectMany(x => x.Journey!.FlattenToRulesOfType<TaxonomicRule>())
                 .ToList();
 
             var allLoadTasks = new List<Task>();
@@ -986,10 +984,9 @@ namespace Journeys.Core.Services
                     var earnedOutcome = await o.IssuingOutcome.AwardOutcomeAsync(engineState, loyaltyAccountService, token);
                     if (earnedOutcome != null)
                     {
-                        // Preserve context from calculated outcome
+                        // Preserve context from calculated outcome; honor returned IsAwarded.
                         earnedOutcome.CampaignId = o.CampaignId;
                         earnedOutcome.RuleSetId = o.RuleSetId;
-                        earnedOutcome.IsAwarded = true;
                         engineState.TryAddUpdateEarnedOutcomes(earnedOutcome, earnedOutcome.IssuingOutcome.Id);
                     }
                 }

@@ -1,0 +1,17 @@
+{
+  "stage": "code-generation",
+  "unit": "u1-tree-hydrate",
+  "version": 1,
+  "writes": [
+    { "path": "Journeys.Core/Services/RulesService.cs" },
+    { "path": "Journeys.Core/RulesEngine/Journey/JourneyNode.cs" },
+    { "path": "Journeys.Tests/Services/HydrateCollectTests.cs" },
+    { "path": "Journeys.Tests/Stubs/StubTaxonomyDataAdapter.cs" },
+    { "path": "docs/product/ontology/rule.md" },
+    { "path": "docs/product/ontology/journey.md" },
+    { "path": "docs/product/ontology/campaign.md" },
+    { "path": "docs/product/ontology/draft-live.md" },
+    { "path": "docs/platform/architecture.md" },
+    { "path": "docs/developer/testing.md" }
+  ]
+}

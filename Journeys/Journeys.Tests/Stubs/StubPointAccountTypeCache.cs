@@ -56,7 +56,7 @@ namespace Journeys.Tests.Stubs
             );
         }
 
-        public async Task<PointAccountType> GetPointAccountTypeAsync(string tenantId, string pointAccountTypeId)
+        public virtual async Task<PointAccountType> GetPointAccountTypeAsync(string tenantId, string pointAccountTypeId)
         {
             if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (string.IsNullOrWhiteSpace(pointAccountTypeId)) throw new ArgumentNullException(nameof(pointAccountTypeId));

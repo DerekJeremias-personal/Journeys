@@ -1,0 +1,15 @@
+{
+  "stage": "code-generation",
+  "unit": "u3-expire-on-process",
+  "version": 1,
+  "writes": [
+    { "path": "Journeys.Core/Services/EventService.cs" },
+    { "path": "Journeys.Tests/Services/ProcessCampaignsExpireOnProcessTests.cs" },
+    { "path": "docs/product/use-cases/process-event.md" },
+    { "path": "docs/product/ontology/loyalty-account.md" },
+    { "path": "docs/product/ontology/campaign.md" },
+    { "path": "docs/product/ontology/event-model.md" },
+    { "path": "docs/platform/architecture.md" },
+    { "path": "docs/developer/testing.md" }
+  ]
+}

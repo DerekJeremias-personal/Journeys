@@ -9,7 +9,7 @@ namespace Journeys.API.Mcp;
 /// </summary>
 public static class RulesEngineMcpContractSummary
 {
-    public const string MatrixVersion = "2026-06-20";
+    public const string MatrixVersion = "2026-09-18";
 
     public static RulesEngineContractSummaryDto Build()
     {
@@ -155,7 +155,14 @@ public static class RulesEngineMcpContractSummary
                         "TIER_A_EXPIRE_MISSING_AFFECTED_PAT",
                         "TIER_A_OUTCOME_PAT_ALIAS_MISUSED"
                     },
-                    "PascalCase key required for bind. Values are PAT GUID strings from PointAccountManifest.items[].pointAccountTypeId — not manifest alias labels.")
+                    "PascalCase key required for bind. Values are PAT GUID strings from PointAccountManifest.items[].pointAccountTypeId — not manifest alias labels."),
+                new(
+                    "notification_config_id",
+                    "outcome",
+                    new[] { OutcomeKindDiscriminators.NotificationOutcome },
+                    new[] { "NotificationConfigId" },
+                    Array.Empty<string>(),
+                    "GUID string on the outcome. No inline URL. Required for Calculate to return a result.")
             },
             ValueProviderKinds: valueProviderKinds,
             HistoricalProviderKinds: RulesEnginePolymorphicCatalog.HistoricalProviderKinds,

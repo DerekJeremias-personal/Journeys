@@ -78,6 +78,10 @@ namespace Journeys.Core.RulesEngine.Engine
 
         public ILoyaltyAccountService LoyaltyAccountService { get; set; }
 
+        public INotificationService? NotificationService { get; set; }
+
+        public bool TreatNotificationSendThrowAsFalse { get; set; }
+
         public ConcurrentDictionary<string, HistoricalStateBase> LoadedState { get; set; } = new ConcurrentDictionary<string, HistoricalStateBase>();
         public ConcurrentDictionary<string, List<OutcomeResult>> EarnedOutcomes { get; set; } = new ConcurrentDictionary<string, List<OutcomeResult>>();
 
@@ -194,6 +198,8 @@ namespace Journeys.Core.RulesEngine.Engine
             LoyaltyAccount = request.LoyaltyAccount;
             ImportDynamicModels(request.Globals, request.LoyaltyAccount, request.Payload);
             LoyaltyAccountService = loyaltyAccountService;
+            NotificationService = request.NotificationService;
+            TreatNotificationSendThrowAsFalse = request.TreatNotificationSendThrowAsFalse;
             _journeyStateManager = new Journey.JourneyStateManager(LoyaltyAccount);
 
             EventId = eventId;
@@ -247,6 +253,8 @@ namespace Journeys.Core.RulesEngine.Engine
             var clone = new RulesEngineState(Campaigns, CalculateOnly);
             clone.ImportDynamicModels(Globals, LoyaltyAccountNode, target);
             clone.LoyaltyAccountService = LoyaltyAccountService;
+            clone.NotificationService = NotificationService;
+            clone.TreatNotificationSendThrowAsFalse = TreatNotificationSendThrowAsFalse;
             clone.Taxonomies = Taxonomies;
             clone.TenantId = TenantId;
             clone.LoyaltyAccountId = LoyaltyAccountId;

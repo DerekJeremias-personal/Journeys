@@ -19,8 +19,8 @@ A point deposit may read the outcome definition, **all current journey nodes**, 
 
 | Kind | Code | Meaning |
 |------|------|---------|
-| Points | `DepositPointsOutcome`, `SpendPointsOutcome`, `ExpirePointsOutcome` | Deposit / spend / expire against **PAT GUIDs** in `AffectedPointAccountTypeIds` (PascalCase). Deposit uses `PointsPerDollar` × `DollarAmountProvider`. Expire follows PAT lifespan / `ExpiresToPointAccountTypeId`. |
-| Notification | `NotificationOutcome` | Intended `Journeys.Notification` adapters. **Calculate/Award are unimplemented (return null)** — do not assume email/webhook fires. |
+| Points | `DepositPointsOutcome`, `SpendPointsOutcome`, `ExpirePointsOutcome` | Deposit / spend / expire against **PAT GUIDs** in `AffectedPointAccountTypeIds` (PascalCase). Deposit uses `PointsPerDollar` × `DollarAmountProvider`. Expire hops via `ExpiresToPointAccountTypeId` using the dest PAT clock (`loyalty-account.md`): keep `EarnDate`; dest expiration is dest end-date, else earn + dest days, else unset. |
+| Notification | `NotificationOutcome` | Live RuleSet Award POSTs a closed `NotificationOutcomePayload` to the tenant `rest_api` webhook (`NotificationConfigId`). Missing/inactive/mismatched config → Calculate null. Send false keeps `IsAwarded` false; send throw fails ProcessEvent unless `Journeys:NotificationOutcome:TreatSendThrowAsFalse`. `CalculateOnly` does not POST. No email/Twilio this increment. |
 | Journey progression | navigation, not an outcome `Kind` | Per-account membership (`journey.md`). |
 | Tags | `TagOutcome` | `TagLoyaltyAccountAsync` on positive evaluation. |
 

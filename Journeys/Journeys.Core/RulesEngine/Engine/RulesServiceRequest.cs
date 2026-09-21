@@ -1,4 +1,5 @@
-﻿using Journeys.Core.Models;
+﻿using Journeys.Core.Interfaces.Services;
+using Journeys.Core.Models;
 
 namespace Journeys.Core.RulesEngine.Engine
 {
@@ -12,6 +13,8 @@ namespace Journeys.Core.RulesEngine.Engine
         public bool CalculateOnly { get; set; }
         public string EventId { get; set; }
         public string EventType{ get; set; }
+        public INotificationService? NotificationService { get; set; }
+        public bool TreatNotificationSendThrowAsFalse { get; set; }
 
         public RulesServiceRequest(string payloadModelId, object payload, LoyaltyAccount u, IList<Campaign> campaigns, 
                                     Dictionary<string, object>? globals = null, bool calculateOnly = false, string eventId = null, string eventType = null)

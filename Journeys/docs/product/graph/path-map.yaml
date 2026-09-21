@@ -50,4 +50,4 @@ entries:
     meaningOptional: true
   - prefix: Journeys.Notification
     nodes: [outcomes]
-    meaningOptional: true
+    meaningOptional: false

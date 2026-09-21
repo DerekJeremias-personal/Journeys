@@ -11,7 +11,7 @@ Allowed values: `CampaignStatusStrings` (`Live`, `Draft`, `Archive`, `Pause`). P
 | Status | Role |
 |--------|------|
 | **Draft** | Authoring. Prefer draft-first. At most **one Draft per `ExtCampaignId`** in a tenant. Hard-delete allowed only for Draft that was never deployed (`CampaignDeleteGuard`). |
-| **Live** | Execution. Event process, rules, MCP resources default here. Do not edit the journey in place (start/end dates are the documented exception). Cannot flip Live → Draft on the same id — open a **new** Draft with a **new Id** and the **same `ExtCampaignId`**. |
+| **Live** | Execution. Event process, rules, MCP resources default here. Hydrate on ProcessEvent collects historical/taxonomic rules across the Live journey tree (earn + nav + children), not only root RuleSets. Expire-to hops on Live process use the dest PAT clock (`loyalty-account.md`). Live `NotificationOutcome` Award POSTs the tenant `rest_api` webhook (`outcome.md`). Do not edit the journey in place (start/end dates are the documented exception). Cannot flip Live → Draft on the same id — open a **new** Draft with a **new Id** and the **same `ExtCampaignId`**. |
 | **Archive** | Retired version. Immutable. Live is not deleted; it is moved here. |
 | **Pause** | Live document moved to the Pause partition (also implemented; do not invent another paused state). |
 

@@ -30,6 +30,7 @@ using MassTransit.Contracts.JobService;
 using MassTransit.Serialization;
 using MassTransit.Transports;
 using Microsoft.Azure.Amqp.Framing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -104,6 +105,8 @@ namespace Journeys.Core.Services
         private readonly ILogger<EventService> _logger;
         private readonly ITaxonomyDataAdapter _taxonomyDataAdapter;
         private readonly ITenantDataAdapter _tenantDataAdapter;
+        private readonly INotificationService? _notificationService;
+        private readonly IConfiguration? _configuration;
 
         public EventService(//IEventAdapterFactory adapterFactory,
                 ILoyaltyAccountService loyaltyAccountService, ICampaignService campaignService,
@@ -112,7 +115,9 @@ namespace Journeys.Core.Services
                 IDynamicExternalReferenceAdapter dynamicAdapter, StateUtility stateUtility,
                 //IPublishEndpoint publishEndpoint, 
                 ILogger<EventService> logger, ITaxonomyDataAdapter taxonomyDataAdapter,
-                ITenantDataAdapter tenantDataAdapter)
+                ITenantDataAdapter tenantDataAdapter,
+                INotificationService? notificationService = null,
+                IConfiguration? configuration = null)
         {
             //_adapterFactory = adapterFactory; ;
             _loyaltyAccountService = loyaltyAccountService;
@@ -127,6 +132,8 @@ namespace Journeys.Core.Services
             _logger = logger;
             _taxonomyDataAdapter = taxonomyDataAdapter;
             _tenantDataAdapter = tenantDataAdapter;
+            _notificationService = notificationService;
+            _configuration = configuration;
         }
 
         //Could be ready from Azure Vault...or config, etc.
@@ -1237,7 +1244,7 @@ namespace Journeys.Core.Services
             return default;
         }
 
-        private async Task<RulesServiceResponse> ProcessCampaignsAsync(string tenantId, string modelId, JsonElement jsonData, LoyaltyAccount loyaltyAccount, List<Campaign> campaignsToRun, bool calcOnly, string eventId = null, string eventType = null)
+        internal async Task<RulesServiceResponse> ProcessCampaignsAsync(string tenantId, string modelId, JsonElement jsonData, LoyaltyAccount loyaltyAccount, List<Campaign> campaignsToRun, bool calcOnly, string eventId = null, string eventType = null)
         {
             RulesServiceResponse ruleResponse = null;
             var numretries = 3;
@@ -1249,8 +1256,11 @@ namespace Journeys.Core.Services
                     loyaltyAccount = await _loyaltyAccountService.TryLockAccount(tenantId, loyaltyAccount, Guid.NewGuid().ToString(), 500);
                     if (loyaltyAccount == null) throw new Exception($"Concurrency failure trying to lock account: {loyaltyAccount.Id}");
 
+                    loyaltyAccount.PointLedgers = await _loyaltyAccountService.BringLoyaltyAccountPointsCurrentInternalAsync(tenantId, loyaltyAccount);
+
                     //Run rules
                     var ruleRequest = new RulesServiceRequest(modelId, jsonData, loyaltyAccount, campaignsToRun, null, calcOnly, eventId, eventType);
+                    AttachNotificationPort(ruleRequest);
                     ruleResponse = await _rulesService.ProcessRulesAsync(ruleRequest, default);
 
                     break;
@@ -1302,6 +1312,7 @@ namespace Journeys.Core.Services
 
                     //Run rules
                     var ruleRequest = new RulesServiceRequest(null, null, loyaltyAccount, campaignsToRun.Entities, null, false);
+                    AttachNotificationPort(ruleRequest);
                     ruleResponse = await _rulesService.ResettleAccountJourneysAsync(ruleRequest, default);
 
                     break;
@@ -1342,6 +1353,13 @@ namespace Journeys.Core.Services
             }
 
             return false;
+        }
+
+        private void AttachNotificationPort(RulesServiceRequest request)
+        {
+            request.NotificationService = _notificationService;
+            request.TreatNotificationSendThrowAsFalse =
+                _configuration?.GetValue<bool>("Journeys:NotificationOutcome:TreatSendThrowAsFalse") ?? false;
         }
 
         private JsonElement ToJsonElement(object obj)

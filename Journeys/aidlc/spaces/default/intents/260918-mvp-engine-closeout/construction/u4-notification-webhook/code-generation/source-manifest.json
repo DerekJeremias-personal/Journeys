@@ -1,0 +1,29 @@
+{
+  "stage": "code-generation",
+  "unit": "u4-notification-webhook",
+  "version": 1,
+  "writes": [
+    { "path": "Journeys.DTO/Models/NotificationOutcomePayload.cs" },
+    { "path": "Journeys.Core/RulesEngine/Outcomes/NotificationOutcome.cs" },
+    { "path": "Journeys.Core/RulesEngine/Engine/RulesEngineState.cs" },
+    { "path": "Journeys.Core/RulesEngine/Engine/RulesServiceRequest.cs" },
+    { "path": "Journeys.Core/Services/RulesService.cs" },
+    { "path": "Journeys.Core/Services/EventService.cs" },
+    { "path": "Journeys.Core/Configuration/ConfigureNotifications.cs" },
+    { "path": "Journeys.API/Mcp/RulesEngineMcpContractSummary.cs" },
+    { "path": "Journeys.Tests/RulesEngine/Outcomes/NotificationOutcomeTests.cs" },
+    { "path": "Journeys.Tests/Mcp/RulesEngineMcpContractSummaryTests.cs" },
+    { "path": "docs/product/ontology/outcome.md" },
+    { "path": "docs/product/ontology/loyalty-account.md" },
+    { "path": "docs/product/ontology/rule.md" },
+    { "path": "docs/product/ontology/campaign.md" },
+    { "path": "docs/product/ontology/draft-live.md" },
+    { "path": "docs/product/ontology/event-model.md" },
+    { "path": "docs/product/use-cases/process-event.md" },
+    { "path": "docs/product/graph/path-map.yaml" },
+    { "path": "docs/platform/architecture.md" },
+    { "path": "docs/platform/runtime.md" },
+    { "path": "docs/developer/testing.md" },
+    { "path": "docs/developer/index.md" }
+  ]
+}

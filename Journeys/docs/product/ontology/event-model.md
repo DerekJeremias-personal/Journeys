@@ -29,7 +29,7 @@ Wrapper persist JSON uses **canonical lowercase** symbols so Backend binds array
 
 Nested engine state on the post-rule save uses the same lowercase symbols (`nodememberships`, `issuingoutcomeid`, `providerid`). First save **omits empty** `appliedcampaigns` / `appliedrulesetids` / `outcomestates` lists so Backend does not bind JSON arrays onto Object-typed attributes (`OmitEmptyCollections`).
 
-Reprocessing the same natural key is idempotent via wrapper state plus TimeOfOccurrence (stale requests short-circuit).
+Reprocessing the same natural key is idempotent via wrapper state plus TimeOfOccurrence (stale requests short-circuit). After a valid account lock, ProcessEvent brings points current before rules (`loyalty-account.md`). `EventService` copies the notification port onto the rules request so a Live `NotificationOutcome` can POST (`outcome.md`).
 
 ## Governance for agents
 

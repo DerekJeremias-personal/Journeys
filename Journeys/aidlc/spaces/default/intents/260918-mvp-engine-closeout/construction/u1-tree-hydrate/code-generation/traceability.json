@@ -1,0 +1,15 @@
+{
+  "stage": "code-generation",
+  "unit": "u1-tree-hydrate",
+  "upstream_ids": ["AC1.1.1", "AC1.1.2", "AC1.1.3", "BR1.1", "BR1.2", "BR1.3", "BR1.4", "BR1.5"],
+  "coverage": [
+    { "id": "AC1.1.1", "status": "OK", "target": "Journeys.Tests/Services/HydrateCollectTests.cs" },
+    { "id": "AC1.1.2", "status": "OK", "target": "Journeys.Tests/Services/HydrateCollectTests.cs" },
+    { "id": "AC1.1.3", "status": "OK", "target": "Journeys.Tests/Services/RuleServiceTests.cs" },
+    { "id": "BR1.1", "status": "OK", "target": "Journeys.Core/RulesEngine/Journey/JourneyNode.cs" },
+    { "id": "BR1.2", "status": "OK", "target": "Journeys.Core/RulesEngine/Journey/JourneyNode.cs" },
+    { "id": "BR1.3", "status": "OK", "target": "Journeys.Core/RulesEngine/Journey/JourneyNode.cs" },
+    { "id": "BR1.4", "status": "OK", "target": "Journeys.Core/Services/RulesService.cs" },
+    { "id": "BR1.5", "status": "OK", "target": "Journeys.Core/Services/RulesService.cs" }
+  ]
+}

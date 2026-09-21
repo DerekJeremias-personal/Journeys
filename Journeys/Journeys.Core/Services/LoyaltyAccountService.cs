@@ -2254,6 +2254,7 @@ namespace Journeys.Core.Services
             // Get or create account-specific semaphore for this account
             var accountSemaphore = _accountSemaphores.GetOrAdd(loyaltyAccount.Id, _ => new SemaphoreSlim(1, 1));
             bool isLocked = false;
+            bool reusedCallerLease = !string.IsNullOrEmpty(loyaltyAccount.LockLeaseKey);
             
             try
             {
@@ -2267,9 +2268,13 @@ namespace Journeys.Core.Services
                 {
                     try
                     {
-                        //Try to lock the account
-                        loyaltyAccount = await TryLockAccount(tenantId, loyaltyAccount, Guid.NewGuid().ToString(), 500);
-                        if (loyaltyAccount == null) throw new Exception($"Concurrency failure trying to lock account: {loyaltyAccount.Id}");
+                        // Reuse the caller lease when ExpireBy* / ProcessEvent already locked this account; a new key loses the outer lock.
+                        var expireLockKey = reusedCallerLease
+                            ? loyaltyAccount.LockLeaseKey
+                            : Guid.NewGuid().ToString();
+                        var accountId = loyaltyAccount.Id;
+                        loyaltyAccount = await TryLockAccount(tenantId, loyaltyAccount, expireLockKey, 500);
+                        if (loyaltyAccount == null) throw new Exception($"Concurrency failure trying to lock account: {accountId}");
                         break;
                     }
                     catch (LockAcquisitionException laex)
@@ -2402,8 +2407,8 @@ namespace Journeys.Core.Services
             {
                 if (isLocked)
                 {
-                    // Release database-level lock
-                    if (loyaltyAccount != null)
+                    // Only release a lease this method acquired. A reused caller key stays held for ProcessEvent / ExpireBy*.
+                    if (loyaltyAccount != null && !reusedCallerLease)
                     {
                         loyaltyAccount.LockLeaseExpiration = null;
                         loyaltyAccount.LockLeaseKey = null;
@@ -2433,10 +2438,17 @@ namespace Journeys.Core.Services
                 return; //TODO: Follow up:: Eventual concern is that this masks config issues resulting in points that don't expire when they should
             }
             var expAcctType = await _cache.GetPointAccountTypeAsync(ledger.TenantId, ledger.PointAccountType.ExpiresToPointAccountTypeId);
+            if (expAcctType == null)
+            {
+                _logger.LogError($"SaveLedgerExpirations: ledger id: {ledger.Id} - Destination point account type {ledger.PointAccountType.ExpiresToPointAccountTypeId} was not found for tenant {ledger.TenantId}.");
+                return;
+            }
 
-            var expLedger = storedLedgers.FirstOrDefault(x => x.PointAccountType.Id.Equals(ledger.PointAccountType?.ExpiresToPointAccountTypeId));
+            var expLedger = storedLedgers.FirstOrDefault(x =>
+                (x.PointAccountType?.Id ?? x.PointAccountTypeId).Equals(ledger.PointAccountType?.ExpiresToPointAccountTypeId));
             expLedger ??= new PointLedger(ledger.AccountId, expAcctType.Id, 0, 0, 1, new Dictionary<string, List<LedgerEntry>>(), ledger.TenantId, Guid.NewGuid().ToString());
             if (expLedger == null) throw new Exception("Unable to resolve point expiration account type.");
+            expLedger.PointAccountType ??= expAcctType;
             rollbackLedger = expLedger.Clone();
 
             // Add/update expiration ledger
@@ -2454,6 +2466,9 @@ namespace Journeys.Core.Services
             //Remove expiring entries
             expSet.ForEach(xentry =>
             {
+                var hopEarnDate = xentry.EarnDate;
+                var hopExistingExpiration = xentry.ExpirationDate;
+
                 //Deduct points (expiring)
                 xentry.SpendablePoints ??= 0;
                 xentry.SpendablePoints -= (xentry.SpendablePoints ?? 0) * (isPercent && amount > 0 && amount <= 1 ? amount : 1);
@@ -2481,9 +2496,8 @@ namespace Journeys.Core.Services
                         ledger.Entries.Remove(eventKey);
                     }
 
-                    //Set new expiration date based on axpiring to account type
-                    xentry.ExpirationDate = (!expAcctType.PointsLifespanEndDate.IsNullOrMinDate()) ? expAcctType.PointsLifespanEndDate :
-                                                DateTimeOffset.UtcNow.AddDays((Decimal.ToDouble((expAcctType.PointsLifespanDays ?? 100))));
+                    // Dest clock: end-date, else EarnDate + dest days, else last-resort existing expiration under dest days, else unset.
+                    xentry.ExpirationDate = ComputeDestExpirationOnHop(hopEarnDate, hopExistingExpiration, expAcctType);
 
                     if (!expLedger.Entries.ContainsKey(eventKey))
                         expLedger.Entries.Add(eventKey, new List<LedgerEntry> { xentry });
@@ -2555,6 +2569,26 @@ namespace Journeys.Core.Services
                 }
                 throw;
             }
+        }
+
+        private static DateTimeOffset? ComputeDestExpirationOnHop(DateTimeOffset? earnDate, DateTimeOffset? existingExpiration, PointAccountType dest)
+        {
+            if (dest == null)
+                return existingExpiration;
+
+            if (!dest.PointsLifespanEndDate.IsNullOrMinDate())
+                return dest.PointsLifespanEndDate;
+
+            if (dest.PointsLifespanDays.HasValue)
+            {
+                if (!earnDate.IsNullOrMinDate())
+                    return earnDate.Value.AddDays(Decimal.ToDouble(dest.PointsLifespanDays.Value));
+                if (!existingExpiration.IsNullOrMinDate())
+                    return existingExpiration;
+                return null;
+            }
+
+            return null;
         }
 
         private void ValidateParametersDate(string tenantId, string loyaltyAccountId, DateTimeOffset? date)

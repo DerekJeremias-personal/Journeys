@@ -26,7 +26,7 @@ Persist processed-event state on the wrapper with lowercase symbols (`appliedcam
 ## Runtime
 
 1. Tenant-scoped. Fetch always includes `status` (partition).
-2. Production events load **Live** campaigns whose `Events` contain the payload model id, then evaluate that campaign’s journey.
+2. Production events load **Live** campaigns whose `Events` contain the payload model id. After `TryLockAccount`, ProcessEvent brings due ledgers current, then hydrate collects historical and taxonomic rules across that campaign’s journey tree (earn RuleSets, NavConstraint trees, children) and evaluate. Expire-to hops on that turn use the dest PAT clock (`loyalty-account.md`), not a campaign-level lifespan. A Live RuleSet `NotificationOutcome` POSTs the tenant webhook on Award (`outcome.md`); `EventService` copies `INotificationService` onto engine state for that turn.
 3. Draft verification: `process_event(campaignId)` against the Draft partition and an allowlisted test account — does **not** require Live (`draft-live.md`).
 4. Outcomes and rule trees are constituents, not sibling aggregates (`outcome.md`, `rule.md`).
 
