@@ -38,7 +38,7 @@ export function applyAgentSseEvent(state: AgentChatState, ev: SseEvent): AgentCh
     case "started": {
       const json = parseJson(ev.data);
       if (!json) return state;
-      const conversationId = json.conversationId;
+      const conversationId = json.conversationId ?? json.ConversationId;
       const linkedCampaignId = json.linkedCampaignId ?? json.LinkedCampaignId;
       let next = state;
       if (typeof conversationId === "string" && conversationId) {

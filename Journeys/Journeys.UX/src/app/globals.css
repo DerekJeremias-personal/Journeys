@@ -48,6 +48,7 @@ th, td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; }
   color: #111;
 }
 .agent-chat .conversation-id-label { font-weight: 600; color: #3f3f46; }
+.agent-chat .conversation-id-pending { color: #52525b; }
 .agent-chat .conversation-id code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   user-select: all;
@@ -68,5 +69,14 @@ th, td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; }
 }
 .agent-chat .transcript { display: flex; flex-direction: column; gap: 0.75rem; }
 .agent-chat form { margin-top: 1rem; display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
-.agent-chat textarea { width: 100%; min-height: 4.5rem; resize: vertical; box-sizing: border-box; }
+.agent-chat textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  resize: vertical;
+  box-sizing: border-box;
+  border: 1px solid var(--color-input, #d4d4d8);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-card, #fff);
+}
 .agent-chat form button { align-self: flex-start; }

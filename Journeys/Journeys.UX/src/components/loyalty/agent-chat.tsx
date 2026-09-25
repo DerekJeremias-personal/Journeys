@@ -2,6 +2,8 @@
 
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { CampaignJsonDisclosure } from "@/components/loyalty/campaign-json-disclosure";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { shouldSubmitChatOnEnter } from "@/lib/campaign-agent/chat-keys";
 import { applyAgentSseEvent, beginUserTurn, type AgentChatState } from "@/lib/campaign-agent/chat-state";
 import { copyText } from "@/lib/campaign-agent/copy-text";
@@ -38,10 +40,11 @@ function CopyIcon() {
   );
 }
 
-function ConversationIdBar({ conversationId }: { conversationId: string }) {
+function ConversationIdBar({ conversationId }: { conversationId: string | null }) {
   const [copied, setCopied] = useState(false);
 
   async function onCopy() {
+    if (!conversationId) return;
     const ok = await copyText(conversationId);
     if (!ok) return;
     setCopied(true);
@@ -51,10 +54,18 @@ function ConversationIdBar({ conversationId }: { conversationId: string }) {
   return (
     <div className="conversation-id">
       <span className="conversation-id-label">Conversation</span>
-      <code title={conversationId}>{conversationId}</code>
-      <button type="button" onClick={onCopy} aria-label={copied ? "Copied" : "Copy conversation id"} title="Copy">
-        <CopyIcon />
-      </button>
+      {conversationId ? (
+        <>
+          <code title={conversationId}>{conversationId}</code>
+          <button type="button" onClick={onCopy} aria-label={copied ? "Copied" : "Copy conversation id"} title="Copy">
+            <CopyIcon />
+          </button>
+        </>
+      ) : (
+        <span className="conversation-id-pending">
+          A conversation id is assigned when you send the first message.
+        </span>
+      )}
     </div>
   );
 }
@@ -160,7 +171,7 @@ export function AgentChat({
 
   return (
     <div className="agent-chat">
-      {state.conversationId ? <ConversationIdBar conversationId={state.conversationId} /> : null}
+      <ConversationIdBar conversationId={state.conversationId} />
       {state.progressLabel ? (
         <p className="text-sm text-muted-foreground">{state.progressLabel}</p>
       ) : null}
@@ -172,7 +183,7 @@ export function AgentChat({
         ))}
       </div>
       <form onSubmit={onSubmit}>
-        <textarea
+        <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -182,10 +193,11 @@ export function AgentChat({
           }}
           placeholder="Describe what you want to build or change…"
           rows={4}
+          disabled={state.streaming}
         />
-        <button type="submit" disabled={state.streaming}>
+        <Button type="submit" disabled={state.streaming}>
           Send
-        </button>
+        </Button>
       </form>
       {inspectorCampaignId ? (
         <CampaignJsonDisclosure campaignId={inspectorCampaignId} />

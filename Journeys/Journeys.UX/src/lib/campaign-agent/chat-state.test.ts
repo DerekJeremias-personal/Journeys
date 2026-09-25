@@ -25,6 +25,14 @@ describe("applyAgentSseEvent", () => {
     expect(s.lines.at(-1)).toEqual({ role: "error", text: "tool failed" });
   });
 
+  it("reads PascalCase ConversationId from started", () => {
+    const s = applyAgentSseEvent(empty, {
+      event: "started",
+      data: '{"ConversationId":"conv-pascal"}'
+    });
+    expect(s.conversationId).toBe("conv-pascal");
+  });
+
   it("stores conversationId from started and keeps it on error", () => {
     let s = applyAgentSseEvent(empty, { event: "started", data: '{"conversationId":"conv-1"}' });
     expect(s.conversationId).toBe("conv-1");
